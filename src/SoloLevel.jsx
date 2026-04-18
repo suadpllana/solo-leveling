@@ -186,7 +186,7 @@ export default function SoloLevel(){
         <div style={{padding:"20px 16px 0",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
           <div>
             <div style={{fontFamily:"\"Quicksand\",sans-serif",fontSize:10,letterSpacing:"0.02em",color:rc,marginBottom:5,animation:"rankPulse 2s infinite"}}>{RANKS[ri.rank]}-RANK • {RANK_TITLES[ri.rank]}</div>
-            <div style={{fontFamily:"\"Quicksand\",sans-serif",fontSize:22,fontWeight:900,color:"#fff",lineHeight:1.1}}> GRIND</div>
+            <div style={{fontFamily:"\"Quicksand\",sans-serif",fontSize:22,fontWeight:900,color:"#fff",lineHeight:1.1}}>DAILY GRIND</div>
             <div style={{fontSize:12,color:"#a8a29e",marginTop:3,letterSpacing:"0.05em"}}>Cozy Tracking Mode</div>
           </div>
           <div style={{textAlign:"right",paddingTop:2}}>
