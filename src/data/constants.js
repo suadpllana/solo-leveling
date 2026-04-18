@@ -209,7 +209,7 @@ export const LOOKSMAX_AREAS=[
   ]},
   {area:'Jawline',icon:'🦷',color:'#7b2fff',tips:[
     {t:'Neck Curls',d:'Lie flat on floor or edge of bed. Slowly curl chin to chest, hold 1 second, lower slowly. 3 sets of 25 reps every single day. Builds sternocleidomastoid and anterior neck muscles — creates sharp jaw-to-neck transition that makes the jaw pop dramatically. Most underrated exercise.'},
-    {t:'Neck Bridges',d:"Wrestler's bridge: lie on back, arch up onto top of head. Rock gently forward and back. Builds total neck thickness from every angle. A thick neck frames the jaw powerfully. Start gentle — 2×10 reps and build. Also great for posture."},
+    {t:'Cheeks Pinch',d:"Squeeze your cheeks with your hand, make a kissing face and hold for 10 seconds, 10 reps daily. This strengthens the masseter and buccinator muscles, which can enhance cheekbone definition and create a more sculpted midface appearance over time."},
     {t:'Chin Tucks',d:'Pull chin straight back (not down), creating a "double chin" position. Hold 10 seconds. 15 reps. This aligns the cervical spine and improves forward head posture, which drastically improves how the jaw projects when standing.'},
   ]},
   {area:'Eyebrows',icon:'〰️',color:'#ff6b00',tips:[
