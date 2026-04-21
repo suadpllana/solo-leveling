@@ -8,6 +8,7 @@ import DailyTab from "./components/DailyTab";
 import QuestsTab from "./components/QuestsTab";
 import LooksmaxTab from "./components/LooksmaxTab";
 import YtTab from "./components/YtTab";
+import StatsTab from "./components/StatsTab";
 
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 
@@ -92,6 +93,18 @@ export default function SoloLevel(){
     if(!loaded)return;
     try{
       localStorage.setItem("solo_grind_v1",JSON.stringify({xp,streak,completedDaily,completedOnce,missedTasks,lastDate:todayStr,watchedYt}));
+      // Also sync to stats history
+      const dailyIds = DAILY_TASKS.map(t => t.id);
+      const completedIds = Object.keys(completedDaily).filter(k => completedDaily[k] && dailyIds.includes(k));
+      if(completedIds.length > 0) {
+        const savedStats = JSON.parse(localStorage.getItem("solo_grind_stats") || "{}");
+        savedStats[todayStr] = {
+          completed: completedIds,
+          missed: dailyIds.filter(id => !completedIds.includes(id)),
+          extras: savedStats[todayStr]?.extras || []
+        };
+        localStorage.setItem("solo_grind_stats", JSON.stringify(savedStats));
+      }
     }catch(e){}
   },[xp,streak,completedDaily,completedOnce,missedTasks,watchedYt,loaded]);
 
@@ -209,7 +222,7 @@ export default function SoloLevel(){
 
         {/* Tabs */}
         <div style={{display:"flex",gap:4,padding:"14px 16px 0",overflowX:"auto",msOverflowStyle:"none",scrollbarWidth:"none"}}>
-          {[["dash","⚡","Home"],["daily","📋","Daily"],["quests","🗺️","Quests"],["looksmax","👁️","Looks"],["yt","▶️","Knowledge"]].map(([id,icon,label])=>(
+          {[["dash","⚡","Home"],["daily","📋","Daily"],["quests","🗺️","Quests"],["looksmax","👁️","Looks"],["yt","▶️","Knowledge"],["stats","📊","Stats"]].map(([id,icon,label])=>(
             <button key={id} className="btn" onClick={()=>setTab(id)} style={{flex:"0 0 auto",display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"8px 14px",background:tab===id?"#36302e":"transparent",border:tab===id?`1px solid ${rc}44`:"1px solid #44403c",borderRadius:12,color:tab===id?rc:"#a8a29e",fontFamily:"\"Nunito\",sans-serif",fontWeight:700,fontSize:10,letterSpacing:"0.02em",textTransform:"uppercase"}}>
               <span style={{fontSize:15}}>{icon}</span>{label}
             </button>
@@ -224,6 +237,7 @@ export default function SoloLevel(){
             <Route path="/quests" element={<QuestsTab tasks={ONE_TIME_TASKS} completed={completedOnce} onComplete={completeOnce} daysLeft={daysLeft} expanded={expandedQuest} setExpanded={setExpandedQuest}/>} />
             <Route path="/looksmax" element={<LooksmaxTab areas={LOOKSMAX_AREAS} selected={lookArea} setSelected={setLookArea} expanded={expandedTip} setExpanded={setExpandedTip}/>} />
             <Route path="/yt" element={<YtTab data={YOUTUBE_DATA} cats={CATS} cat={ytCat} setCat={c=>{setYtCat(c);setYtIdx(0);}} idx={ytIdx} setIdx={setYtIdx} watched={watchedYt} onWatch={watchVideo}/>} />
+            <Route path="/stats" element={<StatsTab />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
