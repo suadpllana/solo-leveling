@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DAILY_TASKS } from "../data/constants";
 
 const HARDCODED_HISTORY = {
@@ -19,6 +19,34 @@ const HARDCODED_HISTORY = {
   }
 };
 
+function loadStats() {
+  try {
+    const saved = localStorage.getItem("solo_grind_stats");
+    const parsed = saved ? JSON.parse(saved) : {};
+    const merged = { ...HARDCODED_HISTORY, ...parsed };
+    // Also sync today's live data from main storage
+    try {
+      const main = localStorage.getItem("solo_grind_v1");
+      if (main) {
+        const d = JSON.parse(main);
+        if (d.lastDate && d.completedDaily) {
+          const dailyIds = DAILY_TASKS.map(t => t.id);
+          const completedIds = Object.keys(d.completedDaily).filter(k => d.completedDaily[k] && dailyIds.includes(k));
+          const missed = dailyIds.filter(id => !d.completedDaily[id]);
+          merged[d.lastDate] = {
+            completed: completedIds,
+            missed,
+            extras: merged[d.lastDate]?.extras || []
+          };
+        }
+      }
+    } catch { /* ignore */ }
+    return merged;
+  } catch {
+    return { ...HARDCODED_HISTORY };
+  }
+}
+
 function getTaskName(id) {
   const t = DAILY_TASKS.find(x => x.id === id);
   return t ? t.name : id;
@@ -30,37 +58,17 @@ function getTaskIcon(id) {
 }
 
 export default function StatsTab() {
-  const [stats, setStats] = useState(() => {
-    try {
-      const saved = localStorage.getItem("solo_grind_stats");
-      const parsed = saved ? JSON.parse(saved) : {};
-      const merged = { ...HARDCODED_HISTORY, ...parsed };
-      // Also sync today's data from main storage
-      try {
-        const main = localStorage.getItem("solo_grind_v1");
-        if (main) {
-          const d = JSON.parse(main);
-          if (d.lastDate && d.completedDaily) {
-            const completedIds = Object.keys(d.completedDaily).filter(k => d.completedDaily[k]);
-            const dailyIds = DAILY_TASKS.map(t => t.id);
-            const completed = completedIds.filter(id => dailyIds.includes(id));
-            const missed = dailyIds.filter(id => !completedIds.includes(id));
-            if (completed.length > 0) {
-              merged[d.lastDate] = {
-                completed,
-                missed,
-                extras: merged[d.lastDate]?.extras || []
-              };
-            }
-          }
-        }
-      } catch { /* ignore */ }
-      return merged;
-    } catch {
-      return { ...HARDCODED_HISTORY };
-    }
-  });
+  const [stats, setStats] = useState(loadStats);
   const [selectedDay, setSelectedDay] = useState(null);
+
+  // Re-sync stats whenever localStorage changes (e.g. tasks completed on Daily tab)
+  useEffect(() => {
+    const refresh = () => setStats(loadStats());
+    window.addEventListener('storage', refresh);
+    // Also poll every 2s for same-tab updates (storage event only fires cross-tab)
+    const interval = setInterval(refresh, 2000);
+    return () => { window.removeEventListener('storage', refresh); clearInterval(interval); };
+  }, []);
 
   const sortedDates = Object.keys(stats).sort().reverse();
   const totalDays = sortedDates.length;

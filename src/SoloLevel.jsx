@@ -68,6 +68,22 @@ export default function SoloLevel(){
           setMissedTasks(d.missedTasks||[]);
           setStreak(d.streak||0);
         }else{
+          // Snapshot the previous day's stats before resetting
+          if(d.lastDate && d.completedDaily) {
+            try {
+              const dailyIds = DAILY_TASKS.map(t => t.id);
+              const prevCompleted = Object.keys(d.completedDaily).filter(k => d.completedDaily[k] && dailyIds.includes(k));
+              const prevMissed = dailyIds.filter(id => !d.completedDaily[id]);
+              const savedStats = JSON.parse(localStorage.getItem("solo_grind_stats") || "{}");
+              savedStats[d.lastDate] = {
+                completed: prevCompleted,
+                missed: prevMissed,
+                extras: savedStats[d.lastDate]?.extras || []
+              };
+              localStorage.setItem("solo_grind_stats", JSON.stringify(savedStats));
+            } catch(e) {}
+          }
+
           const missed=DAILY_TASKS.filter(t=>!d.completedDaily?.[t.id]).map(t=>t.id);
           const allMissed=[...new Set([...(d.missedTasks||[]),...missed])];
           setMissedTasks(allMissed);
@@ -93,18 +109,16 @@ export default function SoloLevel(){
     if(!loaded)return;
     try{
       localStorage.setItem("solo_grind_v1",JSON.stringify({xp,streak,completedDaily,completedOnce,missedTasks,lastDate:todayStr,watchedYt}));
-      // Also sync to stats history
+      // Always sync today's stats to history (so today always appears)
       const dailyIds = DAILY_TASKS.map(t => t.id);
       const completedIds = Object.keys(completedDaily).filter(k => completedDaily[k] && dailyIds.includes(k));
-      if(completedIds.length > 0) {
-        const savedStats = JSON.parse(localStorage.getItem("solo_grind_stats") || "{}");
-        savedStats[todayStr] = {
-          completed: completedIds,
-          missed: dailyIds.filter(id => !completedIds.includes(id)),
-          extras: savedStats[todayStr]?.extras || []
-        };
-        localStorage.setItem("solo_grind_stats", JSON.stringify(savedStats));
-      }
+      const savedStats = JSON.parse(localStorage.getItem("solo_grind_stats") || "{}");
+      savedStats[todayStr] = {
+        completed: completedIds,
+        missed: dailyIds.filter(id => !completedIds.includes(id)),
+        extras: savedStats[todayStr]?.extras || []
+      };
+      localStorage.setItem("solo_grind_stats", JSON.stringify(savedStats));
     }catch(e){}
   },[xp,streak,completedDaily,completedOnce,missedTasks,watchedYt,loaded]);
 
@@ -118,6 +132,19 @@ export default function SoloLevel(){
     setXp(p=>p+t.xp);
     setMissedTasks(p=>p.filter(m=>m!==id));
     doPopup(`+${t.xp} XP • ${t.name} complete!`);
+    // If it's a weekend task, add to bonus achievements
+    if (WEEKEND_TASKS.some(w => w.id === id)) {
+      try {
+        const savedStats = JSON.parse(localStorage.getItem("solo_grind_stats") || "{}");
+        const today = savedStats[todayStr] || { completed: [], missed: [], extras: [] };
+        const label = `Completed "${t.name}"`;
+        if (!today.extras.includes(label)) {
+          today.extras = [...(today.extras || []), label];
+          savedStats[todayStr] = today;
+          localStorage.setItem("solo_grind_stats", JSON.stringify(savedStats));
+        }
+      } catch(e) {}
+    }
   }
   function completeOnce(id){
     if(completedOnce[id])return;
@@ -125,6 +152,17 @@ export default function SoloLevel(){
     setCompletedOnce(p=>({...p,[id]:true}));
     setXp(p=>p+t.xp);
     doPopup(`+${t.xp} XP • Quest complete!`);
+    // Add to today's bonus achievements in stats
+    try {
+      const savedStats = JSON.parse(localStorage.getItem("solo_grind_stats") || "{}");
+      const today = savedStats[todayStr] || { completed: [], missed: [], extras: [] };
+      const label = `Completed "${t.name}"`;
+      if (!today.extras.includes(label)) {
+        today.extras = [...(today.extras || []), label];
+        savedStats[todayStr] = today;
+        localStorage.setItem("solo_grind_stats", JSON.stringify(savedStats));
+      }
+    } catch(e) {}
   }
   function watchVideo(cat,idx){
     const key=`${cat}_${idx}`;
