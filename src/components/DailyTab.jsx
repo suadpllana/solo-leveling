@@ -130,10 +130,7 @@ export default function DailyTab({tasks,weekendTasks,completed,missed,onComplete
     // Dynamic Challenge Injection
     let wakeTitle = "Wake Up";
     let wakeTip = "No snooze. Out of bed immediately. Win the first battle.";
-    if (dayIndex < 7) { 
-      wakeTitle = "Wake Up & Cold Shower"; 
-      wakeTip = `Day ${dayIndex + 1}/7 of Cold Shower Challenge. Do it immediately.`;
-    }
+
     
     let workTip = "Execute job duties perfectly. Do not check social media.";
     if (dayIndex >= 7 && dayIndex < 10) {
@@ -153,29 +150,56 @@ export default function DailyTab({tasks,weekendTasks,completed,missed,onComplete
       water: { name: "Hydrate & Breakfast", tip: "Drink 500ml water and consume high protein.", time: "10:00 - 10:30" },
       exercise: { name: workoutTitle, tip: "Focus intensively on the targeted muscle block.", time: "17:30 - 18:00" },
       yt_vid: { name: knowledgeTitle, tip: "Watch 1 educational video from the tab.", time: "18:00 - 18:30" },
-      game_time: { name: gameTitle, tip: "Execute this playstyle focus for 2 hours.", time: "18:30 - 20:30" },
-      relax: { name: tvTitle, tip: "Analyze the character progression and story.", time: "20:30 - 22:30" },
+mastery: (() => {
+  const skillRota = [
+    {
+      name: 'CS2: Aim Training & Deathmatch (30m)',
+      tip: 'Open Aim Lab — do "Gridshot" and "Microshot" for 10 mins. Then CS2 deathmatch for 20 mins. Focus on crosshair placement before moving, not kill count.',
+    },
+    {
+      name: 'Chess: Puzzles + Rapid Game (30m)',
+      tip: 'Open chess.com. Do 15 tactics puzzles first (builds pattern recognition fast). Then play one 10+0 rapid game. After: review every blunder with the engine. Study one opening line.',
+    },
+    {
+      name: 'EA FC 26: Skill & Game Study (30m)',
+      tip: 'Arena first: drill 3 skill moves (elastico, ball roll, scoop turn) until automatic. Then 1 ranked match. After: rewatch one goal you conceded and identify the defensive mistake.',
+    },
+    {
+      name: 'Ping Pong: Technique Drills (30m)',
+      tip: 'Watch one technique video (Tom Lodziak or PingSkills on YouTube — search "forehand loop tutorial"). Then drill: 10 mins forehand topspin, 10 mins backhand push, 10 mins serve variation.',
+    },
+  ];
+  const s = skillRota[dayIndex % 4];
+  return { name: s.name, tip: s.tip, time: '18:30 - 19:00' };
+})(),
+game_time: { name: gameTitle, tip: "1.5 hours of focused gameplay. Execute your playstyle intention for today.", time: "19:00 - 20:30" },      relax: { name: tvTitle, tip: "Analyze the character progression and story.", time: "20:30 - 22:30" },
       nofap: { name: "Free Time / Bonus Tasks", tip: "Use this time to go out, handle errands, or do extra side-hustle tasks.", time: "17:00 - 22:30" },
       stoic: { name: "Stoic Quote & Reflection", tip: "Read daily quote. Log a 1-sentence thought in journal.", time: "22:30 - 22:40" },
       read_book: { name: bookTitle, tip: "No screens. Read and highlight the text.", time: "22:40 - 23:10" },
       sleep: { name: "Sleep", tip: "Total darkness, cold room. Recover.", time: "23:10" },
       // Weekend specifics
-      wk_money: { name: hustleTitle, tip: "Work explicitly on earning your $400 goal.", time: "08:30 - 10:30" },
-      wk_buy: { name: buyTitle, tip: "Look up specs, read reviews, check the budget.", time: "10:30 - 11:30" },
-      wk_movie: { name: movieTitle, tip: "No phone allowed. Full cinematic immersion.", time: "12:30 - 15:00" }
+      wk_money: { name: hustleTitle, tip: "Work explicitly on earning your $400 goal.", time: "13:30 - 15:30" },
+      wk_buy: { name: buyTitle, tip: "Look up specs, read reviews, check the budget.", time: "15:30 - 16:30" },
+      wk_movie: { name: movieTitle, tip: "No phone allowed. Full cinematic immersion.", time: "17:30 - 20:00" }
     };
 
-    if (day === 1) { // MONDAY
-      overrides.work = { name: "Remote Work (Deep Focus)", tip: workTip, time: "08:00 - 10:00" };
-      overrides.exercise.time = "10:30 - 11:30";
-      overrides.yt_vid.time = "12:00 - 13:00";
-      overrides.game_time.time = "13:00 - 15:00";
-      overrides.relax.time = "15:00 - 17:00";
-    } else if (day === 0 || day === 6) { // WEEKEND
-      overrides.wake_up.time = "08:00 - 08:05";
-      overrides.prayer.time = "08:05 - 08:10";
-      overrides.meditate.time = "08:10 - 08:15";
-      overrides.looksmax.time = "08:15 - 08:30";
+    if (day === 1) { // MONDAY — wake up 07:50 (+40 min shift)
+      overrides.wake_up.time = "07:50 - 07:55";
+      overrides.prayer.time = "07:55 - 08:00";
+      overrides.meditate.time = "08:00 - 08:05";
+      overrides.stretch.time = "08:05 - 08:10";
+      overrides.looksmax.time = "08:10 - 08:40";
+      overrides.water.time = "10:40 - 11:10";
+      overrides.work = { name: "Remote Work (Deep Focus)", tip: workTip, time: "08:40 - 10:40" };
+      overrides.exercise.time = "11:10 - 12:10";
+      overrides.yt_vid.time = "12:40 - 13:40";
+      overrides.game_time.time = "13:40 - 15:10";
+      overrides.relax.time = "15:10 - 17:10";
+    } else if (day === 0 || day === 6) { // WEEKEND — wake up 13:00
+      overrides.wake_up.time = "13:00 - 13:05";
+      overrides.prayer.time = "13:05 - 13:10";
+      overrides.meditate.time = "13:10 - 13:15";
+      overrides.looksmax.time = "13:15 - 13:30";
       
       // Inject walking / cooking challenges into the weekend tips
       const isWalkDay = weekendIdx === 2 || weekendIdx === 6; // random weekends
@@ -184,16 +208,16 @@ export default function DailyTab({tasks,weekendTasks,completed,missed,onComplete
       overrides.exercise = { 
         name: isWalkDay ? "10,000 Steps Walk" : workoutTitle, 
         tip: isWalkDay ? "Go outside, hit 10k steps minimum. Challenge." : "Intensive muscle group targeting.",
-        time: "11:30 - 12:30" 
+        time: "16:30 - 17:30" 
       };
       if (isCookDay) {
         overrides.relax.name = `Cook Healthy Meal & ${tvTitle}`;
         overrides.relax.tip = "Cook a fully healthy meal from scratch while watching.";
       }
       
-      overrides.game_time.time = "15:00 - 17:00";
-      overrides.yt_vid.time = "17:00 - 18:00";
-      overrides.relax.time = "18:00 - 22:30";
+      overrides.game_time.time = "20:00 - 21:30";
+      overrides.yt_vid.time = "21:30 - 22:30";
+      overrides.relax.time = "22:30 - 23:30";
       overrides.work = { name: "Off Day", tip: "Off work.", time: "Off" };
     } else { // WEEKDAY
       overrides.work = { name: "At Work", tip: workTip, time: "08:00 - 17:30" };
