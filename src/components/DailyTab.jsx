@@ -10,7 +10,6 @@ const SHOW_EP_DURATIONS = {
   "Cowboy Bebop":     24,
   "FMAB":             24,
   "Better Call Saul": 47,
-  "The Sopranos":     52,
 };
 
 const ALL_DAY_TASK_IDS = ['water', 'nofap'];
@@ -34,7 +33,6 @@ const SHOW_PLAN = [
   { startDay: 3, endDay: 7, title: "Cowboy Bebop", total: 26, unit: "Eps" },
   { startDay: 8, endDay: 18, title: "FMAB", total: 64, unit: "Eps" },
   { startDay: 19, endDay: 39, title: "Better Call Saul", total: 63, unit: "Eps" },
-  { startDay: 40, endDay: 68, title: "The Sopranos", total: 86, unit: "Eps" },
 ];
 
 const GAME_PLAN = [
@@ -229,7 +227,15 @@ export default function DailyTab({tasks,weekendTasks,completed,missed,onComplete
     }
 
     const workoutTitle = "Workout";
-    const knowledgeTitle = `Learn: ${["AI & Tech", "Stoicism & Philosophy", "History", "Economy", "Science", "Coding", "Psychology"][dayIndex % 7]}`;
+    const ALL_CATEGORIES = [
+      "CS2", "War", "Books", "TV Show", "Anime", "Science", "AI", "History", 
+      "Video Games", "Evolution", "Religion", "Economy", "Morality", 
+      "Christianity", "Politics", "Hacking", "Coding", "Money", 
+      "Football", "Music", "Psychology"
+    ];
+    const knowledgeTitle = dayIndex < ALL_CATEGORIES.length 
+      ? `Learn: ${ALL_CATEGORIES[dayIndex]}`
+      : "Watch an educational yt video";
 
     // Common Overrides
     const overrides = {

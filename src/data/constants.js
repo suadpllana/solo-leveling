@@ -253,7 +253,6 @@ export const ONE_TIME_TASKS = [
   // 📺 TV Shows (new)
   { id: 'tv_chernobyl', name: 'Watch "Chernobyl" (Mini Series)', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
   { id: 'tv_bcs', name: 'Watch "Better Call Saul"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
-  { id: 'tv_sopranos', name: 'Watch "The Sopranos"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
   { id: 'anime_fmab', name: 'Watch "Fullmetal Alchemist: Brotherhood"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
   { id: 'anime_cowboybebop', name: 'Watch "Cowboy Bebop"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
 
@@ -308,88 +307,88 @@ export const LOOKSMAX_AREAS = [
 
 export const YOUTUBE_DATA = {
   'CS2': [
-    { t: 'CS2 Complete Movement Guide', ch: 'lau', d: 'The best way to understand advanced CS2 movement mechanics like bhop, surfing and airstrafing.', url: 'https://www.youtube.com/watch?v=R9Z8yWwG_yI' },
-    { t: 'How to Play CS2 like a PRO', ch: 'NartOutHere', d: 'Actionable strategies, nades and mechanics used by tier 1 professionals.', url: 'https://www.youtube.com/watch?v=yYJ4zN8ZzEY' },
+    { t: 'CS2 Complete Movement Guide', ch: 'lau', d: 'The best way to understand advanced CS2 movement mechanics like bhop, surfing and airstrafing.' },
+    { t: 'How to Play CS2 like a PRO', ch: 'NartOutHere', d: 'Actionable strategies, nades and mechanics used by tier 1 professionals.' },
   ],
   'War': [
-    { t: 'The Battle of Stalingrad', ch: 'Kings and Generals', d: 'One of the bloodiest and most decisive battles in human history animated on a map.', url: 'https://www.youtube.com/watch?v=r0wZiwE8fOM' },
-    { t: 'D-Day - The Invasion of Normandy', ch: 'The Armchair Historian', d: 'The logistical masterpiece and turning point of WWII mapped step by step.', url: 'https://www.youtube.com/watch?v=GjYmIeQ7Wyw' },
+    { t: 'The Battle of Stalingrad', ch: 'Kings and Generals', d: 'One of the bloodiest and most decisive battles in human history animated on a map.' },
+    { t: 'D-Day - The Invasion of Normandy', ch: 'The Armchair Historian', d: 'The logistical masterpiece and turning point of WWII mapped step by step.' },
   ],
   'Books': [
-    { t: 'The Prince by Machiavelli — Deep Philosophical Analysis', ch: 'Einzelganger', d: 'Power, virtue, pragmatism. The philosophy that shaped 500 years of politics and war.', url: 'https://www.youtube.com/watch?v=FqMtaNnt_P4' },
-    { t: 'Meditations: Every Key Lesson From Marcus Aurelius', ch: 'Daily Stoic', d: "The Roman emperor's private war journal. The most important book you'll ever read.", url: 'https://www.youtube.com/watch?v=5897dMWJiSM' },
+    { t: 'The Prince by Machiavelli — Deep Philosophical Analysis', ch: 'Einzelganger', d: 'Power, virtue, pragmatism. The philosophy that shaped 500 years of politics and war.' },
+    { t: 'Meditations: Every Key Lesson From Marcus Aurelius', ch: 'Daily Stoic', d: "The Roman emperor's private war journal. The most important book you'll ever read." },
   ],
   'TV Show': [
-    { t: 'Why The Wire Is the Greatest Show Ever Made', ch: 'Like Stories of Old', d: 'Sociology, institutional failure, and the human condition. The Wire is unmissable.', url: 'https://www.youtube.com/watch?v=9qK-VGjMr8g' },
-    { t: 'Why Breaking Bad is a Masterpiece', ch: 'Screened', d: 'A deep dive into the cinematography, writing and visual storytelling of Walt\'s descent.', url: 'https://www.youtube.com/watch?v=BqB3oE_OEv8' },
+    { t: 'Why The Wire Is the Greatest Show Ever Made', ch: 'Like Stories of Old', d: 'Sociology, institutional failure, and the human condition. The Wire is unmissable.' },
+    { t: 'Why Breaking Bad is a Masterpiece', ch: 'Screened', d: 'A deep dive into the cinematography, writing and visual storytelling of Walt\'s descent.' },
   ],
   'Anime': [
-    { t: 'Attack on Titan: A Philosophical Masterpiece', ch: 'Nux Taku', d: "Freedom, cycles of violence, moral relativism. Isayama's genius fully dissected.", url: 'https://www.youtube.com/watch?v=CszXl-2x45o' },
-    { t: 'Cowboy Bebop - The Perfect Anime', ch: 'Super Eyepatch Wolf', d: 'Jazz, noir, existentialism, and why Cowboy Bebop stands as a timeless masterpiece.', url: 'https://www.youtube.com/watch?v=2r1oN79w4d0' },
+    { t: 'Attack on Titan: A Philosophical Masterpiece', ch: 'Nux Taku', d: "Freedom, cycles of violence, moral relativism. Isayama's genius fully dissected." },
+    { t: 'Cowboy Bebop - The Perfect Anime', ch: 'Super Eyepatch Wolf', d: 'Jazz, noir, existentialism, and why Cowboy Bebop stands as a timeless masterpiece.' },
   ],
   'Science': [
-    { t: 'The Fermi Paradox — Where Are All the Aliens?', ch: 'Kurzgesagt', d: 'The most important existential question in cosmology. Watch twice. Think deeply.', url: 'https://www.youtube.com/watch?v=sNhhvQGsMEc' },
-    { t: 'Black Holes Explained', ch: 'Kurzgesagt', d: 'The terrifying physics of singularity, spaghettification and Hawking radiation.', url: 'https://www.youtube.com/watch?v=e-P5IFTqB98' },
+    { t: 'The Fermi Paradox — Where Are All the Aliens?', ch: 'Kurzgesagt', d: 'The most important existential question in cosmology. Watch twice. Think deeply.' },
+    { t: 'Black Holes Explained', ch: 'Kurzgesagt', d: 'The terrifying physics of singularity, spaghettification and Hawking radiation.' },
   ],
   'AI': [
-    { t: 'Let\'s build GPT: from scratch', ch: 'Andrej Karpathy', d: 'The former head of AI at Tesla builds a Generative Pre-trained Transformer in code.', url: 'https://www.youtube.com/watch?v=kCc8FmEb1nY' },
-    { t: 'How Large Language Models Work', ch: '3Blue1Brown', d: 'Visualizing transformers, attention mechanisms, and neural networks in LLMs.', url: 'https://www.youtube.com/watch?v=wjZofJX0v4M' },
+    { t: 'Let\'s build GPT: from scratch', ch: 'Andrej Karpathy', d: 'The former head of AI at Tesla builds a Generative Pre-trained Transformer in code.' },
+    { t: 'How Large Language Models Work', ch: '3Blue1Brown', d: 'Visualizing transformers, attention mechanisms, and neural networks in LLMs.' },
   ],
   'History': [
-    { t: 'Fall of Civilizations - Easter Island', ch: 'Fall of Civilizations', d: 'The haunting history of the Rapa Nui people and the collapse of their civilization.', url: 'https://www.youtube.com/watch?v=1yJBIfJleLQ' },
-    { t: 'The Bronze Age Collapse', ch: 'Fall of Civilizations', d: 'How the greatest empires of antiquity simultaneously ceased to exist within a single generation.', url: 'https://www.youtube.com/watch?v=B9bKpwMTqQc' },
+    { t: 'Fall of Civilizations - Easter Island', ch: 'Fall of Civilizations', d: 'The haunting history of the Rapa Nui people and the collapse of their civilization.' },
+    { t: 'The Bronze Age Collapse', ch: 'Fall of Civilizations', d: 'How the greatest empires of antiquity simultaneously ceased to exist within a single generation.' },
   ],
   'Video Games': [
-    { t: 'Dark Souls Story in 5 Minutes', ch: 'IGN', d: 'A quick breakdown of the lore from the First Flame to Gwyn\'s sacrifice.', url: 'https://www.youtube.com/watch?v=1bxgJEw6Zuk' },
-    { t: "God of War Ragnarok: Why Kratos's Journey Matters", ch: 'Like Stories of Old', d: 'Fatherhood, Norse mythology, redemption. Essay on the best game narrative ever written.', url: 'https://www.youtube.com/watch?v=S08x-B0nEIs' },
+    { t: 'Dark Souls Story in 5 Minutes', ch: 'IGN', d: 'A quick breakdown of the lore from the First Flame to Gwyn\'s sacrifice.' },
+    { t: "God of War Ragnarok: Why Kratos's Journey Matters", ch: 'Like Stories of Old', d: 'Fatherhood, Norse mythology, redemption. Essay on the best game narrative ever written.' },
   ],
   'Evolution': [
-    { t: 'How Humans Conquered the World', ch: 'PBS Eons', d: 'Out of Africa to every continent in 300,000 years. The most extraordinary story ever told.', url: 'https://www.youtube.com/watch?v=ehVxcKyLtZ8' },
-    { t: 'The Evolution of Consciousness', ch: 'Closer to Truth', d: 'The hard problem of consciousness meets evolutionary biology. Profound.', url: 'https://www.youtube.com/watch?v=hOfRN0KigTg' },
+    { t: 'How Humans Conquered the World', ch: 'PBS Eons', d: 'Out of Africa to every continent in 300,000 years. The most extraordinary story ever told.' },
+    { t: 'The Evolution of Consciousness', ch: 'Closer to Truth', d: 'The hard problem of consciousness meets evolutionary biology. Profound.' },
   ],
   'Religion': [
-    { t: 'The Historical Evidence for Jesus Christ', ch: 'InspiringPhilosophy', d: 'Academic analysis separating faith from historical scholarship. Rigorous and balanced.', url: 'https://www.youtube.com/watch?v=1iHEhV6C35I' },
-    { t: 'Why People Believe in God — Neuroscience', ch: 'Robert Sapolsky', d: 'Stanford biology professor on the evolution and neural basis of religious belief.', url: 'https://www.youtube.com/watch?v=n1A9vr5QTQ8' },
+    { t: 'The Historical Evidence for Jesus Christ', ch: 'InspiringPhilosophy', d: 'Academic analysis separating faith from historical scholarship. Rigorous and balanced.' },
+    { t: 'Why People Believe in God — Neuroscience', ch: 'Robert Sapolsky', d: 'Stanford biology professor on the evolution and neural basis of religious belief.' },
   ],
   'Economy': [
-    { t: 'How The Economic Machine Works', ch: 'Ray Dalio', d: 'The absolute best 30-minute explanation of credit, interest rates, printing money and inflation.', url: 'https://www.youtube.com/watch?v=PHe0bXAIuk0' },
-    { t: 'The Big Short Explained', ch: 'The Swedish Investor', d: 'Understanding the housing market crash of 2008 and the financial instruments that caused it.', url: 'https://www.youtube.com/watch?v=iA9CgTqG8-A' },
+    { t: 'How The Economic Machine Works', ch: 'Ray Dalio', d: 'The absolute best 30-minute explanation of credit, interest rates, printing money and inflation.' },
+    { t: 'The Big Short Explained', ch: 'The Swedish Investor', d: 'Understanding the housing market crash of 2008 and the financial instruments that caused it.' },
   ],
   'Morality': [
-    { t: 'Justice: What Is the Right Thing to Do?', ch: 'Harvard University', d: 'The most watched philosophy lecture in history. Harvard Justice course. Start here.', url: 'https://www.youtube.com/watch?v=kBdfcR-8hEY' },
-    { t: 'Why Good People Do Bad Things', ch: 'TED', d: 'Moral psychology, tribalism, and the hidden forces behind human behavior.', url: 'https://www.youtube.com/watch?v=8SOQduLsU4A' },
+    { t: 'Justice: What Is the Right Thing to Do?', ch: 'Harvard University', d: 'The most watched philosophy lecture in history. Harvard Justice course. Start here.' },
+    { t: 'Why Good People Do Bad Things', ch: 'TED', d: 'Moral psychology, tribalism, and the hidden forces behind human behavior.' },
   ],
   'Christianity': [
-    { t: "The Bible's Meta-Narrative Fully Explained", ch: 'BibleProject', d: 'The creators of the best biblical content explain the entire arc of Scripture. Beautiful.', url: 'https://www.youtube.com/watch?v=GQI72THyO5I' },
-    { t: 'CS Lewis: The Case for Christianity', ch: 'Doodle', d: 'Mere Christianity visualized. The most rational argument for the Christian faith.', url: 'https://www.youtube.com/watch?v=LqBgbMCIEVQ' },
+    { t: "The Bible's Meta-Narrative Fully Explained", ch: 'BibleProject', d: 'The creators of the best biblical content explain the entire arc of Scripture. Beautiful.' },
+    { t: 'CS Lewis: The Case for Christianity', ch: 'Doodle', d: 'Mere Christianity visualized. The most rational argument for the Christian faith.' },
   ],
   'Politics': [
-    { t: 'How Democracies Die — Steven Levitsky', ch: 'Harvard Kennedy School', d: 'Recognizing democratic backsliding in real-time. More relevant than ever.', url: 'https://www.youtube.com/watch?v=VwyH_fN7rU' },
-    { t: 'Geopolitics 101: Why Geography Determines Destiny', ch: 'RealLifeLore', d: 'Why countries act the way they do based on geographic and resource constraints.', url: 'https://www.youtube.com/watch?v=7X52XlP3wAI' },
+    { t: 'How Democracies Die — Steven Levitsky', ch: 'Harvard Kennedy School', d: 'Recognizing democratic backsliding in real-time. More relevant than ever.' },
+    { t: 'Geopolitics 101: Why Geography Determines Destiny', ch: 'RealLifeLore', d: 'Why countries act the way they do based on geographic and resource constraints.' },
   ],
   'Hacking': [
-    { t: 'Ethical Hacking Full Course — CEH Concepts', ch: 'freeCodeCamp', d: 'Full penetration testing curriculum from zero to OSCP fundamentals. Completely free.', url: 'https://www.youtube.com/watch?v=3Kq1MIfTWCE' },
-    { t: 'Social Engineering: The Biggest Security Threat', ch: 'DEFCON', d: 'Real talk on how elite hackers manipulate humans, not just machines.', url: 'https://www.youtube.com/watch?v=b4b8ktEV4Bg' },
+    { t: 'Ethical Hacking Full Course — CEH Concepts', ch: 'freeCodeCamp', d: 'Full penetration testing curriculum from zero to OSCP fundamentals. Completely free.' },
+    { t: 'Social Engineering: The Biggest Security Threat', ch: 'DEFCON', d: 'Real talk on how elite hackers manipulate humans, not just machines.' },
   ],
   'Coding': [
-    { t: 'Harvard CS50: The Best Free CS Course in Existence', ch: 'CS50', d: "David Malan's legendary intro to computer science. Even pros rewatch this.", url: 'https://www.youtube.com/watch?v=8mAITcNt710' },
-    { t: 'System Design Interview — Top Concepts', ch: 'ByteByteGo', d: 'How to think about building systems at scale. Essential for serious engineers.', url: 'https://www.youtube.com/watch?v=epbgvIGTfZU' },
+    { t: 'Harvard CS50: The Best Free CS Course in Existence', ch: 'CS50', d: "David Malan's legendary intro to computer science. Even pros rewatch this." },
+    { t: 'System Design Interview — Top Concepts', ch: 'ByteByteGo', d: 'How to think about building systems at scale. Essential for serious engineers.' },
   ],
   'Money': [
-    { t: 'The Psychology of Money — Key Lessons', ch: 'The Swedish Investor', d: "Morgan Housel's masterpiece summarized. 18 lessons about wealth that actually matter.", url: 'https://www.youtube.com/watch?v=cM50sA05r0Q8' },
-    { t: 'How to Get Rich', ch: 'Naval', d: 'The most important wealth creation framework in existence. 45 minutes that change everything.', url: 'https://www.youtube.com/watch?v=1-TZqOsVCNM' },
+    { t: 'The Psychology of Money — Key Lessons', ch: 'The Swedish Investor', d: "Morgan Housel's masterpiece summarized. 18 lessons about wealth that actually matter." },
+    { t: 'How to Get Rich', ch: 'Naval', d: 'The most important wealth creation framework in existence. 45 minutes that change everything.' },
   ],
   'Football': [
-    { t: 'Total Football: The Tactical Revolution', ch: 'Tifo Football', d: 'How Cruyff and Michels created the most influential football philosophy ever conceived.', url: 'https://www.youtube.com/watch?v=oR2X1P-s1sQ' },
-    { t: 'The Greatest Players in Football History', ch: 'The Football Analyst', d: 'Statistical and tactical breakdown of the GOATs. Messi, Ronaldo, Cruyff, Pele.', url: 'https://www.youtube.com/watch?v=1-O3Z4i54zM' },
+    { t: 'Total Football: The Tactical Revolution', ch: 'Tifo Football', d: 'How Cruyff and Michels created the most influential football philosophy ever conceived.' },
+    { t: 'The Greatest Players in Football History', ch: 'The Football Analyst', d: 'Statistical and tactical breakdown of the GOATs. Messi, Ronaldo, Cruyff, Pele.' },
   ],
   'Music': [
-    { t: 'Music Theory — Every Concept Explained Simply', ch: '12tone', d: 'Scales, chords, progressions, and why music makes you emotional. The complete guide.', url: 'https://www.youtube.com/watch?v=rD8zGEEEDDk' },
-    { t: 'How Hip-Hop Changed Western Music', ch: 'Vox', d: "The structural influence of hip-hop on every genre — pop, country, film scores, everything.", url: 'https://www.youtube.com/watch?v=0k5XJiv2f2Y' },
+    { t: 'Music Theory — Every Concept Explained Simply', ch: '12tone', d: 'Scales, chords, progressions, and why music makes you emotional. The complete guide.' },
+    { t: 'How Hip-Hop Changed Western Music', ch: 'Vox', d: "The structural influence of hip-hop on every genre — pop, country, film scores, everything." },
   ],
   'Psychology': [
-    { t: 'The Psychology of Your Future Self', ch: 'Dan Gilbert (TED)', d: 'Why we make decisions that our future selves will regret, and the illusion of the end of history.', url: 'https://www.youtube.com/watch?v=XNbaR5ENaP0' },
-    { t: 'The Power of Introverts', ch: 'Susan Cain (TED)', d: 'In a culture where being social and outgoing are prized above all else, introverts are sidelined.', url: 'https://www.youtube.com/watch?v=c0KYU2j0TM4' },
+    { t: 'The Psychology of Your Future Self', ch: 'Dan Gilbert (TED)', d: 'Why we make decisions that our future selves will regret, and the illusion of the end of history.' },
+    { t: 'The Power of Introverts', ch: 'Susan Cain (TED)', d: 'In a culture where being social and outgoing are prized above all else, introverts are sidelined.' },
   ],
 };
 
