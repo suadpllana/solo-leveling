@@ -12,12 +12,10 @@ import StatsTab from "./components/StatsTab";
 
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 
-import ScheduleTab from "./components/ScheduleTab";
 
 const TABS = [
   ["dash","⚡","Home"],
   ["daily","📋","Daily"],
-  ["schedule","🗓️","Plan"],
   ["quests","🗺️","Quests"],
   ["yt","▶️","Learn"],
   ["stats","📊","Stats"]
@@ -306,7 +304,6 @@ export default function SoloLevel(){
           <Routes>
             <Route path="/" element={<DashTab ri={ri} rc={rc} streak={streak} daysLeft={daysLeft} dailyDone={dailyDone} onceDone={onceDone} missed={missedTasks} quote={todayQuotes[0]} setTab={setTab} xp={xp} dailyTip={dailyTip} diffD={diffD} diffH={diffH} diffM={diffM} diffS={diffS} />} />
             <Route path="/daily" element={<DailyTab tasks={DAILY_TASKS} weekendTasks={WEEKEND_TASKS} completed={completedDaily} missed={missedTasks} onComplete={completeDaily} onUndo={undoDaily} onCompleteSub={completeSub} onUndoSub={undoSub} quotes={todayQuotes} expanded={expandedDaily} setExpanded={setExpandedDaily}/>} />
-            <Route path="/schedule" element={<ScheduleTab />} />
             <Route path="/quests" element={<QuestsTab tasks={ONE_TIME_TASKS} completed={completedOnce} onComplete={completeOnce} onUndo={undoOnce} daysLeft={daysLeft} expanded={expandedQuest} setExpanded={setExpandedQuest}/>} />
             <Route path="/yt" element={<YtTab data={YOUTUBE_DATA} cats={CATS} cat={ytCat} setCat={c=>{setYtCat(c);setYtIdx(0);}} idx={ytIdx} setIdx={setYtIdx} watched={watchedYt} onWatch={watchVideo}/>} />
             <Route path="/stats" element={<StatsTab />} />
