@@ -12,16 +12,33 @@ export function getRankInfo(xp) {
   return{rank,current:xp-total,needed:XP_PER_RANK[rank],pct:Math.min(100,((xp-total)/XP_PER_RANK[rank])*100)};
 }
 
+// ── DEADLINE ──
+export const DEADLINE_DATE = '2026-06-01T00:00:00';
+export const DEADLINE_LABEL = '1 JUNE 2026';
+
 export const DAILY_TASKS=[
   {id:'wake_up',name:'Wake Up',time:'07:10',icon:'🌅',xp:20,tip:'Get out of bed immediately. No snoozing. Win the first battle of the day.'},
-  {id:'prayer',name:'Morning Prayer',time:'07:15',icon:'🙏',xp:50,tip:'Say: "God, destroy my need for comfort. Give me the strength to endure today\'s suffering so I may become who I am meant to be. I am ready to do the hard work." (Psychology: Shifts your brain out of victimhood and frames difficulty as training).'}, 
+  {id:'prayer',name:'Morning Prayer',time:'07:15',icon:'🙏',xp:50,tip:'Say: "God, destroy my need for comfort. Give me the strength to endure today\'s suffering so I may become who I am meant to be. I am ready to do the hard work." (Psychology: Shifts your brain out of victimhood and frames difficulty as training).'},
   {id:'meditate',name:'Meditate',time:'07:20',icon:'🧘',xp:60,tip:'5 min. Box breathing: 4s in, 4s hold, 4s out, 4s hold. Eyes closed. No stimulation. Mental training.'},
   {id:'stretch',name:'Morning Stretch',time:'07:25',icon:'🤸',xp:50,tip:'5-min mobility'},
-  {id:'looksmax',name:'Looksmax Routine',time:'07:30',icon:'👁️',xp:75,tip:'15-min ritual: mewing full minute → gua sha jaw/cheekbones → neck curls 3x25 → simple skincare (wash & moisturize).'},
+  {id:'looksmax',name:'Looksmax Routine',time:'07:30',icon:'✨',xp:75,tip:'Physical Optimization Protocol. Consistency is everything.',subTasks:[
+    {id:'lm_eyes1',n:'Eyes: Mewing (Full day)'},
+    {id:'lm_eyes2',n:'Eyes: Canthal Tilt Massage (60s)'},
+    {id:'lm_eyes3',n:'Eyes: Eyelid Hooding Drill (3x15)'},
+    {id:'lm_jaw1',n:'Jaw: Neck Curls (3x25)'},
+    {id:'lm_jaw2',n:'Jaw: Cheeks Pinch (10x10s)'},
+    {id:'lm_jaw3',n:'Jaw: Chin Tucks (15 reps)'},
+    {id:'lm_brows',n:'Eyebrows: Brush Up & Clean Strays'},
+    {id:'lm_nose1',n:'Nose: Nasal Tip Lift (2x30)'},
+    {id:'lm_nose2',n:'Nose: Bridge Massage (5 mins)'},
+    {id:'lm_skin',n:'Skin: Wash, Moisturize & Ice Roller'},
+    {id:'lm_hair',n:'Hair: Proper Wash & Clay Styling'}
+  ]},
   {id:'work',name:'At Work',time:'08:00',icon:'💼',xp:150,tip:'Focus on your career. Build skills, provide value, and secure your financial future.'},
   {id:'exercise',name:'Exercise (80kg Goal)',time:'17:30',icon:'💪',xp:100,tip:'Drop 8kg (88kg → 80kg) + Build Muscle. Body Recomposition.',subTasks:[{id:'e_push',n:'20 Pushups (Chest/Triceps)'},{id:'e_sq',n:'20 Squats (Legs)'},{id:'e_pike',n:'15 Pike Pushups (Shoulders)'},{id:'e_back',n:'15 Superman Raises  (Back)'},{id:'e_plank',n:'30 Sec Plank (Core)'},{id:'e_pull',n:'10 Bag Curls (Biceps)'}]},
   {id:'yt_vid',name:'Watch 1 Knowledge Video',time:'18:00',icon:'▶️',xp:40,tip:'Check the Knowledge tab and watch one video. Take mental notes to level up your intellect.'},
-  {id:'game_time',name:'Game for 2 Hours',time:'18:30',icon:'🎮',xp:50,tip:'Enjoy your downtime! Play your favorite game guilt-free for exactly 2 hours.'},
+  {id:'mastery',name:'Skill Mastery (30m)',time:'18:30',icon:'🎯',xp:40,tip:'30 minutes of deep, focused practice on a specific skill to reach expert level.'},
+  {id:'game_time',name:'Game for 1.5 Hours',time:'19:00',icon:'🎮',xp:50,tip:'Enjoy your downtime! Play your favorite game guilt-free for 1.5 hours.'},
   {id:'relax',name:'Relax for 2 Hours',time:'20:30',icon:'🛋️',xp:50,tip:'Unstructured decompression. Enjoy some casual screen time, play CS2, or watch a football match to fully disconnect and recharge.'},
   {id:'stoic',name:'Stoic Quote',time:'22:30',icon:'📜',xp:30,tip:'Read today\'s quote. Sit with it for 2 minutes. Write one sentence on how it applies to your life right now.'},
   {id:'read_book',name:'Read 2 Book Chapters',time:'22:40',icon:'📚',xp:60,tip:'No screens. Read a physical book or e-reader to prepare your brain for sleep.'},
@@ -185,20 +202,59 @@ export const STOIC_QUOTES=[
   {q:"How long are you going to wait before you demand the best for yourself?",a:"Epictetus"}
 ];
 
+// ── ONE-TIME QUESTS (May 2026 Edition) ──
+// Old uncompleted tasks kept, completed quests removed, new content added
 export const ONE_TIME_TASKS=[
-  {id:'knowledge',name:'Complete all knowledge videos',cat:'🧠 Knowledge',xp:200},
-  {id:'jam',name:'Read "Jam Mysliman"',cat:'📚 Books',xp:300},
-  {id:'prince',name:'Read "The Prince" — Machiavelli',cat:'📚 Books',xp:300},
-  {id:'battle',name:'Watch "One Battle After Another"',cat:'🎞️ Documentaries',xp:150},
-  {id:'europa',name:'Watch "Europa: The Last Battle"',cat:'🎞️ Documentaries',xp:150},
-  {id:'samurai',name:'Watch "Seven Samurai" (1954)',cat:'🎬 Films',xp:150},
-  {id:'origins',name:"Play Assassin's Creed Origins",cat:'🎮 Gaming',xp:200},
-  {id:'jesus',name:'Play "I Am Jesus Christ"',cat:'🎮 Gaming',xp:100},
-  {id:'cd',name:'Buy a CD Album',cat:'🛒 Purchases',xp:50},
-  {id:'mirror',name:'Buy a Mirror',cat:'🛒 Purchases',xp:50},
-  {id:'poster',name:'Buy Attack on Titan Poster',cat:'🛒 Purchases',xp:50},
-  {id:'weight',name:'Reach 80kg',cat:'⚖️ Body',xp:500},
-  {id:'money',name:'Make $400 this month',cat:'💰 Finance',xp:500},
+  // 📚 Books (kept from before + new)
+  {id:'jam',name:'Read "Jam Mysliman"',cat:'📚 Books',xp:300,icon:'📖'},
+  {id:'prince',name:'Read "The Prince" — Machiavelli',cat:'📚 Books',xp:300,icon:'📖'},
+  {id:'book_animalfarm',name:'Read "Animal Farm" — George Orwell',cat:'📚 Books',xp:300,icon:'📖'},
+
+  // 🎬 Films (new selection)
+  {id:'film_americanpsycho',name:'Watch "American Psycho" (2000)',cat:'🎬 Films',xp:150,icon:'🎬'},
+  {id:'film_heat',name:'Watch "Heat" (1995)',cat:'🎬 Films',xp:150,icon:'🎬'},
+  {id:'film_childrenofmen',name:'Watch "Children of Men" (2006)',cat:'🎬 Films',xp:150,icon:'🎬'},
+  {id:'film_zodiac',name:'Watch "Zodiac" (2007)',cat:'🎬 Films',xp:150,icon:'🎬'},
+  {id:'film_prisoners',name:'Watch "Prisoners" (2013)',cat:'🎬 Films',xp:150,icon:'🎬'},
+  {id:'film_trumanshow',name:'Watch "The Truman Show" (1998)',cat:'🎬 Films',xp:150,icon:'🎬'},
+
+  // 🎞️ Documentaries (new)
+  {id:'doc_europe',name:'Watch "Europa: The Last Battle"',cat:'🎞️ Documentaries',xp:200,icon:'🎞️',url:'https://www.youtube.com/results?search_query=europa+the+last+battle'},
+  {id:'doc_planetearth',name:'Watch "Planet Earth 1"',cat:'🎞️ Documentaries',xp:200,icon:'🎞️',url:'https://www.youtube.com/results?search_query=planet+earth+1+documentary'},
+  {id:'doc_socialdilemma',name:'Watch "The Social Dilemma"',cat:'🎞️ Documentaries',xp:150,icon:'🎞️',url:'https://www.youtube.com/results?search_query=the+social+dilemma'},
+
+  // 🎮 Gaming (kept old + new)
+  {id:'origins',name:"Play Assassin's Creed Origins",cat:'🎮 Gaming',xp:200,icon:'🎮'},
+  {id:'game_ghost',name:'Play Ghost of Tsushima',cat:'🎮 Gaming',xp:200,icon:'🎮'},
+  {id:'game_arkhamcity',name:'Play Batman: Arkham City',cat:'🎮 Gaming',xp:200,icon:'🎮'},
+  {id:'game_arkhamknight',name:'Play Batman: Arkham Knight',cat:'🎮 Gaming',xp:200,icon:'🎮'},
+
+  // 🛒 Purchases (kept)
+  {id:'cd',name:'Buy a CD Album',cat:'🛒 Purchases',xp:50,icon:'💿'},
+  {id:'mirror',name:'Buy a Mirror',cat:'🛒 Purchases',xp:50,icon:'🪞'},
+  {id:'poster',name:'Buy Attack on Titan Poster',cat:'🛒 Purchases',xp:50,icon:'🖼️'},
+
+  // ⚖️ Body (kept)
+  {id:'weight',name:'Reach 80kg',cat:'⚖️ Body',xp:500,icon:'⚖️'},
+
+  // 💰 Finance (kept + new)
+  {id:'money',name:'Make $400 this month',cat:'💰 Finance',xp:500,icon:'💵'},
+
+  // 🧠 Knowledge (kept)
+  {id:'knowledge',name:'Complete all knowledge videos',cat:'🧠 Knowledge',xp:200,icon:'🧠'},
+
+  // 📺 TV Shows (new)
+  {id:'tv_chernobyl',name:'Watch "Chernobyl" (Mini Series)',cat:'📺 TV Shows/Anime',xp:200,icon:'📺'},
+  {id:'tv_bcs',name:'Watch "Better Call Saul"',cat:'📺 TV Shows/Anime',xp:200,icon:'📺'},
+  {id:'tv_sopranos',name:'Watch "The Sopranos"',cat:'📺 TV Shows/Anime',xp:200,icon:'📺'},
+  {id:'anime_fmab',name:'Watch "Fullmetal Alchemist: Brotherhood"',cat:'📺 TV Shows/Anime',xp:200,icon:'📺'},
+  {id:'anime_cowboybebop',name:'Watch "Cowboy Bebop"',cat:'📺 TV Shows/Anime',xp:200,icon:'📺'},
+
+  // 🏃 Challenges (new)
+  {id:'ch_cold',name:'7-Day Cold Shower Challenge',cat:'🏆 Challenges',xp:300,icon:'🥶'},
+  {id:'ch_social',name:'No Social Media for 3 Consecutive Days',cat:'🏆 Challenges',xp:250,icon:'📵'},
+  {id:'ch_walk',name:'Walk 10,000 Steps in One Day',cat:'🏆 Challenges',xp:150,icon:'🚶'},
+  {id:'ch_cook',name:'Cook 3 Healthy Meals from Scratch',cat:'🏆 Challenges',xp:200,icon:'👨‍🍳'},
 ];
 
 export const LOOKSMAX_AREAS=[
@@ -233,86 +289,103 @@ export const LOOKSMAX_AREAS=[
 
 export const YOUTUBE_DATA={
   'CS2':[
-    {t:'The Complete CS2 Fundamentals Guide',ch:'NadeKing',d:'Movement, aim, utility, mindset — the definitive roadmap from average to elite in one video.'},
-    {t:'How Pro CS2 Players Think Differently',ch:'ProGuides CS2',d:'Reading the round, positioning logic, and macro decisions. The mental game of top 0.1%.'},
+    {t:'CS2 Complete Movement Guide',ch:'lau',d:'The best way to understand advanced CS2 movement mechanics like bhop, surfing and airstrafing.',url:'https://www.youtube.com/watch?v=R9Z8yWwG_yI'},
+    {t:'How to Play CS2 like a PRO',ch:'NartOutHere',d:'Actionable strategies, nades and mechanics used by tier 1 professionals.',url:'https://www.youtube.com/watch?v=yYJ4zN8ZzEY'},
+  ],
+  'War':[
+    {t:'The Battle of Stalingrad',ch:'Kings and Generals',d:'One of the bloodiest and most decisive battles in human history animated on a map.',url:'https://www.youtube.com/watch?v=r0wZiwE8fOM'},
+    {t:'D-Day - The Invasion of Normandy',ch:'The Armchair Historian',d:'The logistical masterpiece and turning point of WWII mapped step by step.',url:'https://www.youtube.com/watch?v=GjYmIeQ7Wyw'},
   ],
   'Books':[
-    {t:'The Prince by Machiavelli — Deep Philosophical Analysis',ch:'Einzelganger',d:'Power, virtue, pragmatism. The philosophy that shaped 500 years of politics and war.'},
-    {t:'Meditations: Every Key Lesson From Marcus Aurelius',ch:'Philosophies for Life',d:"The Roman emperor's private war journal. The most important book you'll ever read."},
+    {t:'The Prince by Machiavelli — Deep Philosophical Analysis',ch:'Einzelganger',d:'Power, virtue, pragmatism. The philosophy that shaped 500 years of politics and war.',url:'https://www.youtube.com/watch?v=FqMtaNnt_P4'},
+    {t:'Meditations: Every Key Lesson From Marcus Aurelius',ch:'Daily Stoic',d:"The Roman emperor's private war journal. The most important book you'll ever read.",url:'https://www.youtube.com/watch?v=5897dMWJiSM'},
   ],
   'TV Show':[
-    {t:'Why The Wire Is the Greatest Show Ever Made',ch:'Like Stories of Old',d:'Sociology, institutional failure, and the human condition. The Wire is unmissable.'},
-    {t:'Breaking Bad: The Science of Walter White',ch:'CineFix',d:'Chemistry, psychology, and the greatest character transformation in television history.'},
+    {t:'Why The Wire Is the Greatest Show Ever Made',ch:'Like Stories of Old',d:'Sociology, institutional failure, and the human condition. The Wire is unmissable.',url:'https://www.youtube.com/watch?v=9qK-VGjMr8g'},
+    {t:'Why Breaking Bad is a Masterpiece',ch:'Screened',d:'A deep dive into the cinematography, writing and visual storytelling of Walt\'s descent.',url:'https://www.youtube.com/watch?v=BqB3oE_OEv8'},
   ],
   'Anime':[
-    {t:'Attack on Titan: A Philosophical Masterpiece',ch:'Nux Taku',d:"Freedom, cycles of violence, moral relativism. Isayama's genius fully dissected."},
-    {t:'Why Hunter x Hunter Has the Best Power System',ch:"Mother's Basement",d:'Nen, the philosophy of Gon, and why HxH is the definitive shounen manga.'},
+    {t:'Attack on Titan: A Philosophical Masterpiece',ch:'Nux Taku',d:"Freedom, cycles of violence, moral relativism. Isayama's genius fully dissected.",url:'https://www.youtube.com/watch?v=CszXl-2x45o'},
+    {t:'Cowboy Bebop - The Perfect Anime',ch:'Super Eyepatch Wolf',d:'Jazz, noir, existentialism, and why Cowboy Bebop stands as a timeless masterpiece.',url:'https://www.youtube.com/watch?v=2r1oN79w4d0'},
   ],
   'Science':[
-    {t:'The Fermi Paradox — Where Are All the Aliens?',ch:'Kurzgesagt',d:'The most important existential question in cosmology. Watch twice. Think deeply.'},
-    {t:'How Your Brain Creates Reality',ch:'Anil Seth (TED)',d:'Consciousness, perception, and what "seeing" really means. Nobel-caliber neuroscience.'},
+    {t:'The Fermi Paradox — Where Are All the Aliens?',ch:'Kurzgesagt',d:'The most important existential question in cosmology. Watch twice. Think deeply.',url:'https://www.youtube.com/watch?v=sNhhvQGsMEc'},
+    {t:'Black Holes Explained',ch:'Kurzgesagt',d:'The terrifying physics of singularity, spaghettification and Hawking radiation.',url:'https://www.youtube.com/watch?v=e-P5IFTqB98'},
   ],
   'AI':[
-    {t:'The Moment We Stop Understanding AI',ch:'Kurzgesagt',d:'How neural networks exceed human interpretability. The most important AI video.'},
-    {t:'Build a GPT From Scratch — Andrej Karpathy',ch:'Andrej Karpathy',d:'Former Tesla/OpenAI director explains LLMs better than anyone alive. Legendary.'},
+    {t:'Let\'s build GPT: from scratch',ch:'Andrej Karpathy',d:'The former head of AI at Tesla builds a Generative Pre-trained Transformer in code.',url:'https://www.youtube.com/watch?v=kCc8FmEb1nY'},
+    {t:'How Large Language Models Work',ch:'3Blue1Brown',d:'Visualizing transformers, attention mechanisms, and neural networks in LLMs.',url:'https://www.youtube.com/watch?v=wjZofJX0v4M'},
   ],
   'History':[
-    {t:'Fall of Civilizations — The Maya',ch:'Fall of Civilizations',d:'Hauntingly beautiful documentary on how a civilization collapses. Watch the full series.'},
-    {t:'The Ottoman Empire — Rise and Fall',ch:'Kings and Generals',d:'600 years of the greatest Islamic empire in 45 minutes. Essential history.'},
+    {t:'Fall of Civilizations - Easter Island',ch:'Fall of Civilizations',d:'The haunting history of the Rapa Nui people and the collapse of their civilization.',url:'https://www.youtube.com/watch?v=1yJBIfJleLQ'},
+    {t:'The Bronze Age Collapse',ch:'Fall of Civilizations',d:'How the greatest empires of antiquity simultaneously ceased to exist within a single generation.',url:'https://www.youtube.com/watch?v=B9bKpwMTqQc'},
   ],
   'Video Games':[
-    {t:'Dark Souls Lore — Every Secret Explained',ch:'VaatiVidya',d:'The greatest video game lore breakdown ever made. From Gwyn to the First Flame.'},
-    {t:"God of War Ragnarok: Why Kratos's Journey Matters",ch:'Like Stories of Old',d:'Fatherhood, Norse mythology, redemption. Essay on the best game narrative ever written.'},
+    {t:'Dark Souls Story in 5 Minutes',ch:'IGN',d:'A quick breakdown of the lore from the First Flame to Gwyn\'s sacrifice.',url:'https://www.youtube.com/watch?v=1bxgJEw6Zuk'},
+    {t:"God of War Ragnarok: Why Kratos's Journey Matters",ch:'Like Stories of Old',d:'Fatherhood, Norse mythology, redemption. Essay on the best game narrative ever written.',url:'https://www.youtube.com/watch?v=S08x-B0nEIs'},
   ],
   'Evolution':[
-    {t:'How Humans Conquered the World',ch:'PBS Eons',d:'Out of Africa to every continent in 300,000 years. The most extraordinary story ever told.'},
-    {t:'The Evolution of Consciousness — When Did We Become Human?',ch:'Closer to Truth',d:'The hard problem of consciousness meets evolutionary biology. Profound.'},
+    {t:'How Humans Conquered the World',ch:'PBS Eons',d:'Out of Africa to every continent in 300,000 years. The most extraordinary story ever told.',url:'https://www.youtube.com/watch?v=ehVxcKyLtZ8'},
+    {t:'The Evolution of Consciousness',ch:'Closer to Truth',d:'The hard problem of consciousness meets evolutionary biology. Profound.',url:'https://www.youtube.com/watch?v=hOfRN0KigTg'},
   ],
   'Religion':[
-    {t:'The Historical Evidence for Jesus Christ',ch:'InspiringPhilosophy',d:'Academic analysis separating faith from historical scholarship. Rigorous and balanced.'},
-    {t:'Why People Believe in God — Neuroscience & Psychology',ch:'Robert Sapolsky',d:'Stanford biology professor on the evolution and neural basis of religious belief.'},
+    {t:'The Historical Evidence for Jesus Christ',ch:'InspiringPhilosophy',d:'Academic analysis separating faith from historical scholarship. Rigorous and balanced.',url:'https://www.youtube.com/watch?v=1iHEhV6C35I'},
+    {t:'Why People Believe in God — Neuroscience',ch:'Robert Sapolsky',d:'Stanford biology professor on the evolution and neural basis of religious belief.',url:'https://www.youtube.com/watch?v=n1A9vr5QTQ8'},
   ],
   'Economy':[
-    {t:'How the Economic Machine Works — Ray Dalio',ch:'Principles by Ray Dalio',d:'The clearest 31-min explanation of how economics works. Required viewing. Watch it twice.'},
-    {t:'Why Nations Fail — Daron Acemoglu',ch:'MIT OpenCourseWare',d:'Why some countries are rich and others poor. Extractive vs inclusive institutions.'},
+    {t:'How The Economic Machine Works',ch:'Ray Dalio',d:'The absolute best 30-minute explanation of credit, interest rates, printing money and inflation.',url:'https://www.youtube.com/watch?v=PHe0bXAIuk0'},
+    {t:'The Big Short Explained',ch:'The Swedish Investor',d:'Understanding the housing market crash of 2008 and the financial instruments that caused it.',url:'https://www.youtube.com/watch?v=iA9CgTqG8-A'},
   ],
   'Morality':[
-    {t:'Justice: What Is the Right Thing to Do? — Michael Sandel',ch:'Harvard University',d:'The most watched philosophy lecture in history. Harvard Justice course. Start here.'},
-    {t:'Why Good People Do Bad Things — Jonathan Haidt',ch:'TED',d:'Moral psychology, tribalism, and the hidden forces behind human behavior.'},
+    {t:'Justice: What Is the Right Thing to Do?',ch:'Harvard University',d:'The most watched philosophy lecture in history. Harvard Justice course. Start here.',url:'https://www.youtube.com/watch?v=kBdfcR-8hEY'},
+    {t:'Why Good People Do Bad Things',ch:'TED',d:'Moral psychology, tribalism, and the hidden forces behind human behavior.',url:'https://www.youtube.com/watch?v=8SOQduLsU4A'},
   ],
   'Christianity':[
-    {t:"The Bible's Meta-Narrative Fully Explained",ch:'BibleProject',d:'The creators of the best biblical content explain the entire arc of Scripture. Beautiful.'},
-    {t:'CS Lewis: The Case for Christianity Illustrated',ch:'Doodle',d:'Mere Christianity visualized. The most rational argument for the Christian faith.'},
+    {t:"The Bible's Meta-Narrative Fully Explained",ch:'BibleProject',d:'The creators of the best biblical content explain the entire arc of Scripture. Beautiful.',url:'https://www.youtube.com/watch?v=GQI72THyO5I'},
+    {t:'CS Lewis: The Case for Christianity',ch:'Doodle',d:'Mere Christianity visualized. The most rational argument for the Christian faith.',url:'https://www.youtube.com/watch?v=LqBgbMCIEVQ'},
   ],
   'Politics':[
-    {t:'How Democracies Die — Steven Levitsky',ch:'Harvard Kennedy School',d:'Recognizing democratic backsliding in real-time. More relevant than ever.'},
-    {t:'Geopolitics 101: Why Geography Determines Destiny',ch:'RealLifeLore',d:'Why countries act the way they do based on geographic and resource constraints.'},
+    {t:'How Democracies Die — Steven Levitsky',ch:'Harvard Kennedy School',d:'Recognizing democratic backsliding in real-time. More relevant than ever.',url:'https://www.youtube.com/watch?v=VwyH_fN7rU'},
+    {t:'Geopolitics 101: Why Geography Determines Destiny',ch:'RealLifeLore',d:'Why countries act the way they do based on geographic and resource constraints.',url:'https://www.youtube.com/watch?v=7X52XlP3wAI'},
   ],
   'Hacking':[
-    {t:'Ethical Hacking Full Course — CEH Concepts',ch:'freeCodeCamp',d:'Full penetration testing curriculum from zero to OSCP fundamentals. Completely free.'},
-    {t:'Social Engineering: The Biggest Security Threat',ch:'DEFCON Conference',d:'Real talk on how elite hackers manipulate humans, not just machines.'},
+    {t:'Ethical Hacking Full Course — CEH Concepts',ch:'freeCodeCamp',d:'Full penetration testing curriculum from zero to OSCP fundamentals. Completely free.',url:'https://www.youtube.com/watch?v=3Kq1MIfTWCE'},
+    {t:'Social Engineering: The Biggest Security Threat',ch:'DEFCON',d:'Real talk on how elite hackers manipulate humans, not just machines.',url:'https://www.youtube.com/watch?v=b4b8ktEV4Bg'},
   ],
   'Coding':[
-    {t:'Harvard CS50: The Best Free CS Course in Existence',ch:'CS50',d:"David Malan's legendary intro to computer science. Even pros rewatch this."},
-    {t:'System Design Interview — Top Concepts',ch:'ByteByteGo',d:'How to think about building systems at scale. Essential for serious engineers.'},
+    {t:'Harvard CS50: The Best Free CS Course in Existence',ch:'CS50',d:"David Malan's legendary intro to computer science. Even pros rewatch this.",url:'https://www.youtube.com/watch?v=8mAITcNt710'},
+    {t:'System Design Interview — Top Concepts',ch:'ByteByteGo',d:'How to think about building systems at scale. Essential for serious engineers.',url:'https://www.youtube.com/watch?v=epbgvIGTfZU'},
   ],
   'Money':[
-    {t:'The Psychology of Money — Key Lessons',ch:'The Swedish Investor',d:"Morgan Housel's masterpiece summarized. 18 lessons about wealth that actually matter."},
-    {t:'How to Get Rich — Naval Ravikant Full Thread',ch:'Naval',d:'The most important wealth creation framework in existence. 45 minutes that change everything.'},
+    {t:'The Psychology of Money — Key Lessons',ch:'The Swedish Investor',d:"Morgan Housel's masterpiece summarized. 18 lessons about wealth that actually matter.",url:'https://www.youtube.com/watch?v=cM50sA05r0Q8'},
+    {t:'How to Get Rich',ch:'Naval',d:'The most important wealth creation framework in existence. 45 minutes that change everything.',url:'https://www.youtube.com/watch?v=1-TZqOsVCNM'},
   ],
   'Football':[
-    {t:'Total Football: The Tactical Revolution That Changed Everything',ch:'Tifo Football',d:'How Cruyff and Michels created the most influential football philosophy ever conceived.'},
-    {t:'The Greatest Players in Football History — Analyzed',ch:'The Football Analyst',d:'Statistical and tactical breakdown of the GOATs. Messi, Ronaldo, Cruyff, Pele.'},
+    {t:'Total Football: The Tactical Revolution',ch:'Tifo Football',d:'How Cruyff and Michels created the most influential football philosophy ever conceived.',url:'https://www.youtube.com/watch?v=oR2X1P-s1sQ'},
+    {t:'The Greatest Players in Football History',ch:'The Football Analyst',d:'Statistical and tactical breakdown of the GOATs. Messi, Ronaldo, Cruyff, Pele.',url:'https://www.youtube.com/watch?v=1-O3Z4i54zM'},
   ],
   'Music':[
-    {t:'Music Theory — Every Concept Explained Simply',ch:'12tone',d:'Scales, chords, progressions, and why music makes you emotional. The complete guide.'},
-    {t:'How Hip-Hop Changed Western Music Forever',ch:'Vox',d:"The structural influence of hip-hop on every genre — pop, country, film scores, everything."},
+    {t:'Music Theory — Every Concept Explained Simply',ch:'12tone',d:'Scales, chords, progressions, and why music makes you emotional. The complete guide.',url:'https://www.youtube.com/watch?v=rD8zGEEEDDk'},
+    {t:'How Hip-Hop Changed Western Music',ch:'Vox',d:"The structural influence of hip-hop on every genre — pop, country, film scores, everything.",url:'https://www.youtube.com/watch?v=0k5XJiv2f2Y'},
   ],
   'Psychology':[
-    {t:'The Psychology of Your Future Self',ch:'Dan Gilbert (TED)',d:'Why we make decisions that our future selves will regret, and the illusion of the end of history.'},
+    {t:'The Psychology of Your Future Self',ch:'Dan Gilbert (TED)',d:'Why we make decisions that our future selves will regret, and the illusion of the end of history.',url:'https://www.youtube.com/watch?v=XNbaR5ENaP0'},
+    {t:'The Power of Introverts',ch:'Susan Cain (TED)',d:'In a culture where being social and outgoing are prized above all else, introverts are sidelined.',url:'https://www.youtube.com/watch?v=c0KYU2j0TM4'},
   ],
 };
 
 export const CATS=Object.keys(YOUTUBE_DATA);
 
-
+// ── MOTIVATIONAL TIPS ──
+export const MOTIVATION_TIPS = [
+  "Discipline is choosing between what you want now and what you want most.",
+  "The man who moves a mountain begins by carrying away small stones.",
+  "Your future self is watching you right now through memories.",
+  "Every expert was once a beginner. Every pro was once an amateur.",
+  "Pain is temporary. Quitting lasts forever.",
+  "Fall seven times, stand up eight.",
+  "The best time to plant a tree was 20 years ago. The second best time is now.",
+  "Small daily improvements over time lead to stunning results.",
+  "You don't have to be extreme, just consistent.",
+  "The only person you are destined to become is the person you decide to be.",
+];

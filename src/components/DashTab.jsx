@@ -1,71 +1,126 @@
 import StatBox from './StatBox';
 import { DAILY_TASKS, ONE_TIME_TASKS, RANKS, RANK_COLORS } from '../data/constants';
 
-export default function DashTab({ri,rc,streak,daysLeft,dailyDone,onceDone,missed,quote,setTab,xp}){
+function ProgressRing({pct, color, size=80, strokeWidth=5, children}) {
+  const r = (size - strokeWidth) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (pct/100) * circ;
+  return (
+    <div style={{position:'relative',width:size,height:size,display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <svg width={size} height={size} style={{position:'absolute',top:0,left:0}}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={strokeWidth} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={strokeWidth}
+          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+          style={{transition:'stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1)',transform:'rotate(-90deg)',transformOrigin:'50% 50%'}}
+        />
+      </svg>
+      {children}
+    </div>
+  );
+}
+
+export default function DashTab({ri,rc,streak,daysLeft,dailyDone,onceDone,missed,quote,setTab,xp,dailyTip,diffD,diffH,diffM,diffS}){
   const totalD=DAILY_TASKS.length,totalO=ONE_TIME_TASKS.length;
   const pct=Math.round((dailyDone/totalD)*100);
-  const totalXpPossible=DAILY_TASKS.reduce((a,t)=>a+t.xp,0)+ONE_TIME_TASKS.reduce((a,t)=>a+t.xp,0);
-  return(
-    <div style={{display:'flex',flexDirection:'column',gap:12}}>
 
-      
+  return(
+    <div style={{display:'flex',flexDirection:'column',gap:14}}>
+
+      {/* Hero card with progress ring */}
+      <div className="glass-card" style={{padding:'20px 18px',display:'flex',alignItems:'center',gap:18}}>
+        <ProgressRing pct={pct} color={rc} size={90} strokeWidth={6}>
+          <div style={{textAlign:'center'}}>
+            <div className="number-display" style={{fontSize:22,fontWeight:900,color:rc}}>{pct}%</div>
+            <div style={{fontSize:8,color:'var(--text-tertiary)',letterSpacing:'0.06em',textTransform:'uppercase'}}>TODAY</div>
+          </div>
+        </ProgressRing>
+        <div style={{flex:1}}>
+          <div style={{fontSize:9,color:'var(--text-tertiary)',letterSpacing:'0.08em',textTransform:'uppercase',marginBottom:6}}>DAILY COMPLETION</div>
+          <div style={{fontSize:14,fontWeight:700,color:'var(--text-primary)',marginBottom:4}}>{dailyDone} of {totalD} daily tasks</div>
+          <div style={{fontSize:12,color:'var(--text-secondary)'}}>{onceDone} of {totalO} quests completed</div>
+          <div style={{height:4,background:'rgba(255,255,255,0.04)',borderRadius:4,overflow:'hidden',marginTop:10}}>
+            <div style={{height:'100%',width:`${pct}%`,background:`linear-gradient(90deg,var(--accent-cyan),var(--accent-purple))`,borderRadius:4,transition:'width 1s ease'}} />
+          </div>
+        </div>
+      </div>
 
       {/* Stats grid */}
-      <div style={{display:'flex',gap:6}}>
-        <StatBox v={`${dailyDone}/${totalD}`} label="Daily Tasks" color='#00f0ff'/>
-        <StatBox v={`${onceDone}/${totalO}`} label="Quests Done" color='#7b2fff'/>
-        <StatBox v={streak} label="Streak Days" color='#ffd700'/>
-        <StatBox v={daysLeft} label="Days Left" color={daysLeft<=7?'#ff4444':'#ff6b00'}/>
+      <div style={{display:'flex',gap:8}}>
+        <StatBox v={`${dailyDone}/${totalD}`} label="Daily Tasks" color='var(--accent-cyan)' icon="📋" />
+        <StatBox v={`${onceDone}/${totalO}`} label="Quests Done" color='var(--accent-purple)' icon="🗺️" />
+        <StatBox v={streak} label="Streak Days" color='var(--accent-gold)' icon="🔥" />
+        <StatBox v={daysLeft} label="Days Left" color={daysLeft<=7?'var(--accent-red)':'var(--accent-orange)'} icon="⏳" />
       </div>
 
-      {/* Today's progress */}
-      <div className="card" style={{padding:14}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-          <div style={{fontFamily:"'Quicksand',sans-serif",fontSize:10,color:'#a8a29e',letterSpacing:'0.02em'}}>TODAY'S COMPLETION</div>
-          <div style={{color:'#00f0ff',fontSize:13,fontWeight:700}}>{pct}%</div>
-        </div>
-        <div style={{height:8,background:'#1c1917',borderRadius:4,overflow:'hidden',border:'1px solid #44403c'}}>
-          <div style={{height:'100%',width:`${pct}%`,background:'linear-gradient(90deg,#00f0ff,#7b2fff)',borderRadius:4,transition:'width 1s ease'}}/>
-        </div>
-        <div style={{fontSize:11,color:'#78716c',marginTop:5}}>{dailyDone} of {totalD} daily tasks · {onceDone} of {totalO} quests</div>
-      </div>
+ 
 
       {/* Missed tasks */}
       {missed.length>0&&(
-        <div style={{background:'#180a0a',border:'1px solid #ff333333',borderRadius:16,padding:12,cursor:'pointer'}} onClick={()=>setTab('daily')}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-            <div style={{fontFamily:"'Quicksand',sans-serif",fontSize:9,color:'#ff4444',letterSpacing:'0.02em'}}>⚠ MISSED — CARRIED OVER</div>
-            <div style={{background:'#ff44441a',color:'#ff6666',borderRadius:20,padding:'2px 10px',fontSize:12,fontWeight:700}}>{missed.length}</div>
+        <div style={{
+          background:'rgba(248,113,113,0.04)',
+          border:'1px solid rgba(248,113,113,0.12)',
+          borderRadius:14,padding:'14px 16px',cursor:'pointer',
+          transition:'all 0.2s'
+        }} onClick={()=>setTab('daily')}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+            <div style={{fontSize:10,color:'var(--accent-red)',letterSpacing:'0.06em',fontWeight:700,textTransform:'uppercase'}}>⚠ MISSED — CARRIED OVER</div>
+            <div className="badge badge-missed">{missed.length}</div>
           </div>
           {missed.slice(0,3).map(id=>{
             const t=DAILY_TASKS.find(x=>x.id===id);
-            return t?<div key={id} style={{fontSize:13,color:'#ff8888',padding:'2px 0'}}>• {t.icon} {t.name}</div>:null;
+            return t?<div key={id} style={{fontSize:13,color:'rgba(248,113,113,0.7)',padding:'2px 0'}}>• {t.icon} {t.name}</div>:null;
           })}
-          {missed.length>3&&<div style={{fontSize:11,color:'#ff444488',marginTop:4}}>+{missed.length-3} more — tap to open Daily tab</div>}
+          {missed.length>3&&<div style={{fontSize:11,color:'rgba(248,113,113,0.4)',marginTop:6}}>+{missed.length-3} more — tap to see all</div>}
         </div>
       )}
 
-      {/* Quick nav */}
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-        {[['📋','daily','Complete Daily Tasks','Do your missions'],['🗺️','quests','Complete Quests','One-time objectives'],['👁️','looksmax','Looksmax Guide','Physical protocols'],['▶️','yt','Watch a Video','+40 XP per video']].map(([icon,tabId,label,sub])=>(
-          <button key={tabId} className="btn card" onClick={()=>setTab(tabId)} style={{padding:'14px 12px',textAlign:'left',display:'flex',gap:10,alignItems:'center',color:'#f5f5f4',background:'#292524',cursor:'pointer'}}>
-            <span style={{fontSize:20}}>{icon}</span>
+      {/* Quick nav grid */}
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        {[
+          ['📋','daily','Daily Tasks','Complete your missions','var(--accent-cyan)'],
+          ['🗺️','quests','Quests','One-time objectives','var(--accent-purple)'],
+          ['▶️','yt','Knowledge','+40 XP per video','var(--accent-red)'],
+          ['📊','stats','Statistics','View your history','var(--accent-green)']
+        ].map(([icon,tabId,label,sub,color])=>(
+          <button key={tabId} className="btn" onClick={()=>setTab(tabId)} style={{
+            padding:'16px 14px',textAlign:'left',display:'flex',gap:12,alignItems:'center',
+            color:'var(--text-primary)',background:'var(--bg-card)',cursor:'pointer',
+            border:'1px solid var(--border-subtle)',borderRadius:14,
+            transition:'all 0.25s',position:'relative',overflow:'hidden'
+          }}>
+            <div style={{
+              width:40,height:40,borderRadius:10,
+              background:`${color}11`,border:`1px solid ${color}22`,
+              display:'flex',alignItems:'center',justifyContent:'center',
+              fontSize:20,flexShrink:0
+            }}>{icon}</div>
             <div>
               <div style={{fontSize:13,fontWeight:700}}>{label}</div>
-              <div style={{fontSize:11,color:'#a8a29e',marginTop:1}}>{sub}</div>
+              <div style={{fontSize:11,color:'var(--text-tertiary)',marginTop:2}}>{sub}</div>
             </div>
           </button>
         ))}
       </div>
 
       {/* Rank track */}
-      <div className="card" style={{padding:14}}>
-        <div style={{fontFamily:"'Quicksand',sans-serif",fontSize:9,color:'#78716c',letterSpacing:'0.02em',marginBottom:12}}>RANK TRACK</div>
-        <div style={{display:'flex',gap:4,justifyContent:'space-between'}}>
+      <div className="glass-card" style={{padding:'16px 18px'}}>
+        <div style={{fontSize:9,color:'var(--text-tertiary)',letterSpacing:'0.08em',marginBottom:14,textTransform:'uppercase',fontWeight:700}}>RANK PROGRESSION</div>
+        <div style={{display:'flex',gap:6,justifyContent:'space-between'}}>
           {RANKS.map((r,i)=>(
             <div key={r} style={{flex:1,textAlign:'center'}}>
-              <div style={{width:'100%',aspectRatio:'1',borderRadius:'50%',background:i<ri.rank?RANK_COLORS[i]:i===ri.rank?`${RANK_COLORS[i]}22`:'#1c1917',border:i===ri.rank?`2px solid ${RANK_COLORS[i]}`:'1px solid #44403c',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontFamily:"'Quicksand',sans-serif",color:i<ri.rank?'#000':i===ri.rank?RANK_COLORS[i]:'#78716c',fontWeight:900,transition:'all 0.5s'}}>{r}</div>
-              <div style={{fontSize:8,color:i===ri.rank?RANK_COLORS[i]:'#78716c',marginTop:3,fontFamily:"'Quicksand',sans-serif"}}>{i===ri.rank?'◆':i<ri.rank?'✓':'🔒'}</div>
+              <div style={{
+                width:'100%',aspectRatio:'1',borderRadius:'50%',
+                background:i<ri.rank?RANK_COLORS[i]:i===ri.rank?`${RANK_COLORS[i]}18`:'rgba(255,255,255,0.03)',
+                border:i===ri.rank?`2px solid ${RANK_COLORS[i]}`:'1px solid var(--border-subtle)',
+                display:'flex',alignItems:'center',justifyContent:'center',
+                fontSize:10,fontWeight:900,
+                color:i<ri.rank?'#000':i===ri.rank?RANK_COLORS[i]:'var(--text-muted)',
+                transition:'all 0.5s',
+                boxShadow:i===ri.rank?`0 0 12px ${RANK_COLORS[i]}33`:'none'
+              }}>{r}</div>
+              <div style={{fontSize:7,color:i===ri.rank?RANK_COLORS[i]:'var(--text-muted)',marginTop:4,fontWeight:700}}>
+                {i===ri.rank?'◆':i<ri.rank?'✓':'🔒'}
+              </div>
             </div>
           ))}
         </div>
@@ -73,5 +128,3 @@ export default function DashTab({ri,rc,streak,daysLeft,dailyDone,onceDone,missed
     </div>
   );
 }
-
-

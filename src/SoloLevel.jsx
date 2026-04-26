@@ -1,16 +1,27 @@
-import { useState, useEffect } from "react";
-import { 
+import { useState, useEffect, useMemo } from "react";
+import {
   RANKS, RANK_TITLES, RANK_COLORS, XP_PER_RANK, getRankInfo,
-  DAILY_TASKS, WEEKEND_TASKS, ONE_TIME_TASKS, STOIC_QUOTES, LOOKSMAX_AREAS, YOUTUBE_DATA, CATS 
+  DAILY_TASKS, WEEKEND_TASKS, ONE_TIME_TASKS, STOIC_QUOTES, YOUTUBE_DATA, CATS,
+  DEADLINE_DATE, DEADLINE_LABEL, MOTIVATION_TIPS
 } from "./data/constants";
 import DashTab from "./components/DashTab";
 import DailyTab from "./components/DailyTab";
 import QuestsTab from "./components/QuestsTab";
-import LooksmaxTab from "./components/LooksmaxTab";
 import YtTab from "./components/YtTab";
 import StatsTab from "./components/StatsTab";
 
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
+
+import ScheduleTab from "./components/ScheduleTab";
+
+const TABS = [
+  ["dash","⚡","Home"],
+  ["daily","📋","Daily"],
+  ["schedule","🗓️","Plan"],
+  ["quests","🗺️","Quests"],
+  ["yt","▶️","Learn"],
+  ["stats","📊","Stats"]
+];
 
 export default function SoloLevel(){
   const navigate = useNavigate();
@@ -46,18 +57,21 @@ export default function SoloLevel(){
     return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Belgrade', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
   }
   const todayStr=getKosovoDateStr();
-  
+
   const currentKosovoTime = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Belgrade"}));
   const startOfYear = new Date(currentKosovoTime.getFullYear(), 0, 0);
   const diff = currentKosovoTime - startOfYear;
   const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
-  
+
   const quoteStartIdx = (dayOfYear * 10) % STOIC_QUOTES.length;
   const todayQuotes = Array.from({length: 10}, (_, i) => STOIC_QUOTES[(quoteStartIdx + i) % STOIC_QUOTES.length]);
 
+  // Daily motivation tip
+  const dailyTip = MOTIVATION_TIPS[dayOfYear % MOTIVATION_TIPS.length];
+
   useEffect(()=>{
     try{
-      const res=localStorage.getItem("solo_grind_v1");
+      const res=localStorage.getItem("solo_grind_v2");
       if(res){
         const d=JSON.parse(res);
         setXp(d.xp||0);
@@ -88,14 +102,14 @@ export default function SoloLevel(){
           const allMissed=[...new Set([...(d.missedTasks||[]),...missed])];
           setMissedTasks(allMissed);
           setCompletedDaily({});
-          
+
           let yStr = "";
           try{
             const yest = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Belgrade"}));
             yest.setDate(yest.getDate() - 1);
             yStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Belgrade', year: 'numeric', month: '2-digit', day: '2-digit' }).format(yest);
           }catch(e){}
-          
+
           if(d.lastDate===yStr&&DAILY_TASKS.every(t=>d.completedDaily?.[t.id])){
             setStreak((d.streak||0)+1);
           }else{setStreak(0);}
@@ -108,8 +122,8 @@ export default function SoloLevel(){
   useEffect(()=>{
     if(!loaded)return;
     try{
-      localStorage.setItem("solo_grind_v1",JSON.stringify({xp,streak,completedDaily,completedOnce,missedTasks,lastDate:todayStr,watchedYt}));
-      // Always sync today's stats to history (so today always appears)
+      localStorage.setItem("solo_grind_v2",JSON.stringify({xp,streak,completedDaily,completedOnce,missedTasks,lastDate:todayStr,watchedYt}));
+      // Always sync today's stats to history
       const dailyIds = DAILY_TASKS.map(t => t.id);
       const completedIds = Object.keys(completedDaily).filter(k => completedDaily[k] && dailyIds.includes(k));
       const savedStats = JSON.parse(localStorage.getItem("solo_grind_stats") || "{}");
@@ -122,9 +136,10 @@ export default function SoloLevel(){
     }catch(e){}
   },[xp,streak,completedDaily,completedOnce,missedTasks,watchedYt,loaded]);
 
-  function doPopup(msg){setPopup(msg);setTimeout(()=>setPopup(null),2200);}
+  function doPopup(msg){setPopup(msg);setTimeout(()=>setPopup(null),2500);}
 
-  function completeSub(id, xp, name) { if(completedDaily[id]) return; setCompletedDaily(p=>({...p, [id]: true})); setXp(p=>p+xp); doPopup('+' + xp + ' XP — ' + name + ' complete!'); }
+  function completeSub(id, xpVal, name) { if(completedDaily[id]) return; setCompletedDaily(p=>({...p, [id]: true})); setXp(p=>p+xpVal); doPopup('+' + xpVal + ' XP — ' + name + ' complete!'); }
+  function undoSub(id, xpVal, name) { if(!completedDaily[id]) return; setCompletedDaily(p=>{const n={...p}; delete n[id]; return n;}); setXp(p=>Math.max(0, p-xpVal)); doPopup('-' + xpVal + ' XP — ' + name + ' undone'); }
   function completeDaily(id){
     if(completedDaily[id])return;
     const t=[...DAILY_TASKS, ...WEEKEND_TASKS].find(x=>x.id===id);
@@ -132,7 +147,6 @@ export default function SoloLevel(){
     setXp(p=>p+t.xp);
     setMissedTasks(p=>p.filter(m=>m!==id));
     doPopup(`+${t.xp} XP • ${t.name} complete!`);
-    // If it's a weekend task, add to bonus achievements
     if (WEEKEND_TASKS.some(w => w.id === id)) {
       try {
         const savedStats = JSON.parse(localStorage.getItem("solo_grind_stats") || "{}");
@@ -146,13 +160,19 @@ export default function SoloLevel(){
       } catch(e) {}
     }
   }
+  function undoDaily(id){
+    if(!completedDaily[id])return;
+    const t=[...DAILY_TASKS, ...WEEKEND_TASKS].find(x=>x.id===id);
+    setCompletedDaily(p=>{const n={...p}; delete n[id]; return n;});
+    setXp(p=>Math.max(0, p-t.xp));
+    doPopup(`-${t.xp} XP • ${t.name} undone`);
+  }
   function completeOnce(id){
     if(completedOnce[id])return;
     const t=ONE_TIME_TASKS.find(x=>x.id===id);
     setCompletedOnce(p=>({...p,[id]:true}));
     setXp(p=>p+t.xp);
     doPopup(`+${t.xp} XP • Quest complete!`);
-    // Add to today's bonus achievements in stats
     try {
       const savedStats = JSON.parse(localStorage.getItem("solo_grind_stats") || "{}");
       const today = savedStats[todayStr] || { completed: [], missed: [], extras: [] };
@@ -164,116 +184,130 @@ export default function SoloLevel(){
       }
     } catch(e) {}
   }
+  function undoOnce(id){
+    if(!completedOnce[id])return;
+    const t=ONE_TIME_TASKS.find(x=>x.id===id);
+    setCompletedOnce(p=>{const n={...p}; delete n[id]; return n;});
+    setXp(p=>Math.max(0, p-t.xp));
+    doPopup(`-${t.xp} XP • Quest undone`);
+  }
   function watchVideo(cat,idx){
     const key=`${cat}_${idx}`;
     if(!watchedYt[key]){
       setWatchedYt(p=>({...p,[key]:true}));
       setXp(p=>p+40);
-      doPopup("+40 XP � Knowledge acquired!");
+      doPopup("+40 XP • Knowledge acquired!");
     }
   }
 
   const ri=getRankInfo(xp);
   const rc=RANK_COLORS[ri.rank];
-  const currentYear = new Date().getFullYear();
-  let deadline = new Date(`${currentYear}-05-01T00:00:00`);
-  if (deadline < new Date()) deadline = new Date(`${currentYear + 1}-05-01T00:00:00`);
+  const deadline = new Date(DEADLINE_DATE);
   const timeDiff = Math.max(0, deadline - nowTime);
   const diffD = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
   const diffH = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
   const diffM = Math.floor((timeDiff / 1000 / 60) % 60);
   const diffS = Math.floor((timeDiff / 1000) % 60);
   const daysLeft = Math.max(0, Math.ceil((deadline - new Date()) / 86400000));
-  
+
   const dailyDone=DAILY_TASKS.filter(t=>completedDaily[t.id]).length;
   const onceDone=ONE_TIME_TASKS.filter(t=>completedOnce[t.id]).length;
+  const totalDailyXp = DAILY_TASKS.reduce((a,t) => a+t.xp, 0);
+  const earnedDailyXp = DAILY_TASKS.filter(t=>completedDaily[t.id]).reduce((a,t) => a+t.xp, 0);
 
   if(!loaded)return(
-    <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:"#1c1917",fontFamily:"\"Quicksand\",monospace",fontSize:16,color:"#00f0ff",letterSpacing:"0.05em"}}>
-      ? AWAKENING JOURNAL...
+    <div className="loading-screen">
+      <div className="loading-spinner" />
+      <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:13,color:'var(--accent-cyan)',letterSpacing:"0.1em",textTransform:'uppercase'}}>
+        Initializing Shadow System...
+      </div>
     </div>
   );
 
-  const css=`
-    @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;600;700&display=swap");
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{background:#1c1917;}
-    ::-webkit-scrollbar{width:3px;}
-    ::-webkit-scrollbar-track{background:#292524;}
-    ::-webkit-scrollbar-thumb{background:#44403c;border-radius:2px;}
-    @keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
-    @keyframes xpFly{0%{transform:translate(-50%,-40%) scale(0.7);opacity:0}20%{transform:translate(-50%,-70%) scale(1.1);opacity:1}80%{transform:translate(-50%,-90%) scale(1);opacity:1}100%{transform:translate(-50%,-110%) scale(0.9);opacity:0}}
-    @keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
-    @keyframes rankPulse{0%,100%{opacity:0.7}50%{opacity:1}}
-    .card{background:#292524;border:1px solid #44403c;borderRadius:16px;transition:all 0.2s;}
-    .card:hover{border-color:#2a2a4a;background:#36302e;}
-    .btn{cursor:pointer;font-family:"Nunito",sans-serif;font-weight:700;transition:all 0.15s;border:none;outline:none;}
-    .btn:hover{transform:scale(1.03);}
-    .btn:active{transform:scale(0.97);}
-    .tab-anim{animation:slideUp 0.25s ease;}
-  `;
-
   return(
-    <div style={{fontFamily:"\"Nunito\",sans-serif",background:"#1c1917",minHeight:"100vh",color:"#f5f5f4",position:"relative",overflow:"hidden"}}>
-      <style>{css}</style>
+    <div style={{fontFamily:"'Inter',sans-serif",background:'var(--bg-primary)',minHeight:"100vh",color:'var(--text-primary)',position:"relative",overflow:"hidden"}}>
 
-      {/* Ambient glows */}
-      <div style={{position:"fixed",top:"-30%",left:"-20%",width:"70%",height:"70%",borderRadius:"50%",background:"radial-gradient(circle,#00f0ff06 0%,transparent 65%)",pointerEvents:"none",zIndex:0}}/>
-      <div style={{position:"fixed",bottom:"-30%",right:"-20%",width:"70%",height:"70%",borderRadius:"50%",background:"radial-gradient(circle,#7b2fff06 0%,transparent 65%)",pointerEvents:"none",zIndex:0}}/>
-      <div style={{position:"fixed",top:"40%",right:"-10%",width:"40%",height:"40%",borderRadius:"50%",background:`radial-gradient(circle,${rc}04 0%,transparent 65%)`,pointerEvents:"none",zIndex:0,transition:"background 1s"}}/>
+      {/* Ambient Background */}
+      <div style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",overflow:"hidden"}}>
+        <div style={{position:"absolute",top:"-40%",left:"-30%",width:"80%",height:"80%",borderRadius:"50%",background:`radial-gradient(circle,${rc}08 0%,transparent 60%)`,transition:"background 2s"}} />
+        <div style={{position:"absolute",bottom:"-40%",right:"-30%",width:"80%",height:"80%",borderRadius:"50%",background:"radial-gradient(circle,rgba(139,92,246,0.04) 0%,transparent 60%)"}} />
+        <div style={{position:"absolute",top:"20%",right:"0",width:"60%",height:"60%",borderRadius:"50%",background:"radial-gradient(circle,rgba(0,229,255,0.03) 0%,transparent 60%)"}} />
+        {/* Grid overlay */}
+        <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)",backgroundSize:"60px 60px",opacity:0.5}} />
+      </div>
 
       {/* XP Popup */}
       {popup&&(
-        <div style={{position:"fixed",top:"18%",left:"50%",zIndex:9999,animation:"xpFly 2.2s ease forwards",pointerEvents:"none",whiteSpace:"nowrap"}}>
-          <div style={{background:"linear-gradient(135deg,#292524,#44403c)",border:`1px solid ${rc}66`,borderRadius:16,padding:"12px 24px",textAlign:"center",backdropFilter:"blur(8px)"}}>
-            <div style={{fontFamily:"\"Quicksand\",sans-serif",fontSize:22,fontWeight:900,color:"#ffd700"}}>{popup}</div>
-            <div style={{fontSize:10,color:"#00f0ff",letterSpacing:"0.05em",marginTop:3}}>JOURNAL</div>
+        <div style={{position:"fixed",top:"16%",left:"50%",zIndex:9999,animation:"xpFly 2.5s ease forwards",pointerEvents:"none",whiteSpace:"nowrap"}}>
+          <div style={{background:"rgba(22,22,31,0.95)",backdropFilter:"blur(20px)",border:`1px solid ${rc}55`,borderRadius:16,padding:"14px 28px",textAlign:"center",boxShadow:`0 8px 40px rgba(0,0,0,0.5), 0 0 30px ${rc}22`}}>
+            <div style={{fontFamily:"'Inter',sans-serif",fontSize:18,fontWeight:900,color:"var(--accent-gold)",letterSpacing:"0.02em"}}>{popup}</div>
           </div>
         </div>
       )}
 
-      <div style={{maxWidth:500,margin:"0 auto",position:"relative",zIndex:1,paddingBottom:110}}>
-        {/* Header */}
-        <div style={{padding:"20px 16px 0",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+      <div style={{maxWidth:520,margin:"0 auto",position:"relative",zIndex:1,paddingBottom:120}}>
+        {/* ── Header ── */}
+        <div style={{padding:"24px 16px 0",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
           <div>
-            <div style={{fontFamily:"\"Quicksand\",sans-serif",fontSize:10,letterSpacing:"0.02em",color:rc,marginBottom:5,animation:"rankPulse 2s infinite"}}>{RANKS[ri.rank]}-RANK • {RANK_TITLES[ri.rank]}</div>
-            <div style={{fontFamily:"\"Quicksand\",sans-serif",fontSize:22,fontWeight:900,color:"#fff",lineHeight:1.1}}>DAILY GRIND</div>
-            <div style={{fontSize:12,color:"#a8a29e",marginTop:3,letterSpacing:"0.05em"}}>Cozy Tracking Mode</div>
+            <div style={{fontSize:10,letterSpacing:"0.12em",color:rc,marginBottom:6,textTransform:"uppercase",fontWeight:700,animation:"pulse 2s infinite"}}>
+              {RANKS[ri.rank]}-RANK • {RANK_TITLES[ri.rank]}
+            </div>
+            <div style={{fontSize:26,fontWeight:900,color:"#fff",lineHeight:1.1,letterSpacing:"-0.02em"}}>
+              SHADOW<span style={{color:rc}}> PROTOCOL</span>
+            </div>
+            <div style={{fontSize:11,color:'var(--text-tertiary)',marginTop:5,letterSpacing:"0.04em"}}>
+              {dailyTip}
+            </div>
           </div>
           <div style={{textAlign:"right",paddingTop:2}}>
-            <div style={{fontFamily:"\"Quicksand\",sans-serif",fontSize:15,fontWeight:900,color:"#ffd700",marginBottom:4}}>🔥 {streak}d streak</div>
-            <div style={{fontSize:12,color:daysLeft<=7?"#ff4444":"#666",marginBottom:3}}>⏳ {daysLeft}d to deadline</div>
-            <div style={{fontFamily:"\"Quicksand\",sans-serif",fontSize:13,color:"#00f0ff"}}>{xp.toLocaleString()} XP</div>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"flex-end",gap:6,marginBottom:6}}>
+              <span style={{fontSize:18}}>🔥</span>
+              <span className="number-display" style={{fontSize:20,fontWeight:900,color:"var(--accent-gold)"}}>{streak}</span>
+              <span style={{fontSize:11,color:'var(--text-tertiary)'}}>day streak</span>
+            </div>
+            <div className="number-display" style={{fontSize:14,color:"var(--accent-cyan)",fontWeight:700}}>
+              {xp.toLocaleString()} XP
+            </div>
           </div>
         </div>
 
-        {/* XP Bar */}
-        <div style={{padding:"12px 16px 0"}}>
-          <div style={{height:5,background:"#292524",borderRadius:3,overflow:"hidden",border:"1px solid #44403c"}}>
-            <div style={{height:"100%",width:`${ri.pct}%`,background:`linear-gradient(90deg,${rc}88,${rc})`,borderRadius:3,transition:"width 1s ease",boxShadow:`0 0 6px ${rc}44`}}/>
+        {/* ── XP Progress Bar ── */}
+        <div style={{padding:"16px 16px 0"}}>
+          <div style={{height:6,background:"rgba(255,255,255,0.04)",borderRadius:6,overflow:"hidden",border:"1px solid var(--border-subtle)"}}>
+            <div style={{height:"100%",width:`${ri.pct}%`,background:`linear-gradient(90deg,${rc}99,${rc})`,borderRadius:6,transition:"width 1s cubic-bezier(0.4,0,0.2,1)",boxShadow:`0 0 12px ${rc}33`}} />
           </div>
-          <div style={{display:"flex",justifyContent:"space-between",fontSize:10,marginTop:4,color:"#78716c"}}>
-            <span style={{color:rc,letterSpacing:"0.02em"}}>{RANK_TITLES[ri.rank]}</span>
-            <span>{ri.current.toLocaleString()}/{ri.needed.toLocaleString()} → {RANKS[Math.min(ri.rank+1,7)]}-Rank</span>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:10,marginTop:6,color:'var(--text-tertiary)'}}>
+            <span style={{color:rc,fontWeight:600}}>{RANK_TITLES[ri.rank]}</span>
+            <span className="number-display">{ri.current.toLocaleString()}/{ri.needed.toLocaleString()} → {RANKS[Math.min(ri.rank+1,7)]}-Rank</span>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div style={{display:"flex",gap:4,padding:"14px 16px 0",overflowX:"auto",msOverflowStyle:"none",scrollbarWidth:"none"}}>
-          {[["dash","⚡","Home"],["daily","📋","Daily"],["quests","🗺️","Quests"],["looksmax","👁️","Looks"],["yt","▶️","Knowledge"],["stats","📊","Stats"]].map(([id,icon,label])=>(
-            <button key={id} className="btn" onClick={()=>setTab(id)} style={{flex:"0 0 auto",display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"8px 14px",background:tab===id?"#36302e":"transparent",border:tab===id?`1px solid ${rc}44`:"1px solid #44403c",borderRadius:12,color:tab===id?rc:"#a8a29e",fontFamily:"\"Nunito\",sans-serif",fontWeight:700,fontSize:10,letterSpacing:"0.02em",textTransform:"uppercase"}}>
-              <span style={{fontSize:15}}>{icon}</span>{label}
+        {/* ── Navigation Tabs ── */}
+        <div style={{display:"flex",gap:3,padding:"16px 16px 0",overflowX:"auto",msOverflowStyle:"none",scrollbarWidth:"none"}}>
+          {TABS.map(([id,icon,label])=>(
+            <button key={id} className="btn" onClick={()=>setTab(id)} style={{
+              flex:"0 0 auto",display:"flex",flexDirection:"column",alignItems:"center",gap:3,
+              padding:"10px 14px",
+              background:tab===id?"rgba(255,255,255,0.06)":"transparent",
+              border:tab===id?`1px solid ${rc}44`:"1px solid transparent",
+              borderRadius:12,
+              color:tab===id?rc:'var(--text-tertiary)',
+              fontFamily:"'Inter',sans-serif",fontWeight:700,fontSize:9,
+              letterSpacing:"0.08em",textTransform:"uppercase",
+              transition:"all 0.25s"
+            }}>
+              <span style={{fontSize:16,filter:tab===id?`drop-shadow(0 0 6px ${rc}66)`:'none',transition:"filter 0.3s"}}>{icon}</span>{label}
             </button>
           ))}
         </div>
 
-        {/* Content */}
-        <div style={{padding:"14px 16px"}} className="tab-anim" key={tab}>
+        {/* ── Content ── */}
+        <div style={{padding:"16px 16px"}} className="tab-anim" key={tab}>
           <Routes>
-            <Route path="/" element={<DashTab ri={ri} rc={rc} streak={streak} daysLeft={daysLeft} dailyDone={dailyDone} onceDone={onceDone} missed={missedTasks} quote={todayQuotes[0]} setTab={setTab} xp={xp}/>} />
-            <Route path="/daily" element={<DailyTab tasks={DAILY_TASKS} weekendTasks={WEEKEND_TASKS} completed={completedDaily} missed={missedTasks} onComplete={completeDaily} onCompleteSub={completeSub} quotes={todayQuotes} expanded={expandedDaily} setExpanded={setExpandedDaily}/>} />
-            <Route path="/quests" element={<QuestsTab tasks={ONE_TIME_TASKS} completed={completedOnce} onComplete={completeOnce} daysLeft={daysLeft} expanded={expandedQuest} setExpanded={setExpandedQuest}/>} />
-            <Route path="/looksmax" element={<LooksmaxTab areas={LOOKSMAX_AREAS} selected={lookArea} setSelected={setLookArea} expanded={expandedTip} setExpanded={setExpandedTip}/>} />
+            <Route path="/" element={<DashTab ri={ri} rc={rc} streak={streak} daysLeft={daysLeft} dailyDone={dailyDone} onceDone={onceDone} missed={missedTasks} quote={todayQuotes[0]} setTab={setTab} xp={xp} dailyTip={dailyTip} diffD={diffD} diffH={diffH} diffM={diffM} diffS={diffS} />} />
+            <Route path="/daily" element={<DailyTab tasks={DAILY_TASKS} weekendTasks={WEEKEND_TASKS} completed={completedDaily} missed={missedTasks} onComplete={completeDaily} onUndo={undoDaily} onCompleteSub={completeSub} onUndoSub={undoSub} quotes={todayQuotes} expanded={expandedDaily} setExpanded={setExpandedDaily}/>} />
+            <Route path="/schedule" element={<ScheduleTab />} />
+            <Route path="/quests" element={<QuestsTab tasks={ONE_TIME_TASKS} completed={completedOnce} onComplete={completeOnce} onUndo={undoOnce} daysLeft={daysLeft} expanded={expandedQuest} setExpanded={setExpandedQuest}/>} />
             <Route path="/yt" element={<YtTab data={YOUTUBE_DATA} cats={CATS} cat={ytCat} setCat={c=>{setYtCat(c);setYtIdx(0);}} idx={ytIdx} setIdx={setYtIdx} watched={watchedYt} onWatch={watchVideo}/>} />
             <Route path="/stats" element={<StatsTab />} />
             <Route path="*" element={<Navigate to="/" replace />} />
@@ -281,18 +315,27 @@ export default function SoloLevel(){
         </div>
       </div>
 
-      {/* Floating Countdown */}
-      <div style={{position:"fixed",bottom:24,right:24,zIndex:9998,background:"#292524ee",border:`1px solid ${daysLeft<7?'#ff4444':'#44403c'}`,borderRadius:14,padding:"14px 20px",backdropFilter:"blur(5px)",boxShadow:`0 8px 24px rgba(0,0,0,0.6)`,display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
-        <div style={{fontFamily:"\"Quicksand\",sans-serif",fontSize:10,letterSpacing:"0.05em",color:"#a8a29e",fontWeight:700}}>DEADLINE � 1 MAY {deadline.getFullYear()}</div>
-        <div style={{fontFamily:"\"Quicksand\",monospace",fontSize:22,fontWeight:900,color:daysLeft<7?"#ff4444":"#ffd700",letterSpacing:"2px"}}>
+      {/* ── Floating Countdown ── */}
+      <div style={{
+        position:"fixed",bottom:20,right:20,zIndex:9998,
+        background:"rgba(10,10,15,0.85)",
+        backdropFilter:"blur(20px)",
+        border:`1px solid ${daysLeft<7?'rgba(248,113,113,0.3)':'var(--border-default)'}`,
+        borderRadius:18,padding:"16px 22px",
+        boxShadow: daysLeft<7 ? '0 8px 30px rgba(248,113,113,0.15)' : 'var(--shadow-elevated)',
+        display:"flex",flexDirection:"column",alignItems:"center",gap:8,
+        animation: daysLeft<7 ? 'countdownPulse 2s infinite' : 'none'
+      }}>
+        <div style={{fontSize:9,letterSpacing:"0.12em",color:'var(--text-tertiary)',fontWeight:700,textTransform:"uppercase"}}>
+          DEADLINE • {DEADLINE_LABEL}
+        </div>
+        <div className="number-display" style={{fontSize:24,fontWeight:900,color:daysLeft<7?"var(--accent-red)":"var(--accent-gold)",letterSpacing:"2px"}}>
           {diffD}d {String(diffH).padStart(2,'0')}:{String(diffM).padStart(2,'0')}:{String(diffS).padStart(2,'0')}
         </div>
+        <div style={{width:"100%",height:2,background:"rgba(255,255,255,0.04)",borderRadius:2,overflow:"hidden"}}>
+          <div style={{height:"100%",width:`${Math.max(0,100-(daysLeft/35*100))}%`,background:daysLeft<7?'var(--accent-red)':'var(--accent-gold)',borderRadius:2,transition:"width 1s"}} />
+        </div>
       </div>
-
     </div>
   );
 }
-
-
-
-
