@@ -43,7 +43,6 @@ function getTaskIcon(id) {
 export default function StatsTab() {
   const [stats, setStats] = useState(loadStats);
   const [selectedDay, setSelectedDay] = useState(null);
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'heatmap'
 
   useEffect(() => {
     const refresh = () => setStats(loadStats());
@@ -83,16 +82,6 @@ export default function StatsTab() {
     });
   });
   const topCompleted = Object.entries(completedCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
-
-  // Current streak calculation
-  let currentStreak = 0;
-  for (const date of sortedDates) {
-    if (stats[date].missed.length === 0) {
-      currentStreak++;
-    } else {
-      break;
-    }
-  }
 
   const selected = selectedDay ? stats[selectedDay] : null;
 

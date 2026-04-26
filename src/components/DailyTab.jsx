@@ -1,143 +1,234 @@
-import { useState, useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const startDate = new Date("2026-04-27T00:00:00");
 const endDate = new Date("2026-06-01T00:00:00");
 
-// Generate dates between start and end
+// Episode durations in minutes per show (for relax/TV block end-time calculation)
+const SHOW_EP_DURATIONS = {
+  "Chernobyl":        65,
+  "Cowboy Bebop":     24,
+  "FMAB":             24,
+  "Better Call Saul": 47,
+  "The Sopranos":     52,
+};
+
+const ALL_DAY_TASK_IDS = ['water', 'nofap'];
+
 const dates = [];
-let cd = new Date(startDate);
-while (cd <= endDate) {
-  dates.push(new Date(cd));
-  cd.setDate(cd.getDate() + 1);
+for (let current = new Date(startDate); current <= endDate; current.setDate(current.getDate() + 1)) {
+  dates.push(new Date(current));
+}
+
+const weekendDates = dates.filter((date) => date.getDay() === 0 || date.getDay() === 6);
+
+const BOOK_PLAN = [
+  { startDay: 0, endDay: 5, title: 'Read "Jam Mysliman"', total: 12, unit: "Ch." },
+  { startDay: 6, endDay: 18, title: 'Read "The Prince"', total: 26, unit: "Ch." },
+  { startDay: 19, endDay: 23, title: 'Read "Animal Farm"', total: 10, unit: "Ch." },
+  { startDay: 24, endDay: 35, title: 'Read Book of Choice', total: 24, unit: "Ch." },
+];
+
+const SHOW_PLAN = [
+  { startDay: 0, endDay: 2, title: "Chernobyl", total: 5, unit: "Eps" },
+  { startDay: 3, endDay: 7, title: "Cowboy Bebop", total: 26, unit: "Eps" },
+  { startDay: 8, endDay: 18, title: "FMAB", total: 64, unit: "Eps" },
+  { startDay: 19, endDay: 39, title: "Better Call Saul", total: 63, unit: "Eps" },
+  { startDay: 40, endDay: 68, title: "The Sopranos", total: 86, unit: "Eps" },
+];
+
+const GAME_PLAN = [
+  { startDay: 0, endDay: 7, title: "Assassin's Creed Origins" },
+  { startDay: 8, endDay: 19, title: "Ghost of Tsushima" },
+  { startDay: 20, endDay: 24, title: "Batman: Arkham City" },
+  { startDay: 25, endDay: 30, title: "Batman: Arkham Knight" },
+  { startDay: 31, endDay: 35, title: "CS2 / Free Play" },
+];
+
+const WEEKEND_MOVIES = [
+  'Watch "Europa: The Last Battle" (Part 1)',
+  'Watch "Europa: The Last Battle" (Part 2)',
+  'Watch "Europa: The Last Battle" (Part 3)',
+  'Watch "Planet Earth 1" (Eps 1-3)',
+  'Watch "Planet Earth 1" (Eps 4-6)',
+  'Watch "The Social Dilemma"',
+  'Watch "Europa: The Last Battle" (Part 4)',
+  'Watch "Europa: The Last Battle" (Part 5)',
+  'Watch "Planet Earth 1" (Eps 7-9)',
+  'Watch "Planet Earth 1" (Eps 10-11)',
+];
+
+const WEEKEND_PURCHASES = [
+  "Research: CD Albums vs Vinyl",
+  "Buy a CD Album purely for the music",
+  "Research: Dimensions for Wall Mirrors",
+  "Purchase the Wall Mirror",
+  "Compare Attack on Titan Posters",
+  "Buy Attack on Titan Poster",
+  "Review remaining budget",
+  "Savings optimization",
+  "Plan future buys safely",
+  "Finalize all planned purchases",
+];
+
+const WEEKEND_HUSTLES = [
+  "Money: Brainstorm 3 side-hustle ideas",
+  "Money: Setup Upwork / Profile",
+  "Money: Research high-income skills",
+  "Money: Send 15 cold DMs/Emails",
+  "Money: Post freelance services online",
+  "Money: Follow up on previous leads",
+  "Money: Work on digital product / skill",
+  "Money: Apply to 5 quick gigs",
+  "Money: Cash out / Review earnings",
+  "Money: Final push to hit $400 goal!",
+];
+
+// One Quest film per Monday with exact durations
+const MONDAY_FILMS = [
+  { title: '"Harakiri" (1962)', duration: 133 },
+  { title: '"Come and See" (1985)', duration: 142 },
+  { title: '"The Silence of the Lambs" (1991)', duration: 118 },
+  { title: '"Oppenheimer" (2023)', duration: 180 },
+  { title: '"Incendies" (2010)', duration: 131 },
+];
+
+const SKILL_ROTATION = [
+  {
+    name: "CS2: Aim Training & Deathmatch (30m)",
+    tip: 'Open Aim Lab - do "Gridshot" and "Microshot" for 10 mins. Then CS2 deathmatch for 20 mins. Focus on crosshair placement before moving, not kill count.',
+  },
+  {
+    name: "Chess: Puzzles + Rapid Game (30m)",
+    tip: "Open chess.com. Do 15 tactics puzzles first, then play one 10+0 rapid game. After: review every blunder with the engine and study one opening line.",
+  },
+  {
+    name: "EA FC 26: Skill & Game Study (30m)",
+    tip: "Arena first: drill 3 skill moves until automatic. Then play 1 ranked match and review one goal you conceded.",
+  },
+  {
+    name: "Ping Pong: Technique Drills (30m)",
+    tip: 'Watch one technique video (search "forehand loop tutorial"), then drill 10 mins forehand topspin, 10 mins backhand push, and 10 mins serve variation.',
+  },
+];
+
+const MONDAY_SHIFT_MINUTES = 40;
+const MONDAY_SHIFTED_TASK_IDS = [
+  "wake_up",
+  "prayer",
+  "meditate",
+  "stretch",
+  "looksmax",
+  "work",
+  "water",
+  "exercise",
+  "yt_vid",
+  "mastery",
+  "game_time",
+  "relax",
+  "stoic",
+  "read_book",
+  "sleep",
+];
+
+function normalizeDate(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function clampDate(date) {
+  const normalized = normalizeDate(date);
+  if (normalized < startDate) {
+    return new Date(startDate);
+  }
+  if (normalized > endDate) {
+    return new Date(endDate);
+  }
+  return normalized;
+}
+
+function allocateRange(total, slots, index) {
+  const start = Math.floor((index * total) / slots) + 1;
+  const end = Math.min(total, Math.floor(((index + 1) * total) / slots));
+  return { start, end };
+}
+
+function buildSegmentTitle(dayIndex, plan) {
+  const segment = plan.find(({ startDay, endDay }) => dayIndex >= startDay && dayIndex <= endDay) ?? plan[plan.length - 1];
+  const slotIndex = dayIndex - segment.startDay;
+  const slotCount = segment.endDay - segment.startDay + 1;
+  const { start, end } = allocateRange(segment.total, slotCount, slotIndex);
+  return `${segment.title} (${segment.unit} ${start}${end > start ? `-${end}` : ""})`;
+}
+
+function shiftClock(timeValue, shiftMinutes) {
+  const [hours, minutes] = timeValue.split(":").map(Number);
+  const totalMinutes = ((hours * 60) + minutes + shiftMinutes + (24 * 60)) % (24 * 60);
+  return `${String(Math.floor(totalMinutes / 60)).padStart(2, "0")}:${String(totalMinutes % 60).padStart(2, "0")}`;
+}
+
+function shiftTimeRange(range, shiftMinutes) {
+  if (!range.includes(":")) {
+    return range;
+  }
+
+  if (!range.includes(" - ")) {
+    return shiftClock(range, shiftMinutes);
+  }
+
+  const [start, end] = range.split(" - ");
+  return `${shiftClock(start, shiftMinutes)} - ${shiftClock(end, shiftMinutes)}`;
 }
 
 export default function DailyTab({tasks,weekendTasks,completed,missed,onComplete,onUndo,onCompleteSub,onUndoSub,quotes,expanded,setExpanded}){
   const [qIdx, setQIdx] = useState(0);
-  const [selectedDateObj, setSelectedDateObj] = useState(() => {
-    const today = new Date();
-    return today < startDate ? startDate : today;
-  });
+  const [selectedDateObj, setSelectedDateObj] = useState(() => clampDate(new Date()));
 
-  const isToday = new Date().toDateString() === selectedDateObj.toDateString();
+  const isToday = normalizeDate(new Date()).getTime() === selectedDateObj.getTime();
 
   // Dynamic content logic based on selected date
   const dayOverrides = useMemo(() => {
-    const diffTime = selectedDateObj.getTime() - startDate.getTime();
-    const dayIndex = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+    const dayIndex = Math.max(0, Math.floor((selectedDateObj.getTime() - startDate.getTime()) / MS_PER_DAY));
     const day = selectedDateObj.getDay();
+    const isWeekend = day === 0 || day === 6;
+    const weekendIdx = weekendDates.findIndex((date) => date.getTime() === selectedDateObj.getTime());
 
-    // -- 1. Books (48 chapters total across 36 days) --
-    let bookTitle = "";
-    if (dayIndex <= 8) { // 9 days for Jam Mysliman (12 chars)
-      const ch1 = Math.floor(dayIndex * (12/9)) + 1;
-      const ch2 = Math.min(12, Math.floor((dayIndex + 1) * (12/9)));
-      bookTitle = `Read "Jam Mysliman" (Ch. ${ch1}${ch2 > ch1 ? `-${ch2}` : ''})`;
-    } else if (dayIndex <= 15) { // 7 days for Animal Farm (10 chars)
-      const d = dayIndex - 9;
-      const ch1 = Math.floor(d * (10/7)) + 1;
-      const ch2 = Math.min(10, Math.floor((d + 1) * (10/7)));
-      bookTitle = `Read "Animal Farm" (Ch. ${ch1}${ch2 > ch1 ? `-${ch2}` : ''})`;
-    } else { // 20 days for The Prince (26 chars)
-      const d = dayIndex - 16;
-      const ch1 = Math.floor(d * (26/20)) + 1;
-      const ch2 = Math.min(26, Math.floor((d + 1) * (26/20)));
-      bookTitle = `Read "The Prince" (Ch. ${ch1}${ch2 > ch1 ? `-${ch2}` : ''})`;
-    }
+    const bookTitle = buildSegmentTitle(dayIndex, BOOK_PLAN);
+    const tvTitle = buildSegmentTitle(dayIndex, SHOW_PLAN);
 
-    // -- 2. TV Shows & Anime (244 episodes total across 36 days) --
-    let tvTitle = "";
-    if (dayIndex <= 2) { // 3 days for Chernobyl (5 eps)
-      const d = dayIndex;
-      const ep1 = Math.floor(d * (5/3)) + 1;
-      const ep2 = Math.min(5, Math.floor((d + 1) * (5/3)));
-      tvTitle = `Chernobyl (Eps ${ep1}${ep2 > ep1 ? `-${ep2}` : ''})`;
-    } else if (dayIndex <= 6) { // 4 days for Cowboy Bebop (26 eps)
-      const d = dayIndex - 3;
-      const ep1 = Math.floor(d * (26/4)) + 1;
-      const ep2 = Math.min(26, Math.floor((d + 1) * (26/4)));
-      tvTitle = `Cowboy Bebop (Eps ${ep1}${ep2 > ep1 ? `-${ep2}` : ''})`;
-    } else if (dayIndex <= 15) { // 9 days for FMAB (64 eps)
-      const d = dayIndex - 7;
-      const ep1 = Math.floor(d * (64/9)) + 1;
-      const ep2 = Math.min(64, Math.floor((d + 1) * (64/9)));
-      tvTitle = `FMAB (Eps ${ep1}${ep2 > ep1 ? `-${ep2}` : ''})`;
-    } else if (dayIndex <= 25) { // 10 days for Better Call Saul (63 eps)
-      const d = dayIndex - 16;
-      const ep1 = Math.floor(d * (63/10)) + 1;
-      const ep2 = Math.min(63, Math.floor((d + 1) * (63/10)));
-      tvTitle = `Better Call Saul (Eps ${ep1}${ep2 > ep1 ? `-${ep2}` : ''})`;
-    } else { // 10 days for The Sopranos (86 eps)
-      const d = dayIndex - 26;
-      const ep1 = Math.floor(d * (86/10)) + 1;
-      const ep2 = Math.min(86, Math.floor((d + 1) * (86/10)));
-      tvTitle = `The Sopranos (Eps ${ep1}${ep2 > ep1 ? `-${ep2}` : ''})`;
-    }
+    // Calculate realistic TV block duration based on episodes × show duration
+    const tvSegment = SHOW_PLAN.find(({ startDay, endDay }) => dayIndex >= startDay && dayIndex <= endDay) ?? SHOW_PLAN[SHOW_PLAN.length - 1];
+    const tvEpDuration = SHOW_EP_DURATIONS[tvSegment.title] ?? 45;
+    const tvSlotCount = tvSegment.endDay - tvSegment.startDay + 1;
+    const tvSlotIndex = dayIndex - tvSegment.startDay;
+    const { start: tvEpStart, end: tvEpEnd } = allocateRange(tvSegment.total, tvSlotCount, tvSlotIndex);
+    const tvEpCount = Math.max(1, tvEpEnd - tvEpStart + 1);
+    const tvBlockMinutes = tvEpCount * tvEpDuration;
+    // relax start = 20:30 → compute end
+    const RELAX_START_MINUTES = 20 * 60 + 30;
+    const relaxEndMinutes = (RELAX_START_MINUTES + tvBlockMinutes) % (24 * 60);
+    const relaxEndStr = `${String(Math.floor(relaxEndMinutes / 60)).padStart(2,'0')}:${String(relaxEndMinutes % 60).padStart(2,'0')}`;
+    const relaxTimeStr = `20:30 - ${relaxEndStr}`;
 
-    // -- 3. Games (Split cleanly across the 36 days) --
-    let gameTitle = "";
-    const gameIdx = Math.floor(dayIndex / 9);
-    if (gameIdx === 0) gameTitle = `Play Assassin's Creed Origins (Part ${dayIndex + 1}/9)`;
-    else if (gameIdx === 1) gameTitle = `Play Ghost of Tsushima (Part ${dayIndex - 9 + 1}/9)`;
-    else if (gameIdx === 2) gameTitle = `Play Batman: Arkham City (Part ${dayIndex - 18 + 1}/9)`;
-    else gameTitle = `Play Batman: Arkham Knight (Part ${dayIndex - 27 + 1}/9)`;
+    // -- 3. Games (Calculated exact days to finish each game) --
+    const gameSegment = GAME_PLAN.find(({ startDay, endDay }) => dayIndex >= startDay && dayIndex <= endDay) || GAME_PLAN[GAME_PLAN.length - 1];
+    const gameSlotCount = gameSegment.endDay - gameSegment.startDay + 1;
+    const gameSlotIndex = dayIndex - gameSegment.startDay + 1;
+    const gameTitle = `Play ${gameSegment.title} (Part ${gameSlotIndex}/${gameSlotCount})`;
 
-    // -- 4. Weekend Specifics (10 weekend days between Apr 27 and Jun 1) --
-    // Saturday index mapping: dayIndex 5->0, 6->1, 12->2, 13->3, etc.
-    const weekendIdx = Math.floor((dayIndex - 5) / 7) * 2 + (day === 6 ? 0 : 1);
-    
-    const moviesList = [
-      'Watch "American Psycho" (2000)',
-      'Watch "Heat" (1995)',
-      'Watch "Europa: The Last Battle" (Part 1)',
-      'Watch "Europa: The Last Battle" (Part 2)',
-      'Watch "Children of Men" (2006)',
-      'Watch "Zodiac" (2007)',
-      'Watch "Planet Earth 1" (Marathon)',
-      'Watch "Prisoners" (2013)',
-      'Watch "The Truman Show" (1998)',
-      'Watch "The Social Dilemma"'
-    ];
-    let movieTitle = moviesList[Math.min(9, Math.max(0, weekendIdx))] || "Movie / Doc";
-
-    const buysList = [
-      'Research: CD Albums vs Vinyl',
-      'Buy a CD Album purely for the music',
-      'Research: Dimensions for Wall Mirrors',
-      'Purchase the Wall Mirror',
-      'Compare Attack on Titan Posters',
-      'Buy Attack on Titan Poster',
-      'Review remaining budget',
-      'Savings optimization',
-      'Plan future buys safely',
-      'Finalize all planned purchases'
-    ];
-    let buyTitle = buysList[Math.min(9, Math.max(0, weekendIdx))] || "Research / Buy";
-
-    const hustleList = [
-      'Money: Brainstorm 3 side-hustle ideas',
-      'Money: Setup Upwork / Profile',
-      'Money: Research high-income skills',
-      'Money: Send 15 cold DMs/Emails',
-      'Money: Post freelance services online',
-      'Money: Follow up on previous leads',
-      'Money: Work on digital product / skill',
-      'Money: Apply to 5 quick gigs',
-      'Money: Cash out / Review earnings',
-      'Money: Final push to hit $400 goal!'
-    ];
-    let hustleTitle = hustleList[Math.min(9, Math.max(0, weekendIdx))] || "Make $400";
+    const movieTitle = WEEKEND_MOVIES[Math.max(0, weekendIdx)] || "Movie / Doc";
+    const buyTitle = WEEKEND_PURCHASES[Math.max(0, weekendIdx)] || "Research / Buy";
+    const hustleTitle = WEEKEND_HUSTLES[Math.max(0, weekendIdx)] || "Make $400";
 
     // Dynamic Challenge Injection
     let wakeTitle = "Wake Up";
     let wakeTip = "No snooze. Out of bed immediately. Win the first battle.";
 
-    
     let workTip = "Execute job duties perfectly. Do not check social media.";
     if (dayIndex >= 7 && dayIndex < 10) {
       workTip = `Day ${dayIndex - 6}/3 of No Social Media Challenge. Focus deeply.`;
     }
 
-    const workoutTitle = `Workout: ${["Chest & Triceps", "Back & Pullups", "Legs & Squats", "Shoulders & Pike", "Full Body HIIT", "Active Recovery", "Heavy Core"][dayIndex % 7]}`;
+    const workoutTitle = "Workout";
     const knowledgeTitle = `Learn: ${["AI & Tech", "Stoicism & Philosophy", "History", "Economy", "Science", "Coding", "Psychology"][dayIndex % 7]}`;
 
     // Common Overrides
@@ -147,99 +238,136 @@ export default function DailyTab({tasks,weekendTasks,completed,missed,onComplete
       meditate: { name: "Meditate", tip: "Box breathing to steady the mind. Total silence.", time: "07:20 - 07:25" },
       stretch: { name: "Morning Stretch", tip: "5 mins of targeted neck and spine mobility.", time: "07:25 - 07:30" },
       looksmax: { name: "Looksmax Routine", tip: "Facial aesthetics, skin care, hair optimization.", time: "07:30 - 08:00" },
-      water: { name: "Hydrate & Breakfast", tip: "Drink 500ml water and consume high protein.", time: "10:00 - 10:30" },
+      water: { name: "2L of Water", tip: "Start with 500ml before coffee. Set phone reminders every 2 hours.", time: "All day" },
       exercise: { name: workoutTitle, tip: "Focus intensively on the targeted muscle block.", time: "17:30 - 18:00" },
       yt_vid: { name: knowledgeTitle, tip: "Watch 1 educational video from the tab.", time: "18:00 - 18:30" },
-mastery: (() => {
-  const skillRota = [
-    {
-      name: 'CS2: Aim Training & Deathmatch (30m)',
-      tip: 'Open Aim Lab — do "Gridshot" and "Microshot" for 10 mins. Then CS2 deathmatch for 20 mins. Focus on crosshair placement before moving, not kill count.',
-    },
-    {
-      name: 'Chess: Puzzles + Rapid Game (30m)',
-      tip: 'Open chess.com. Do 15 tactics puzzles first (builds pattern recognition fast). Then play one 10+0 rapid game. After: review every blunder with the engine. Study one opening line.',
-    },
-    {
-      name: 'EA FC 26: Skill & Game Study (30m)',
-      tip: 'Arena first: drill 3 skill moves (elastico, ball roll, scoop turn) until automatic. Then 1 ranked match. After: rewatch one goal you conceded and identify the defensive mistake.',
-    },
-    {
-      name: 'Ping Pong: Technique Drills (30m)',
-      tip: 'Watch one technique video (Tom Lodziak or PingSkills on YouTube — search "forehand loop tutorial"). Then drill: 10 mins forehand topspin, 10 mins backhand push, 10 mins serve variation.',
-    },
-  ];
-  const s = skillRota[dayIndex % 4];
-  return { name: s.name, tip: s.tip, time: '18:30 - 19:00' };
-})(),
-game_time: { name: gameTitle, tip: "1.5 hours of focused gameplay. Execute your playstyle intention for today.", time: "19:00 - 20:30" },      relax: { name: tvTitle, tip: "Analyze the character progression and story.", time: "20:30 - 22:30" },
-      nofap: { name: "Free Time / Bonus Tasks", tip: "Use this time to go out, handle errands, or do extra side-hustle tasks.", time: "17:00 - 22:30" },
+      mastery: {
+        name: SKILL_ROTATION[dayIndex % SKILL_ROTATION.length].name,
+        tip: SKILL_ROTATION[dayIndex % SKILL_ROTATION.length].tip,
+        time: "18:30 - 19:00",
+      },
+      game_time: { name: gameTitle, tip: "1.5 hours of focused gameplay. Execute your playstyle intention for today.", time: "19:00 - 20:30" },
+      relax: { name: tvTitle, tip: "Analyze the character progression and story.", time: relaxTimeStr },
+      nofap: { name: "NoFap", tip: "Every day of abstinence compounds. Redirect the energy into your goals.", time: "All day" },
       stoic: { name: "Stoic Quote & Reflection", tip: "Read daily quote. Log a 1-sentence thought in journal.", time: "22:30 - 22:40" },
       read_book: { name: bookTitle, tip: "No screens. Read and highlight the text.", time: "22:40 - 23:10" },
       sleep: { name: "Sleep", tip: "Total darkness, cold room. Recover.", time: "23:10" },
       // Weekend specifics
       wk_money: { name: hustleTitle, tip: "Work explicitly on earning your $400 goal.", time: "13:30 - 15:30" },
       wk_buy: { name: buyTitle, tip: "Look up specs, read reviews, check the budget.", time: "15:30 - 16:30" },
-      wk_movie: { name: movieTitle, tip: "No phone allowed. Full cinematic immersion.", time: "17:30 - 20:00" }
+      wk_movie: { name: movieTitle, tip: "No phone allowed. Full cinematic immersion.", time: "17:30 - 20:00" },
     };
 
-    if (day === 1) { // MONDAY — wake up 07:50 (+40 min shift)
-      overrides.wake_up.time = "07:50 - 07:55";
-      overrides.prayer.time = "07:55 - 08:00";
+    if (day === 1) { // MONDAY
+      overrides.wake_up.time  = "07:50 - 07:55";
+      overrides.prayer.time   = "07:55 - 08:00";
       overrides.meditate.time = "08:00 - 08:05";
-      overrides.stretch.time = "08:05 - 08:10";
+      overrides.stretch.time  = "08:05 - 08:10";
       overrides.looksmax.time = "08:10 - 08:40";
-      overrides.water.time = "10:40 - 11:10";
-      overrides.work = { name: "Remote Work (Deep Focus)", tip: workTip, time: "08:40 - 10:40" };
-      overrides.exercise.time = "11:10 - 12:10";
-      overrides.yt_vid.time = "12:40 - 13:40";
-      overrides.game_time.time = "13:40 - 15:10";
-      overrides.relax.time = "15:10 - 17:10";
-    } else if (day === 0 || day === 6) { // WEEKEND — wake up 13:00
-      overrides.wake_up.time = "13:00 - 13:05";
-      overrides.prayer.time = "13:05 - 13:10";
+      overrides.work          = { name: "Remote Work (Deep Focus)", tip: workTip, time: "08:40 - 10:40" };
+      overrides.exercise.time  = "10:40 - 11:10";
+      overrides.yt_vid.time    = "11:10 - 11:40";
+      overrides.mastery.time   = "11:40 - 12:10";
+      overrides.game_time.time = "12:10 - 13:40";
+      overrides.relax.name    = `${tvTitle}`;
+      overrides.relax.tip     = "Watch your daily episode. Analyze the character progression and story.";
+      overrides.relax.time    = "13:40 - 14:45";
+      
+      const mondayIdx = Math.floor(dayIndex / 7);
+      const monFilmObj = MONDAY_FILMS[Math.min(MONDAY_FILMS.length - 1, mondayIdx)] || { title: "a Movie" };
+      overrides.wk_movie = { name: `Watch ${monFilmObj.title}`, tip: "Full cinematic immersion. No phone allowed.", time: "14:45 - 17:00" };
+      overrides.wk_money = { name: "Free Time & Relax", tip: "Enjoy the rest of your evening. Go out, chill, or work on side projects.", time: "17:00 - 22:30" };
+      overrides.stoic.time     = "22:30 - 22:40";
+      overrides.read_book.time = "22:40 - 23:10";
+      overrides.sleep.time     = "23:30";
+
+    } else if (isWeekend) { // WEEKEND
+      overrides.wake_up.time  = "13:00 - 13:05";
+      overrides.prayer.time   = "13:05 - 13:10";
       overrides.meditate.time = "13:10 - 13:15";
-      overrides.looksmax.time = "13:15 - 13:30";
+      overrides.stretch.time  = "13:15 - 13:20";
+      overrides.looksmax.time = "13:20 - 13:45";
       
-      // Inject walking / cooking challenges into the weekend tips
-      const isWalkDay = weekendIdx === 2 || weekendIdx === 6; // random weekends
-      const isCookDay = weekendIdx === 1 || weekendIdx === 4 || weekendIdx === 8;
+      overrides.wk_money = { name: "Side Hustle Ideas", tip: "Spend time explicitly on side hustle brainstorming and execution.", time: "13:45 - 14:45" };
+      overrides.exercise.time = "14:45 - 15:15";
       
-      overrides.exercise = { 
-        name: isWalkDay ? "10,000 Steps Walk" : workoutTitle, 
-        tip: isWalkDay ? "Go outside, hit 10k steps minimum. Challenge." : "Intensive muscle group targeting.",
-        time: "16:30 - 17:30" 
-      };
-      if (isCookDay) {
-        overrides.relax.name = `Cook Healthy Meal & ${tvTitle}`;
-        overrides.relax.tip = "Cook a fully healthy meal from scratch while watching.";
-      }
+      overrides.wk_buy = { name: "Relax - Football or something", tip: "Decompress. Watch a football match or just relax.", time: "15:15 - 18:00" };
+      overrides.mastery.time  = "18:00 - 18:30";
+      overrides.game_time.time = "18:30 - 20:00";
+      overrides.yt_vid.time   = "20:00 - 20:30";
       
-      overrides.game_time.time = "20:00 - 21:30";
-      overrides.yt_vid.time = "21:30 - 22:30";
-      overrides.relax.time = "22:30 - 23:30";
-      overrides.work = { name: "Off Day", tip: "Off work.", time: "Off" };
-    } else { // WEEKDAY
-      overrides.work = { name: "At Work", tip: workTip, time: "08:00 - 17:30" };
+      overrides.relax.name = "Watch Football";
+      overrides.relax.tip = "Enjoy the match.";
+      overrides.relax.time = "20:30 - 23:00";
+      
+      overrides.wk_movie = { name: movieTitle, tip: "No phone allowed. Full cinematic immersion.", time: "23:00 - 01:00" };
+      overrides.stoic.time    = "01:00 - 01:10";
+      overrides.read_book.time = "01:10 - 01:40";
+      overrides.sleep.time    = "01:40";
+      overrides.work          = { name: "Off Day", tip: "Off work.", time: "Off" };
+
+    } else { // TUE–FRI
+      overrides.wake_up.time  = "07:10 - 07:15";
+      overrides.prayer.time   = "07:15 - 07:20";
+      overrides.meditate.time = "07:20 - 07:25";
+      overrides.stretch.time  = "07:25 - 07:30";
+      overrides.looksmax.time = "07:30 - 08:00";
+      overrides.work = { name: "At Work", tip: workTip, time: "08:00 - 17:00" };
+      overrides.exercise.time  = "17:30 - 18:00";
+      overrides.yt_vid.time    = "18:00 - 18:30";
+      overrides.mastery.time   = "18:30 - 19:00";
+      overrides.game_time.time = "19:00 - 20:30";
+      overrides.relax.time     = "20:30 - 22:30";
+      overrides.stoic.time     = "22:30 - 22:40";
+      overrides.read_book.time = "22:40 - 23:10";
+      overrides.sleep.time     = "23:30";
     }
     
     return overrides;
   }, [selectedDateObj]);
 
   // Map the overridden configurations to the rendering list
-  const dynamicTasks = tasks.map(t => {
-    const o = dayOverrides[t.id];
-    return o ? { ...t, name: o.name, tip: o.tip, time: o.time } : t;
-  }).filter(t => t.name !== "Off Day");
+  // Keep water & nofap always at the bottom (All day tasks)
+  const dynamicTasks = (() => {
+    let baseTasks = tasks;
+    if (selectedDateObj.getDay() === 1 && weekendTasks) {
+       const wkMovie = weekendTasks.find(t => t.id === 'wk_movie');
+       const wkMoney = weekendTasks.find(t => t.id === 'wk_money'); // Hijacked for Monday Free Time
+       if (wkMovie) baseTasks = [...baseTasks, wkMovie];
+       if (wkMoney) baseTasks = [...baseTasks, wkMoney];
+    } else if ((selectedDateObj.getDay() === 0 || selectedDateObj.getDay() === 6) && weekendTasks) {
+       const wkMovie = weekendTasks.find(t => t.id === 'wk_movie');
+       const wkMoney = weekendTasks.find(t => t.id === 'wk_money');
+       const wkBuy = weekendTasks.find(t => t.id === 'wk_buy');
+       if (wkMovie) baseTasks = [...baseTasks, wkMovie];
+       if (wkMoney) baseTasks = [...baseTasks, wkMoney];
+       if (wkBuy) baseTasks = [...baseTasks, wkBuy];
+    }
+    const mapped = baseTasks.map(t => {
+      const o = dayOverrides[t.id];
+      return o ? { ...t, name: o.name, tip: o.tip, time: o.time } : t;
+    }).filter(t => t.name !== "Off Day");
+    const timed = mapped.filter(t => !ALL_DAY_TASK_IDS.includes(t.id));
+    const allDay = mapped.filter(t => ALL_DAY_TASK_IDS.includes(t.id));
+    
+    // Sort timed tasks chronologically
+    timed.sort((a, b) => {
+      const parseTime = (str) => {
+        const match = str.match(/(\d{2}):(\d{2})/);
+        if (!match) return 0;
+        let h = parseInt(match[1], 10);
+        if (h < 5) h += 24; // shift past midnight for sorting
+        return h * 60 + parseInt(match[2], 10);
+      };
+      return parseTime(a.time) - parseTime(b.time);
+    });
 
-  const dynamicWeekendTasks = weekendTasks ? weekendTasks.map(t => {
-    const o = dayOverrides[t.id];
-    return o ? { ...t, name: o.name, tip: o.tip, time: o.time } : t;
-  }) : [];
+    return [...timed, ...allDay];
+  })();
 
-  const done=tasks.filter(t=>completed[t.id]).length;
+  const done=dynamicTasks.filter(t=>completed[t.id]).length;
   const isStoicDone = completed['stoic'];
-  const pct = Math.round((done/tasks.length)*100);
+  const pct = Math.round((done/dynamicTasks.length)*100);
 
   const scrollContainerRef = useRef(null);
 
@@ -268,7 +396,7 @@ game_time: { name: gameTitle, tip: "1.5 hours of focused gameplay. Execute your 
             return (
               <button
                 key={date.toISOString()}
-                onClick={() => setSelectedDateObj(date)}
+                onClick={() => setSelectedDateObj(new Date(date))}
                 style={{
                   flex:'0 0 auto',
                   padding:'10px 14px',
@@ -344,7 +472,7 @@ game_time: { name: gameTitle, tip: "1.5 hours of focused gameplay. Execute your 
 
       {missed.length>0&&(
         <div style={{background:'rgba(248,113,113,0.04)',border:'1px solid rgba(248,113,113,0.1)',borderRadius:12,padding:'10px 14px',marginBottom:12,fontSize:12,color:'rgba(248,113,113,0.7)',lineHeight:1.5}}>
-          ⚠ {missed.length} task{missed.length>1?'s':''} missed — complete them today for recovery XP
+          ⚠ {missed.length} carried-over task{missed.length>1?'s':''} — complete them today for recovery XP
         </div>
       )}
 
@@ -441,69 +569,7 @@ game_time: { name: gameTitle, tip: "1.5 hours of focused gameplay. Execute your 
         })}
       </div>
 
-      {weekendTasks && weekendTasks.length > 0 && (
-        <div style={{marginTop:28}}>
-          <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:12}}>
-            <div style={{fontSize:10,color:'var(--accent-purple)',letterSpacing:'0.08em',fontWeight:700,textTransform:'uppercase'}}>⭐ WEEKEND MISSIONS</div>
-            <div style={{flex:1, height: 1, background: 'linear-gradient(90deg, rgba(139,92,246,0.3), transparent)'}}></div>
-          </div>
 
-          <div style={{display:'flex',flexDirection:'column',gap:8}}>
-            {dynamicWeekendTasks.map(task=>{
-              const isDone=completed[task.id];
-              const isExp=expanded===task.id;
-              return(
-                <div key={task.id} className="task-item" style={{
-                  background:isDone?'rgba(52,211,153,0.04)':'var(--bg-card)',
-                  border:`1px solid ${isDone?'rgba(52,211,153,0.12)':'var(--border-subtle)'}`,
-                  borderRadius:14,overflow:'hidden',transition:'all 0.25s',cursor:'pointer'
-                }} onClick={()=>setExpanded(isExp?null:task.id)}>
-                  <div style={{display:'flex',alignItems:'center',gap:12,padding:'13px 14px'}}>
-                    <div style={{
-                      width:40,height:40,borderRadius:10,
-                      background:isDone?'rgba(52,211,153,0.1)':'rgba(139,92,246,0.06)',
-                      border:`1px solid ${isDone?'rgba(52,211,153,0.2)':'rgba(139,92,246,0.15)'}`,
-                      display:'flex',alignItems:'center',justifyContent:'center',
-                      fontSize:20,flexShrink:0
-                    }}>{task.icon}</div>
-                    <div style={{flex:1}}>
-                      <span style={{fontWeight:700,fontSize:14,color:isDone?'var(--accent-green)':'var(--text-primary)',textDecoration:isDone?'line-through':'none'}}>{task.name}</span>
-                      <div style={{fontSize:11,color:'var(--text-tertiary)',marginTop:3}}>⭐ {task.time} • <span style={{color:'rgba(251,191,36,0.5)'}}>+{task.xp} XP</span></div>
-                    </div>
-                    <div style={{transition:'transform 0.25s ease',transform:isExp?'rotate(180deg)':'rotate(0deg)',color:'var(--text-muted)',fontSize:10,marginRight:4}}>▼</div>
-                    {!isDone&&(
-                      <button className="btn btn-done" onClick={e=>{
-                        e.stopPropagation();
-                        if (isToday) onComplete(task.id);
-                        else alert("You can only complete tasks for today!");
-                      }} style={{ opacity: isToday ? 1 : 0.4 }}>
-                        DONE
-                      </button>
-                    )}
-                    {isDone&&(
-                      <div style={{display:'flex', alignItems:'center', gap: 12}}>
-                        <button className="btn" onClick={e=>{
-                          e.stopPropagation(); 
-                          if (isToday && onUndo) onUndo(task.id);
-                          else if (!isToday) alert("You can only undo tasks for today!");
-                        }} style={{background:'transparent', color:'var(--accent-red)', border:'1px solid rgba(248,113,113,0.3)', padding:'4px 8px', fontSize:10, borderRadius:6, opacity: isToday ? 1 : 0.4}}>
-                          UNDO
-                        </button>
-                        <span style={{color:'var(--accent-green)',fontSize:22}}>✓</span>
-                      </div>
-                    )}
-                  </div>
-                  {isExp&&(
-                    <div style={{padding:'0 14px 14px',borderTop:'1px solid var(--border-subtle)'}}>
-                      <div style={{paddingTop:12,fontSize:13,color:'var(--text-secondary)',lineHeight:1.8}}>{task.tip}</div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

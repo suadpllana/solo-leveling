@@ -13,7 +13,7 @@ const CAT_COLORS = {
   '🏆 Challenges': '#fbbf24',
 };
 
-export default function QuestsTab({tasks,completed,onComplete,onUndo,daysLeft,expanded,setExpanded}){
+export default function QuestsTab({tasks,completed,onComplete,onUndo}){
   const cats=[...new Set(tasks.map(t=>t.cat))];
   const totalXp=tasks.reduce((a,t)=>a+t.xp,0);
   const earnedXp=tasks.filter(t=>completed[t.id]).reduce((a,t)=>a+t.xp,0);

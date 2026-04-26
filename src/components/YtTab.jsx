@@ -55,7 +55,7 @@ export default function YtTab({data,cats,cat,setCat,idx,setIdx,watched,onWatch})
           <div style={{fontSize:12,color:'var(--accent-orange)',marginBottom:10,fontWeight:600}}>📺 {vid.ch}</div>
           <div style={{fontSize:13,color:'var(--text-tertiary)',lineHeight:1.7,marginBottom:16}}>{vid.d}</div>
           <div style={{display:'flex',gap:8}}>
-            <a href={vid.url || `https://www.youtube.com/results?search_query=${encodeURIComponent(vid.t+' '+vid.ch)}`} target="_blank" rel="noreferrer" style={{
+            <a href={vid.url || `https://www.youtube.com/results?search_query=${encodeURIComponent(vid.t+' '+vid.ch)}`} target="_blank" rel="noopener noreferrer" style={{
               flex:1,display:'block',
               background:'linear-gradient(135deg,#cc0000,#990000)',
               borderRadius:12,padding:'12px',

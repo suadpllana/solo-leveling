@@ -19,7 +19,7 @@ function ProgressRing({pct, color, size=80, strokeWidth=5, children}) {
   );
 }
 
-export default function DashTab({ri,rc,streak,daysLeft,dailyDone,onceDone,missed,quote,setTab,xp,dailyTip,diffD,diffH,diffM,diffS}){
+export default function DashTab({ri,rc,streak,daysLeft,dailyDone,onceDone,missed,setTab}){
   const totalD=DAILY_TASKS.length,totalO=ONE_TIME_TASKS.length;
   const pct=Math.round((dailyDone/totalD)*100);
 

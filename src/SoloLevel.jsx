@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  RANKS, RANK_TITLES, RANK_COLORS, XP_PER_RANK, getRankInfo,
+  RANKS, RANK_TITLES, RANK_COLORS, getRankInfo,
   DAILY_TASKS, WEEKEND_TASKS, ONE_TIME_TASKS, STOIC_QUOTES, YOUTUBE_DATA, CATS,
   DEADLINE_DATE, DEADLINE_LABEL, MOTIVATION_TIPS
 } from "./data/constants";
@@ -21,6 +21,139 @@ const TABS = [
   ["stats","📊","Stats"]
 ];
 
+const DAILY_PLAN_VERSION = "2026-04-27-v2";
+const DAILY_TRACKING_START = "2026-04-27";
+const KOSOVO_TIME_ZONE = "Europe/Belgrade";
+const KOSOVO_DATE_FORMATTER = new Intl.DateTimeFormat("en-CA", {
+  timeZone: KOSOVO_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+function getKosovoDateStr(date = new Date()){
+  return KOSOVO_DATE_FORMATTER.format(date);
+}
+
+function getKosovoNow(){
+  return new Date(new Date().toLocaleString("en-US", { timeZone: KOSOVO_TIME_ZONE }));
+}
+
+function readJsonStorage(key, fallback){
+  try{
+    const rawValue = localStorage.getItem(key);
+    return rawValue ? JSON.parse(rawValue) : fallback;
+  }catch{
+    return fallback;
+  }
+}
+
+function writeJsonStorage(key, value){
+  try{
+    localStorage.setItem(key, JSON.stringify(value));
+  }catch{
+    /* Ignore local storage write failures. */
+  }
+}
+
+function buildHistoryEntry(completedDaily = {}){
+  const dailyIds = DAILY_TASKS.map((task) => task.id);
+  const completed = Object.keys(completedDaily).filter((taskId) => completedDaily[taskId] && dailyIds.includes(taskId));
+  return {
+    completed,
+    missed: dailyIds.filter((taskId) => !completed.includes(taskId)),
+  };
+}
+
+function addExtraAchievement(todayStr, label){
+  const savedStats = readJsonStorage("solo_grind_stats", {});
+  const today = savedStats[todayStr] || { completed: [], missed: [], extras: [] };
+
+  if (today.extras?.includes(label)) {
+    return;
+  }
+
+  savedStats[todayStr] = {
+    ...today,
+    extras: [...(today.extras || []), label],
+  };
+  writeJsonStorage("solo_grind_stats", savedStats);
+}
+
+function removeExtraAchievement(todayStr, label){
+  const savedStats = readJsonStorage("solo_grind_stats", {});
+  const today = savedStats[todayStr];
+
+  if (!today?.extras?.includes(label)) {
+    return;
+  }
+
+  savedStats[todayStr] = {
+    ...today,
+    extras: today.extras.filter((entry) => entry !== label),
+  };
+  writeJsonStorage("solo_grind_stats", savedStats);
+}
+
+function loadPersistedState(todayStr){
+  const emptyState = {
+    xp: 0,
+    streak: 0,
+    completedDaily: {},
+    completedOnce: {},
+    missedTasks: [],
+    watchedYt: {},
+    pendingHistoryEntry: null,
+  };
+
+  const savedState = readJsonStorage("solo_grind_v2", null);
+  if (!savedState) {
+    return emptyState;
+  }
+
+  const matchesDailyPlan = savedState.planVersion === DAILY_PLAN_VERSION;
+  const completedDaily = matchesDailyPlan ? (savedState.completedDaily || {}) : {};
+  const sharedState = {
+    ...emptyState,
+    xp: savedState.xp || 0,
+    completedOnce: savedState.completedOnce || {},
+    watchedYt: savedState.watchedYt || {},
+  };
+
+  if (matchesDailyPlan && savedState.lastDate === todayStr) {
+    return {
+      ...sharedState,
+      streak: savedState.streak || 0,
+      completedDaily,
+      missedTasks: savedState.missedTasks || [],
+    };
+  }
+
+  const yesterday = getKosovoNow();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = getKosovoDateStr(yesterday);
+
+  const missedFromPreviousDay = DAILY_TASKS.filter((task) => !completedDaily[task.id]).map((task) => task.id);
+  const wasPerfectYesterday =
+    matchesDailyPlan &&
+    savedState.lastDate === yesterdayStr &&
+    DAILY_TASKS.every((task) => completedDaily[task.id]);
+  const shouldCarryMissedForward =
+    matchesDailyPlan &&
+    savedState.lastDate === yesterdayStr &&
+    savedState.lastDate >= DAILY_TRACKING_START;
+
+  return {
+    ...sharedState,
+    streak: wasPerfectYesterday ? (savedState.streak || 0) + 1 : 0,
+    completedDaily: {},
+    missedTasks: shouldCarryMissedForward ? [...new Set([...(savedState.missedTasks || []), ...missedFromPreviousDay])] : [],
+    pendingHistoryEntry: matchesDailyPlan && savedState.lastDate && savedState.lastDate >= DAILY_TRACKING_START && savedState.completedDaily
+      ? { date: savedState.lastDate, ...buildHistoryEntry(savedState.completedDaily) }
+      : null,
+  };
+}
+
 export default function SoloLevel(){
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,33 +163,28 @@ export default function SoloLevel(){
     navigate(`/${newTab === "dash" ? "" : newTab}`);
   };
 
-  const[loaded,setLoaded]=useState(false);
-  const[xp,setXp]=useState(0);
-  const[streak,setStreak]=useState(0);
-  const[completedDaily,setCompletedDaily]=useState({});
-  const[completedOnce,setCompletedOnce]=useState({});
-  const[missedTasks,setMissedTasks]=useState([]);
-  const[watchedYt,setWatchedYt]=useState({});
+  const todayStr = useMemo(() => getKosovoDateStr(), []);
+  const initialState = useMemo(() => loadPersistedState(todayStr), [todayStr]);
+  const pendingHistoryRef = useRef(initialState.pendingHistoryEntry);
+
+  const[xp,setXp]=useState(() => initialState.xp);
+  const[streak]=useState(() => initialState.streak);
+  const[completedDaily,setCompletedDaily]=useState(() => initialState.completedDaily);
+  const[completedOnce,setCompletedOnce]=useState(() => initialState.completedOnce);
+  const[missedTasks,setMissedTasks]=useState(() => initialState.missedTasks);
+  const[watchedYt,setWatchedYt]=useState(() => initialState.watchedYt);
   const[popup,setPopup]=useState(null);
   const[ytCat,setYtCat]=useState("CS2");
   const[ytIdx,setYtIdx]=useState(0);
-  const[lookArea,setLookArea]=useState(0);
-  const[expandedTip,setExpandedTip]=useState(null);
   const[expandedDaily,setExpandedDaily]=useState(null);
-  const[expandedQuest,setExpandedQuest]=useState(null);
-  const[nowTime,setNowTime]=useState(new Date());
+  const[nowTime,setNowTime]=useState(() => getKosovoNow());
 
   useEffect(() => {
-    const timer = setInterval(() => setNowTime(new Date()), 1000);
+    const timer = setInterval(() => setNowTime(getKosovoNow()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  function getKosovoDateStr(){
-    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Belgrade', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
-  }
-  const todayStr=getKosovoDateStr();
-
-  const currentKosovoTime = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Belgrade"}));
+  const currentKosovoTime = nowTime;
   const startOfYear = new Date(currentKosovoTime.getFullYear(), 0, 0);
   const diff = currentKosovoTime - startOfYear;
   const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -68,71 +196,31 @@ export default function SoloLevel(){
   const dailyTip = MOTIVATION_TIPS[dayOfYear % MOTIVATION_TIPS.length];
 
   useEffect(()=>{
-    try{
-      const res=localStorage.getItem("solo_grind_v2");
-      if(res){
-        const d=JSON.parse(res);
-        setXp(d.xp||0);
-        setWatchedYt(d.watchedYt||{});
-        setCompletedOnce(d.completedOnce||{});
-        if(d.lastDate===todayStr){
-          setCompletedDaily(d.completedDaily||{});
-          setMissedTasks(d.missedTasks||[]);
-          setStreak(d.streak||0);
-        }else{
-          // Snapshot the previous day's stats before resetting
-          if(d.lastDate && d.completedDaily) {
-            try {
-              const dailyIds = DAILY_TASKS.map(t => t.id);
-              const prevCompleted = Object.keys(d.completedDaily).filter(k => d.completedDaily[k] && dailyIds.includes(k));
-              const prevMissed = dailyIds.filter(id => !d.completedDaily[id]);
-              const savedStats = JSON.parse(localStorage.getItem("solo_grind_stats") || "{}");
-              savedStats[d.lastDate] = {
-                completed: prevCompleted,
-                missed: prevMissed,
-                extras: savedStats[d.lastDate]?.extras || []
-              };
-              localStorage.setItem("solo_grind_stats", JSON.stringify(savedStats));
-            } catch(e) {}
-          }
+    if (!pendingHistoryRef.current) {
+      return;
+    }
 
-          const missed=DAILY_TASKS.filter(t=>!d.completedDaily?.[t.id]).map(t=>t.id);
-          const allMissed=[...new Set([...(d.missedTasks||[]),...missed])];
-          setMissedTasks(allMissed);
-          setCompletedDaily({});
-
-          let yStr = "";
-          try{
-            const yest = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Belgrade"}));
-            yest.setDate(yest.getDate() - 1);
-            yStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Belgrade', year: 'numeric', month: '2-digit', day: '2-digit' }).format(yest);
-          }catch(e){}
-
-          if(d.lastDate===yStr&&DAILY_TASKS.every(t=>d.completedDaily?.[t.id])){
-            setStreak((d.streak||0)+1);
-          }else{setStreak(0);}
-        }
-      }
-    }catch(e){}
-    setLoaded(true);
-  },[]);
+    const { date, completed, missed } = pendingHistoryRef.current;
+    const savedStats = readJsonStorage("solo_grind_stats", {});
+    savedStats[date] = {
+      completed,
+      missed,
+      extras: savedStats[date]?.extras || [],
+    };
+    writeJsonStorage("solo_grind_stats", savedStats);
+    pendingHistoryRef.current = null;
+  }, []);
 
   useEffect(()=>{
-    if(!loaded)return;
-    try{
-      localStorage.setItem("solo_grind_v2",JSON.stringify({xp,streak,completedDaily,completedOnce,missedTasks,lastDate:todayStr,watchedYt}));
-      // Always sync today's stats to history
-      const dailyIds = DAILY_TASKS.map(t => t.id);
-      const completedIds = Object.keys(completedDaily).filter(k => completedDaily[k] && dailyIds.includes(k));
-      const savedStats = JSON.parse(localStorage.getItem("solo_grind_stats") || "{}");
-      savedStats[todayStr] = {
-        completed: completedIds,
-        missed: dailyIds.filter(id => !completedIds.includes(id)),
-        extras: savedStats[todayStr]?.extras || []
-      };
-      localStorage.setItem("solo_grind_stats", JSON.stringify(savedStats));
-    }catch(e){}
-  },[xp,streak,completedDaily,completedOnce,missedTasks,watchedYt,loaded]);
+    writeJsonStorage("solo_grind_v2", { xp, streak, completedDaily, completedOnce, missedTasks, lastDate: todayStr, watchedYt, planVersion: DAILY_PLAN_VERSION });
+
+    const savedStats = readJsonStorage("solo_grind_stats", {});
+    savedStats[todayStr] = {
+      ...buildHistoryEntry(completedDaily),
+      extras: savedStats[todayStr]?.extras || [],
+    };
+    writeJsonStorage("solo_grind_stats", savedStats);
+  },[xp,streak,completedDaily,completedOnce,missedTasks,watchedYt,todayStr]);
 
   function doPopup(msg){setPopup(msg);setTimeout(()=>setPopup(null),2500);}
 
@@ -141,53 +229,43 @@ export default function SoloLevel(){
   function completeDaily(id){
     if(completedDaily[id])return;
     const t=[...DAILY_TASKS, ...WEEKEND_TASKS].find(x=>x.id===id);
+    if(!t)return;
     setCompletedDaily(p=>({...p,[id]:true}));
     setXp(p=>p+t.xp);
     setMissedTasks(p=>p.filter(m=>m!==id));
     doPopup(`+${t.xp} XP • ${t.name} complete!`);
     if (WEEKEND_TASKS.some(w => w.id === id)) {
-      try {
-        const savedStats = JSON.parse(localStorage.getItem("solo_grind_stats") || "{}");
-        const today = savedStats[todayStr] || { completed: [], missed: [], extras: [] };
-        const label = `Completed "${t.name}"`;
-        if (!today.extras.includes(label)) {
-          today.extras = [...(today.extras || []), label];
-          savedStats[todayStr] = today;
-          localStorage.setItem("solo_grind_stats", JSON.stringify(savedStats));
-        }
-      } catch(e) {}
+      addExtraAchievement(todayStr, `Completed "${t.name}"`);
     }
   }
   function undoDaily(id){
     if(!completedDaily[id])return;
     const t=[...DAILY_TASKS, ...WEEKEND_TASKS].find(x=>x.id===id);
+    if(!t)return;
     setCompletedDaily(p=>{const n={...p}; delete n[id]; return n;});
     setXp(p=>Math.max(0, p-t.xp));
     doPopup(`-${t.xp} XP • ${t.name} undone`);
+    if (WEEKEND_TASKS.some(w => w.id === id)) {
+      removeExtraAchievement(todayStr, `Completed "${t.name}"`);
+    }
   }
   function completeOnce(id){
     if(completedOnce[id])return;
     const t=ONE_TIME_TASKS.find(x=>x.id===id);
+    if(!t)return;
     setCompletedOnce(p=>({...p,[id]:true}));
     setXp(p=>p+t.xp);
     doPopup(`+${t.xp} XP • Quest complete!`);
-    try {
-      const savedStats = JSON.parse(localStorage.getItem("solo_grind_stats") || "{}");
-      const today = savedStats[todayStr] || { completed: [], missed: [], extras: [] };
-      const label = `Completed "${t.name}"`;
-      if (!today.extras.includes(label)) {
-        today.extras = [...(today.extras || []), label];
-        savedStats[todayStr] = today;
-        localStorage.setItem("solo_grind_stats", JSON.stringify(savedStats));
-      }
-    } catch(e) {}
+    addExtraAchievement(todayStr, `Completed "${t.name}"`);
   }
   function undoOnce(id){
     if(!completedOnce[id])return;
     const t=ONE_TIME_TASKS.find(x=>x.id===id);
+    if(!t)return;
     setCompletedOnce(p=>{const n={...p}; delete n[id]; return n;});
     setXp(p=>Math.max(0, p-t.xp));
     doPopup(`-${t.xp} XP • Quest undone`);
+    removeExtraAchievement(todayStr, `Completed "${t.name}"`);
   }
   function watchVideo(cat,idx){
     const key=`${cat}_${idx}`;
@@ -206,21 +284,10 @@ export default function SoloLevel(){
   const diffH = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
   const diffM = Math.floor((timeDiff / 1000 / 60) % 60);
   const diffS = Math.floor((timeDiff / 1000) % 60);
-  const daysLeft = Math.max(0, Math.ceil((deadline - new Date()) / 86400000));
+  const daysLeft = Math.max(0, Math.ceil((deadline - nowTime) / 86400000));
 
   const dailyDone=DAILY_TASKS.filter(t=>completedDaily[t.id]).length;
   const onceDone=ONE_TIME_TASKS.filter(t=>completedOnce[t.id]).length;
-  const totalDailyXp = DAILY_TASKS.reduce((a,t) => a+t.xp, 0);
-  const earnedDailyXp = DAILY_TASKS.filter(t=>completedDaily[t.id]).reduce((a,t) => a+t.xp, 0);
-
-  if(!loaded)return(
-    <div className="loading-screen">
-      <div className="loading-spinner" />
-      <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:13,color:'var(--accent-cyan)',letterSpacing:"0.1em",textTransform:'uppercase'}}>
-        Initializing Shadow System...
-      </div>
-    </div>
-  );
 
   return(
     <div style={{fontFamily:"'Inter',sans-serif",background:'var(--bg-primary)',minHeight:"100vh",color:'var(--text-primary)',position:"relative",overflow:"hidden"}}>
@@ -302,9 +369,9 @@ export default function SoloLevel(){
         {/* ── Content ── */}
         <div style={{padding:"16px 16px"}} className="tab-anim" key={tab}>
           <Routes>
-            <Route path="/" element={<DashTab ri={ri} rc={rc} streak={streak} daysLeft={daysLeft} dailyDone={dailyDone} onceDone={onceDone} missed={missedTasks} quote={todayQuotes[0]} setTab={setTab} xp={xp} dailyTip={dailyTip} diffD={diffD} diffH={diffH} diffM={diffM} diffS={diffS} />} />
+            <Route path="/" element={<DashTab ri={ri} rc={rc} streak={streak} daysLeft={daysLeft} dailyDone={dailyDone} onceDone={onceDone} missed={missedTasks} setTab={setTab} />} />
             <Route path="/daily" element={<DailyTab tasks={DAILY_TASKS} weekendTasks={WEEKEND_TASKS} completed={completedDaily} missed={missedTasks} onComplete={completeDaily} onUndo={undoDaily} onCompleteSub={completeSub} onUndoSub={undoSub} quotes={todayQuotes} expanded={expandedDaily} setExpanded={setExpandedDaily}/>} />
-            <Route path="/quests" element={<QuestsTab tasks={ONE_TIME_TASKS} completed={completedOnce} onComplete={completeOnce} onUndo={undoOnce} daysLeft={daysLeft} expanded={expandedQuest} setExpanded={setExpandedQuest}/>} />
+            <Route path="/quests" element={<QuestsTab tasks={ONE_TIME_TASKS} completed={completedOnce} onComplete={completeOnce} onUndo={undoOnce} />} />
             <Route path="/yt" element={<YtTab data={YOUTUBE_DATA} cats={CATS} cat={ytCat} setCat={c=>{setYtCat(c);setYtIdx(0);}} idx={ytIdx} setIdx={setYtIdx} watched={watchedYt} onWatch={watchVideo}/>} />
             <Route path="/stats" element={<StatsTab />} />
             <Route path="*" element={<Navigate to="/" replace />} />
