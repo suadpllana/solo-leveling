@@ -538,13 +538,17 @@ export default function DailyTab({tasks,weekendTasks,completed,missed,onComplete
                   <div style={{paddingTop:12,fontSize:13,color:'var(--text-secondary)',lineHeight:1.8}}>{task.tip}</div>
                   {task.subTasks && (
                     <div style={{marginTop: 14, display: 'flex', flexDirection: 'column', gap: 6}}>
-                      {task.subTasks.map(sub => {
+                      {task.subTasks.map((sub, index) => {
                         const subDone = completed[sub.id];
+                        const baseSubXp = Math.floor(task.xp / task.subTasks.length);
+                        const rem = task.xp % task.subTasks.length;
+                        const subXp = index < rem ? baseSubXp + 1 : baseSubXp;
+
                         return (
                           <div key={sub.id} onClick={(e) => { 
                             e.stopPropagation(); 
-                            if(!subDone) { onCompleteSub(sub.id, 20, sub.n); }
-                            else { if(onUndoSub) onUndoSub(sub.id, 20, sub.n); }
+                            if(!subDone) { onCompleteSub(sub.id, subXp, sub.n); }
+                            else { if(onUndoSub) onUndoSub(sub.id, subXp, sub.n); }
                           }} style={{
                             display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
                             background: subDone ? 'rgba(52,211,153,0.04)' : 'rgba(255,255,255,0.02)',
@@ -562,7 +566,7 @@ export default function DailyTab({tasks,weekendTasks,completed,missed,onComplete
                               {subDone && <span style={{color: '#000', fontSize: 11, fontWeight: 900}}>✓</span>}
                             </div>
                             <span style={{fontSize: 13, color: subDone ? 'var(--accent-green)' : 'var(--text-secondary)', textDecoration: subDone ? 'line-through' : 'none', flex:1}}>{sub.n}</span>
-                            {!subDone && <span style={{fontSize: 10, color: 'rgba(251,191,36,0.4)'}}>+20 XP</span>}
+                            {!subDone && <span style={{fontSize: 10, color: 'rgba(251,191,36,0.4)'}}>+{subXp} XP</span>}
                           </div>
                         );
                       })}
