@@ -191,14 +191,17 @@ export default function DailyTab({tasks,weekendTasks,completed,missed,onComplete
     const weekendIdx = weekendDates.findIndex((date) => date.getTime() === selectedDateObj.getTime());
 
     const bookTitle = buildSegmentTitle(dayIndex, BOOK_PLAN);
-    const tvTitle = buildSegmentTitle(dayIndex, SHOW_PLAN);
 
     // Calculate realistic TV block duration based on episodes × show duration
     const tvSegment = SHOW_PLAN.find(({ startDay, endDay }) => dayIndex >= startDay && dayIndex <= endDay) ?? SHOW_PLAN[SHOW_PLAN.length - 1];
     const tvEpDuration = SHOW_EP_DURATIONS[tvSegment.title] ?? 45;
     const tvSlotCount = tvSegment.endDay - tvSegment.startDay + 1;
     const tvSlotIndex = dayIndex - tvSegment.startDay;
-    const { start: tvEpStart, end: tvEpEnd } = allocateRange(tvSegment.total, tvSlotCount, tvSlotIndex);
+    // Cap per-day episodes to keep daily schedule realistic.
+    const maxEpisodesPerDay = Math.max(1, Math.floor(120 / tvEpDuration));
+    const tvPlannedTotal = Math.min(tvSegment.total, tvSlotCount * maxEpisodesPerDay);
+    const { start: tvEpStart, end: tvEpEnd } = allocateRange(tvPlannedTotal, tvSlotCount, tvSlotIndex);
+    const tvTitle = `${tvSegment.title} (Eps ${tvEpStart}${tvEpEnd > tvEpStart ? `-${tvEpEnd}` : ""})`;
     const tvEpCount = Math.max(1, tvEpEnd - tvEpStart + 1);
     const tvBlockMinutes = tvEpCount * tvEpDuration;
     // relax start = 20:30 → compute end
@@ -277,12 +280,16 @@ export default function DailyTab({tasks,weekendTasks,completed,missed,onComplete
       overrides.game_time.time = "12:10 - 13:40";
       overrides.relax.name    = `${tvTitle}`;
       overrides.relax.tip     = "Watch your daily episode. Analyze the character progression and story.";
-      overrides.relax.time    = "13:40 - 14:45";
+      const mondayRelaxStart = "13:40";
+      const mondayRelaxEnd = shiftClock(mondayRelaxStart, tvBlockMinutes);
+      overrides.relax.time    = `${mondayRelaxStart} - ${mondayRelaxEnd}`;
       
       const mondayIdx = Math.floor(dayIndex / 7);
       const monFilmObj = MONDAY_FILMS[Math.min(MONDAY_FILMS.length - 1, mondayIdx)] || { title: "a Movie" };
-      overrides.wk_movie = { name: `Watch ${monFilmObj.title}`, tip: "Full cinematic immersion. No phone allowed.", time: "14:45 - 17:00" };
-      overrides.wk_money = { name: "Free Time & Relax", tip: "Enjoy the rest of your evening. Go out, chill, or work on side projects.", time: "17:00 - 22:30" };
+      const mondayMovieStart = mondayRelaxEnd;
+      const mondayMovieEnd = shiftClock(mondayMovieStart, monFilmObj.duration ?? 120);
+      overrides.wk_movie = { name: `Watch ${monFilmObj.title}`, tip: "Full cinematic immersion. No phone allowed.", time: `${mondayMovieStart} - ${mondayMovieEnd}` };
+      overrides.wk_money = { name: "Free Time & Relax", tip: "Enjoy the rest of your evening. Go out, chill, or work on side projects.", time: `${mondayMovieEnd} - 22:30` };
       overrides.stoic.time     = "22:30 - 22:40";
       overrides.read_book.time = "22:40 - 23:10";
       overrides.sleep.time     = "23:30";
