@@ -18,9 +18,9 @@ export const DEADLINE_LABEL = '1 JUNE 2026';
 
 export const DAILY_TASKS = [
   { id: 'wake_up', name: 'Wake Up', time: '07:10', icon: '🌅', xp: 20, tip: 'Get out of bed immediately. No snoozing. Win the first battle of the day.' },
-  { id: 'prayer', name: 'Morning Prayer', time: '07:15', icon: '🙏', xp: 50, tip: 'Say: "God, destroy my need for comfort. Give me the strength to endure today\'s suffering so I may become who I am meant to be. I am ready to do the hard work." (Psychology: Shifts your brain out of victimhood and frames difficulty as training).' },
-  { id: 'meditate', name: 'Meditate', time: '07:20', icon: '🧘', xp: 60, tip: '5 min. Box breathing: 4s in, 4s hold, 4s out, 4s hold. Eyes closed. No stimulation. Mental training.' },
-  { id: 'stretch', name: 'Morning Stretch', time: '07:25', icon: '🤸', xp: 50, tip: '5-min mobility' },
+  // { id: 'prayer', name: 'Morning Prayer', time: '07:15', icon: '🙏', xp: 50, tip: 'Say: "God, destroy my need for comfort. Give me the strength to endure today\'s suffering so I may become who I am meant to be. I am ready to do the hard work." (Psychology: Shifts your brain out of victimhood and frames difficulty as training).' },
+  // { id: 'meditate', name: 'Meditate', time: '07:20', icon: '🧘', xp: 60, tip: '5 min. Box breathing: 4s in, 4s hold, 4s out, 4s hold. Eyes closed. No stimulation. Mental training.' },
+  // { id: 'stretch', name: 'Morning Stretch', time: '07:25', icon: '🤸', xp: 50, tip: '5-min mobility' },
   {
     id: 'looksmax', name: 'Looksmax Routine', time: '07:30', icon: '✨', xp: 75, tip: 'Physical Optimization Protocol. Consistency is everything.', subTasks: [
       { id: 'lm_eyes1', n: 'Eyes: Mewing (Full day)' },
@@ -37,7 +37,7 @@ export const DAILY_TASKS = [
     ]
   },
   { id: 'work', name: 'At Work', time: '08:00', icon: '💼', xp: 150, tip: 'Focus on your career. Build skills, provide value, and secure your financial future.' },
-  { id: 'exercise', name: 'Exercise (80kg Goal)', time: '17:30', icon: '💪', xp: 100, tip: 'Drop 8kg (88kg → 80kg) + Build Muscle. Body Recomposition.', subTasks: [{ id: 'e_push', n: '20 Pushups (Chest/Triceps)' }, { id: 'e_sq', n: '20 Squats (Legs)' }, { id: 'e_pike', n: '15 Pike Pushups (Shoulders)' }, { id: 'e_back', n: '15 Superman Raises  (Back)' }, { id: 'e_plank', n: '30 Sec Plank (Core)' }, { id: 'e_pull', n: '10 Bag Curls (Biceps)' }] },
+  // { id: 'exercise', name: 'Exercise (80kg Goal)', time: '17:30', icon: '💪', xp: 100, tip: 'Drop 8kg (88kg → 80kg) + Build Muscle. Body Recomposition.', subTasks: [{ id: 'e_push', n: '20 Pushups (Chest/Triceps)' }, { id: 'e_sq', n: '20 Squats (Legs)' }, { id: 'e_pike', n: '15 Pike Pushups (Shoulders)' }, { id: 'e_back', n: '15 Superman Raises  (Back)' }, { id: 'e_plank', n: '30 Sec Plank (Core)' }, { id: 'e_pull', n: '10 Bag Curls (Biceps)' }] },
   { id: 'yt_vid', name: 'Watch 1 Knowledge Video', time: '18:00', icon: '▶️', xp: 40, tip: 'Check the Knowledge tab and watch one video. Take mental notes to level up your intellect.' },
   { id: 'mastery', name: 'Skill Mastery (30m)', time: '18:30', icon: '🎯', xp: 40, tip: '30 minutes of deep, focused practice on a specific skill to reach expert level.' },
   { id: 'game_time', name: 'Game for 1.5 Hours', time: '19:00', icon: '🎮', xp: 50, tip: 'Enjoy your downtime! Play your favorite game guilt-free for 1.5 hours.' },
@@ -250,11 +250,11 @@ export const ONE_TIME_TASKS = [
   // 🧠 Knowledge (kept)
   { id: 'knowledge', name: 'Complete all knowledge videos', cat: '🧠 Knowledge', xp: 200, icon: '🧠' },
 
-  // 📺 TV Shows (new)
+  // 📺 TV Shows (ordered by your current progress)
+  { id: 'anime_cowboybebop', name: 'Watch "Cowboy Bebop"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
   { id: 'tv_chernobyl', name: 'Watch "Chernobyl" (Mini Series)', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
   { id: 'tv_bcs', name: 'Watch "Better Call Saul"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
   { id: 'anime_fmab', name: 'Watch "Fullmetal Alchemist: Brotherhood"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
-  { id: 'anime_cowboybebop', name: 'Watch "Cowboy Bebop"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
 
   // 🏃 Challenges (new)
   { id: 'ch_cold', name: '7-Day Cold Shower Challenge', cat: '🏆 Challenges', xp: 300, icon: '🥶' },

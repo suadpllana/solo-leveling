@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
-const startDate = new Date("2026-04-27T00:00:00");
+const startDate = new Date("2026-05-09T00:00:00");
 const endDate = new Date("2026-06-01T00:00:00");
 
 // Episode durations in minutes per show (for relax/TV block end-time calculation)
@@ -23,24 +23,24 @@ const weekendDates = dates.filter((date) => date.getDay() === 0 || date.getDay()
 
 const BOOK_PLAN = [
   { startDay: 0, endDay: 5, title: 'Read "Jam Mysliman"', total: 12, unit: "Ch." },
-  { startDay: 6, endDay: 18, title: 'Read "The Prince"', total: 26, unit: "Ch." },
-  { startDay: 19, endDay: 23, title: 'Read "Animal Farm"', total: 10, unit: "Ch." },
-  { startDay: 24, endDay: 35, title: 'Read Book of Choice', total: 24, unit: "Ch." },
+  { startDay: 6, endDay: 12, title: 'Read "The Prince"', total: 26, unit: "Ch." },
+  { startDay: 13, endDay: 16, title: 'Read "Animal Farm"', total: 10, unit: "Ch." },
+  { startDay: 17, endDay: 23, title: 'Read Book of Choice', total: 24, unit: "Ch." },
 ];
 
 const SHOW_PLAN = [
-  { startDay: 0, endDay: 2, title: "Chernobyl", total: 5, unit: "Eps" },
-  { startDay: 3, endDay: 7, title: "Cowboy Bebop", total: 26, unit: "Eps" },
-  { startDay: 8, endDay: 18, title: "FMAB", total: 64, unit: "Eps" },
-  { startDay: 19, endDay: 39, title: "Better Call Saul", total: 63, unit: "Eps" },
+  { startDay: 0, endDay: 6, title: "Cowboy Bebop", total: 26, unit: "Eps" },
+  { startDay: 7, endDay: 8, title: "Chernobyl", total: 5, unit: "Eps" },
+  { startDay: 9, endDay: 16, title: "FMAB", total: 64, unit: "Eps" },
+  { startDay: 17, endDay: 23, title: "Better Call Saul", total: 63, unit: "Eps" },
 ];
 
 const GAME_PLAN = [
-  { startDay: 0, endDay: 7, title: "Assassin's Creed Origins" },
-  { startDay: 8, endDay: 19, title: "Ghost of Tsushima" },
-  { startDay: 20, endDay: 24, title: "Batman: Arkham City" },
-  { startDay: 25, endDay: 30, title: "Batman: Arkham Knight" },
-  { startDay: 31, endDay: 35, title: "CS2 / Free Play" },
+  { startDay: 0, endDay: 8, title: "Assassin's Creed Origins" },
+  { startDay: 9, endDay: 15, title: "Ghost of Tsushima" },
+  { startDay: 16, endDay: 18, title: "Batman: Arkham City" },
+  { startDay: 19, endDay: 21, title: "Batman: Arkham Knight" },
+  { startDay: 22, endDay: 23, title: "CS2 / Free Play" },
 ];
 
 const WEEKEND_MOVIES = [
