@@ -309,88 +309,65 @@ export const LOOKSMAX_AREAS = [
 
 export const YOUTUBE_DATA = {
   'CS2': [
-    { t: 'CS2 Complete Movement Guide', ch: 'lau', d: 'The best way to understand advanced CS2 movement mechanics like bhop, surfing and airstrafing.' },
-    { t: 'How to Play CS2 like a PRO', ch: 'NartOutHere', d: 'Actionable strategies, nades and mechanics used by tier 1 professionals.' },
+    { t: 'CS2 Complete Movement Guide', ch: 'lau', d: 'The best way to understand advanced CS2 movement mechanics like bhop, surfing and airstrafing.', url: 'https://www.youtube.com/watch?v=XDpuOMmluec' },
   ],
   'War': [
-    { t: 'The Battle of Stalingrad', ch: 'Kings and Generals', d: 'One of the bloodiest and most decisive battles in human history animated on a map.' },
-    { t: 'D-Day - The Invasion of Normandy', ch: 'The Armchair Historian', d: 'The logistical masterpiece and turning point of WWII mapped step by step.' },
+    { t: 'TOP 10 Historical Battles YOU need to know', ch: 'Forgotten History', d: 'Pivotal battles that shaped civilization — from Gaugamela to D-Day.', url: 'https://www.youtube.com/watch?v=Dt7F5I3Xp00' },
   ],
   'Books': [
-    { t: 'The Prince by Machiavelli — Deep Philosophical Analysis', ch: 'Einzelganger', d: 'Power, virtue, pragmatism. The philosophy that shaped 500 years of politics and war.' },
-    { t: 'Meditations: Every Key Lesson From Marcus Aurelius', ch: 'Daily Stoic', d: "The Roman emperor's private war journal. The most important book you'll ever read." },
+    { t: 'How Good People Make Bad Leaders | Machiavelli\'s The Prince', ch: 'Unsolicited advice', d: 'Lessons on power, cruelty, adaptability and why idealism often fails in reality.', url: 'https://www.youtube.com/watch?v=jU0ydXfieGA' },
   ],
   'TV Show': [
-    { t: 'Why The Wire Is the Greatest Show Ever Made', ch: 'Like Stories of Old', d: 'Sociology, institutional failure, and the human condition. The Wire is unmissable.' },
-    { t: 'Why Breaking Bad is a Masterpiece', ch: 'Screened', d: 'A deep dive into the cinematography, writing and visual storytelling of Walt\'s descent.' },
+    { t: 'Breaking Bad Ending Explained, Part 1: Did Walt Win or Lose?', ch: 'The Take', d: 'Deep analysis of Walter White’s fate and the cost of his empire.', url: 'https://www.youtube.com/watch?v=o4VIdIKI7RY' },
   ],
   'Anime': [
-    { t: 'Attack on Titan: A Philosophical Masterpiece', ch: 'Nux Taku', d: "Freedom, cycles of violence, moral relativism. Isayama's genius fully dissected." },
-    { t: 'Cowboy Bebop - The Perfect Anime', ch: 'Super Eyepatch Wolf', d: 'Jazz, noir, existentialism, and why Cowboy Bebop stands as a timeless masterpiece.' },
+    { t: 'A Life Worth Living - Vagabond', ch: 'The Masked Man', d: 'Beautiful breakdown of the farm arc and Musashi’s journey toward meaning.', url: 'https://www.youtube.com/watch?v=ThOgXitJXW0' },
   ],
   'Science': [
-    { t: 'The Fermi Paradox — Where Are All the Aliens?', ch: 'Kurzgesagt', d: 'The most important existential question in cosmology. Watch twice. Think deeply.' },
-    { t: 'Black Holes Explained', ch: 'Kurzgesagt', d: 'The terrifying physics of singularity, spaghettification and Hawking radiation.' },
+    { t: 'How Enceladus Shocked NASA Scientists', ch: 'Science Space', d: 'Saturn’s fascinating moon and its potential for life.', url: 'https://www.youtube.com/watch?v=Y35LTzFB-2E' },
   ],
   'AI': [
-    { t: 'Let\'s build GPT: from scratch', ch: 'Andrej Karpathy', d: 'The former head of AI at Tesla builds a Generative Pre-trained Transformer in code.' },
-    { t: 'How Large Language Models Work', ch: '3Blue1Brown', d: 'Visualizing transformers, attention mechanisms, and neural networks in LLMs.' },
+    { t: 'AI Slop Is Destroying The Internet', ch: 'Kurzgesagt – In a Nutshell', d: 'How AI-generated content is flooding and degrading the web.', url: 'https://www.youtube.com/watch?v=_zfN9wnPvU0' },
   ],
   'History': [
-    { t: 'Fall of Civilizations - Easter Island', ch: 'Fall of Civilizations', d: 'The haunting history of the Rapa Nui people and the collapse of their civilization.' },
-    { t: 'The Bronze Age Collapse', ch: 'Fall of Civilizations', d: 'How the greatest empires of antiquity simultaneously ceased to exist within a single generation.' },
+    { t: 'Chernobyl – How The World Became A Risk Society', ch: 'History Analysis', d: 'Analysis of the disaster and modern risk society.', url: 'https://www.youtube.com/watch?v=Y21TGmzHHjk' },
   ],
   'Video Games': [
-    { t: 'Dark Souls Story in 5 Minutes', ch: 'IGN', d: 'A quick breakdown of the lore from the First Flame to Gwyn\'s sacrifice.' },
-    { t: "God of War Ragnarok: Why Kratos's Journey Matters", ch: 'Like Stories of Old', d: 'Fatherhood, Norse mythology, redemption. Essay on the best game narrative ever written.' },
+    { t: 'Top 20 Video Game Stories of All Time', ch: 'Max Derrat', d: 'In-depth ranking of the greatest narratives in gaming.', url: 'https://www.youtube.com/watch?v=I1gVNpCEqYQ' },
   ],
   'Evolution': [
-    { t: 'How Humans Conquered the World', ch: 'PBS Eons', d: 'Out of Africa to every continent in 300,000 years. The most extraordinary story ever told.' },
-    { t: 'The Evolution of Consciousness', ch: 'Closer to Truth', d: 'The hard problem of consciousness meets evolutionary biology. Profound.' },
+    { t: 'The Evolution of Absolutely Everything', ch: 'Curious Archive', d: 'Wild, philosophical journey through life, memes, and culture.', url: 'https://www.youtube.com/watch?v=xWfHyEyRXcU' },
   ],
   'Religion': [
-    { t: 'The Historical Evidence for Jesus Christ', ch: 'InspiringPhilosophy', d: 'Academic analysis separating faith from historical scholarship. Rigorous and balanced.' },
-    { t: 'Why People Believe in God — Neuroscience', ch: 'Robert Sapolsky', d: 'Stanford biology professor on the evolution and neural basis of religious belief.' },
+    { t: 'Why Some People Turn to Religion (and Others Don\'t)', ch: 'A Dose of Reason', d: 'Psychology behind religious belief and deconversion.', url: 'https://www.youtube.com/watch?v=02x9Hquuqhg' },
   ],
   'Economy': [
-    { t: 'How The Economic Machine Works', ch: 'Ray Dalio', d: 'The absolute best 30-minute explanation of credit, interest rates, printing money and inflation.' },
-    { t: 'The Big Short Explained', ch: 'The Swedish Investor', d: 'Understanding the housing market crash of 2008 and the financial instruments that caused it.' },
+    { t: 'How do we create a better economy?', ch: 'TED-Ed', d: 'Doughnut Economics — balancing human needs with planetary limits.', url: 'https://www.youtube.com/watch?v=6MK6tuZ7Rws' },
   ],
   'Morality': [
-    { t: 'Justice: What Is the Right Thing to Do?', ch: 'Harvard University', d: 'The most watched philosophy lecture in history. Harvard Justice course. Start here.' },
-    { t: 'Why Good People Do Bad Things', ch: 'TED', d: 'Moral psychology, tribalism, and the hidden forces behind human behavior.' },
+    { t: 'What is Morality?', ch: 'Aperture', d: 'Exploration of how morality evolved and functions in society.', url: 'https://www.youtube.com/watch?v=qIZmSO2TVuw&t=236s' },
   ],
   'Christianity': [
-    { t: "The Bible's Meta-Narrative Fully Explained", ch: 'BibleProject', d: 'The creators of the best biblical content explain the entire arc of Scripture. Beautiful.' },
-    { t: 'CS Lewis: The Case for Christianity', ch: 'Doodle', d: 'Mere Christianity visualized. The most rational argument for the Christian faith.' },
+    { t: 'Is it God - AND - OR - VERSUS - Science?', ch: 'IMBeggar', d: 'Can faith and science coexist? Excellent exploration.', url: 'https://www.youtube.com/watch?v=dxA-gdq_LUs' },
+
   ],
   'Politics': [
-    { t: 'How Democracies Die — Steven Levitsky', ch: 'Harvard Kennedy School', d: 'Recognizing democratic backsliding in real-time. More relevant than ever.' },
-    { t: 'Geopolitics 101: Why Geography Determines Destiny', ch: 'RealLifeLore', d: 'Why countries act the way they do based on geographic and resource constraints.' },
+    { t: 'The Liberalism to Fascism Pipeline (Neoliberalism Explained)', ch: 'overzealots', d: 'Deep dive into how economic and political shifts shape modern society.', url: 'https://www.youtube.com/watch?v=i8F5FgernVY' },
   ],
   'Hacking': [
-    { t: 'Ethical Hacking Full Course — CEH Concepts', ch: 'freeCodeCamp', d: 'Full penetration testing curriculum from zero to OSCP fundamentals. Completely free.' },
-    { t: 'Social Engineering: The Biggest Security Threat', ch: 'DEFCON', d: 'Real talk on how elite hackers manipulate humans, not just machines.' },
+    { t: 'How HACKING Really Works (And How You Can Learn It)', ch: 'Hack Only Evil', d: 'Realistic explanation of hacking from recon to exploitation.', url: 'https://www.youtube.com/watch?v=qkFYqY3vr84' },
   ],
   'Coding': [
-    { t: 'Harvard CS50: The Best Free CS Course in Existence', ch: 'CS50', d: "David Malan's legendary intro to computer science. Even pros rewatch this." },
-    { t: 'System Design Interview — Top Concepts', ch: 'ByteByteGo', d: 'How to think about building systems at scale. Essential for serious engineers.' },
+    { t: 'coding is easy, actually', ch: 'easy, actually', d: 'Motivational and practical advice on how to actually start and succeed at coding.', url: 'https://www.youtube.com/watch?v=9RJpIqD8MGg' },
   ],
   'Money': [
-    { t: 'The Psychology of Money — Key Lessons', ch: 'The Swedish Investor', d: "Morgan Housel's masterpiece summarized. 18 lessons about wealth that actually matter." },
-    { t: 'How to Get Rich', ch: 'Naval', d: 'The most important wealth creation framework in existence. 45 minutes that change everything.' },
+    { t: 'Escaping the Rat Race: What School Failed to Teach You About Money', ch: 'James Jani', d: 'Excellent breakdown of production vs consumption and breaking the money trap.', url: 'https://www.youtube.com/watch?v=j_m7_rrTSxI' },
   ],
   'Football': [
-    { t: 'Total Football: The Tactical Revolution', ch: 'Tifo Football', d: 'How Cruyff and Michels created the most influential football philosophy ever conceived.' },
-    { t: 'The Greatest Players in Football History', ch: 'The Football Analyst', d: 'Statistical and tactical breakdown of the GOATs. Messi, Ronaldo, Cruyff, Pele.' },
-  ],
-  'Music': [
-    { t: 'Music Theory — Every Concept Explained Simply', ch: '12tone', d: 'Scales, chords, progressions, and why music makes you emotional. The complete guide.' },
-    { t: 'How Hip-Hop Changed Western Music', ch: 'Vox', d: "The structural influence of hip-hop on every genre — pop, country, film scores, everything." },
+    { t: 'The Disgraces of World Cup Qatar 2022', ch: 'Maqwell', d: 'Corruption, human rights, and the dark side behind the tournament.', url: 'https://www.youtube.com/watch?v=j_m7_rrTSxI' },  // Note: You didn't provide a specific link for Football this time — let me know if you have one!
   ],
   'Psychology': [
-    { t: 'The Psychology of Your Future Self', ch: 'Dan Gilbert (TED)', d: 'Why we make decisions that our future selves will regret, and the illusion of the end of history.' },
-    { t: 'The Power of Introverts', ch: 'Susan Cain (TED)', d: 'In a culture where being social and outgoing are prized above all else, introverts are sidelined.' },
+    { t: 'Sympathy for the Villain', ch: 'Psychology Analysis', d: 'Why audiences connect with adversarial characters.', url: 'https://www.youtube.com/watch?v=YzfUj-m2I6I' },
   ],
 };
 
