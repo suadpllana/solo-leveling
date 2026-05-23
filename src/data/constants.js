@@ -51,8 +51,7 @@ export const DAILY_TASKS = [
 
 export const WEEKEND_TASKS = [
   { id: 'wk_movie', name: 'Watch 1 Movie / Doc', time: 'Weekend', icon: '🎞️', xp: 100, tip: 'Immerse yourself in a great story or learn about reality. Completely reset your mind.' },
-  { id: 'wk_money', name: 'Ways to make $400 this month', time: 'Weekend', icon: '💰', xp: 150, tip: 'Spend time exploring side hustles, freelance gigs, or high-income skills to hit your monthly goal.' },
-  { id: 'wk_buy', name: 'Research Planned Purchases', time: 'Weekend', icon: '🛒', xp: 80, tip: 'Look up reviews and prices for the items you plan to buy (Mirror, CD, Poster). Be intentional with money.' }
+  { id: 'wk_money', name: 'Ways to make $400 this month', time: 'Weekend', icon: '💰', xp: 150, tip: 'Spend time exploring side hustles, freelance gigs, or high-income skills to hit your monthly goal.' }
 ];
 
 export const STOIC_QUOTES = [
@@ -245,11 +244,6 @@ export const ONE_TIME_TASKS = [
   { id: 'hobby_chess', name: 'Chess Master', cat: '🎯 Hobbies', xp: 300, icon: '♟️', totalUnits: 12, unitName: 'sessions', estUnitDuration: 30, defaultDurationDays: 12 },
   { id: 'hobby_pingpong', name: 'Ping Pong Master', cat: '🎯 Hobbies', xp: 300, icon: '🏓', totalUnits: 12, unitName: 'sessions', estUnitDuration: 30, defaultDurationDays: 12 },
   { id: 'hobby_eafc', name: 'EAFC 26 Master', cat: '🎯 Hobbies', xp: 300, icon: '⚽', totalUnits: 12, unitName: 'sessions', estUnitDuration: 30, defaultDurationDays: 12 },
-
-  // 🛒 Purchases
-  { id: 'cd', name: 'Buy a CD Album', cat: '🛒 Purchases', xp: 50, icon: '💿', totalUnits: 1, unitName: 'item', estUnitDuration: 0, defaultDurationDays: 7 },
-  { id: 'mirror', name: 'Buy a Mirror', cat: '🛒 Purchases', xp: 50, icon: '🪞', totalUnits: 1, unitName: 'item', estUnitDuration: 0, defaultDurationDays: 7 },
-  { id: 'poster', name: 'Buy Attack on Titan Poster', cat: '🛒 Purchases', xp: 50, icon: '🖼️', totalUnits: 1, unitName: 'item', estUnitDuration: 0, defaultDurationDays: 7 },
 
   // ⚖️ Body
   { id: 'weight', name: 'Reach 80kg', cat: '⚖️ Body', xp: 500, icon: '⚖️', totalUnits: 2, unitName: 'milestones', estUnitDuration: 0, defaultDurationDays: 30, subTasks: [
