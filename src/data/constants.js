@@ -265,6 +265,7 @@ export const ONE_TIME_TASKS = [
   { id: 'knowledge', name: 'Complete all knowledge videos', cat: '🧠 Knowledge', xp: 200, icon: '🧠', totalUnits: 1, unitName: 'milestone', estUnitDuration: 0, defaultDurationDays: 30 },
 
   // 📺 TV Shows
+  { id: 'anime_onepiece', name: 'Watch "One Piece"', cat: '📺 TV Shows/Anime', xp: 500, icon: '📺', totalUnits: 1000, unitName: 'episodes', estUnitDuration: 24, defaultDurationDays: 365 },
   { id: 'anime_cowboybebop', name: 'Watch "Cowboy Bebop"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺', totalUnits: 26, unitName: 'episodes', estUnitDuration: 24, defaultDurationDays: 14 },
   { id: 'tv_chernobyl', name: 'Watch "Chernobyl" (Mini Series)', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺', totalUnits: 5, unitName: 'episodes', estUnitDuration: 65, defaultDurationDays: 7 },
   { id: 'tv_bcs', name: 'Watch "Better Call Saul"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺', totalUnits: 63, unitName: 'episodes', estUnitDuration: 47, defaultDurationDays: 30 },

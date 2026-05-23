@@ -147,35 +147,55 @@ export default function DashTab({
             No focus slots allocated. Open Quest Board to assign time pacing.
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {activeKeys.map(qid => {
-              const q = allQuests.find(x => x.id === qid);
-              if (!q) return null;
-              const progress = activeQuests[qid].progress || 0;
-              const total = q.totalUnits || 1;
-              const pct = Math.round((progress / total) * 100);
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {(() => {
+              const grouped = {};
+              activeKeys.forEach(qid => {
+                const q = allQuests.find(x => x.id === qid);
+                if (!q) return;
+                const cat = q.cat || '📌 Other';
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(qid);
+              });
 
-              return (
-                <div key={qid} style={{ display: 'flex', alignItems: 'center', justifyitems: 'center', justifycontent: 'space-between', gap: 10, background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-subtle)', padding: '8px 10px', borderRadius: 8 }}>
-                  <span style={{ fontSize: 16 }}>{q.icon || '📌'}</span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                      {q.name}
-                    </div>
-                    <div style={{ fontSize: 10, color: 'var(--text-tertiary)', marginTop: 2 }}>
-                      {progress}/{total} {q.unitName} logged
-                    </div>
+              return Object.keys(grouped).map(cat => (
+                <div key={cat} style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-subtle)', borderRadius: 8, padding: '10px' }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: 8, paddingBottom: 6, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    {cat}
                   </div>
-                  {/* Small progress meter */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <div style={{ width: 40, height: 3, background: 'rgba(255,255,255,0.03)', borderRadius: 2, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${pct}%`, background: 'var(--accent-purple)', borderRadius: 2 }} />
-                    </div>
-                    <span className="number-display" style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 800 }}>{pct}%</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {grouped[cat].map(qid => {
+                      const q = allQuests.find(x => x.id === qid);
+                      if (!q) return null;
+                      const progress = activeQuests[qid].progress || 0;
+                      const total = q.totalUnits || 1;
+                      const pct = Math.round((progress / total) * 100);
+
+                      return (
+                        <div key={qid} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                          <span style={{ fontSize: 16 }}>{q.icon || '📌'}</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                              {q.name}
+                            </div>
+                            <div style={{ fontSize: 10, color: 'var(--text-tertiary)', marginTop: 2 }}>
+                              {progress}/{total} {q.unitName} logged
+                            </div>
+                          </div>
+                          {/* Small progress meter */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <div style={{ width: 40, height: 3, background: 'rgba(255,255,255,0.03)', borderRadius: 2, overflow: 'hidden' }}>
+                              <div style={{ height: '100%', width: `${pct}%`, background: 'var(--accent-purple)', borderRadius: 2 }} />
+                            </div>
+                            <span className="number-display" style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 800 }}>{pct}%</span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              );
-            })}
+              ));
+            })()}
           </div>
         )}
       </div>

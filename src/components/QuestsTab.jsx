@@ -198,102 +198,117 @@ export default function QuestsTab({
               </button>
             </div>
           ) : (
-            Object.keys(activeQuests).map(qid => {
-              const q = allQuests.find(x => x.id === qid);
-              if (!q) return null;
+            (() => {
+              const grouped = {};
+              Object.keys(activeQuests).forEach(qid => {
+                const q = allQuests.find(x => x.id === qid);
+                if (!q) return;
+                const cat = q.cat || '📌 Other';
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(qid);
+              });
 
-              const activeInfo = activeQuests[qid];
-              const pInfo = getPacingInfo(q, activeInfo);
-              const total = q.totalUnits || 1;
-              const progress = activeInfo.progress || 0;
-              const progressPct = Math.round((progress / total) * 100);
-              const remains = Math.max(0, total - progress);
-
-              const spentHrs = Math.round(((progress * (q.estUnitDuration || 0)) / 60) * 10) / 10;
-              const remHrs = Math.round(((remains * (q.estUnitDuration || 0)) / 60) * 10) / 10;
-
-              return (
-                <div key={qid} className="active-quest-card" style={{ padding: '14px 16px', borderLeft: `3px solid ${pInfo.color}` }}>
-                  {/* Category and Pacing Badges */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <div style={{ fontSize: 9, color: CAT_COLORS[q.cat] || 'var(--accent-purple)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      {q.cat}
-                    </div>
-                    <span className="badge" style={{ background: `${pInfo.color}15`, color: pInfo.color, border: `1px solid ${pInfo.color}33`, fontSize: 8, fontWeight: 800, textTransform: 'uppercase' }}>
-                      {pInfo.title}
-                    </span>
+              return Object.keys(grouped).map(cat => (
+                <div key={cat} className="active-quest-card" style={{ padding: '14px 16px', borderLeft: `3px solid ${CAT_COLORS[cat] || 'var(--accent-purple)'}`, marginBottom: '10px' }}>
+                  <div style={{ fontSize: 13, color: CAT_COLORS[cat] || 'var(--accent-purple)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 12, borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: 6 }}>
+                    {cat}
                   </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                    {grouped[cat].map((qid, index) => {
+                      const q = allQuests.find(x => x.id === qid);
+                      if (!q) return null;
 
-                  {/* Title */}
-                  <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                    <span style={{ fontSize: 18 }}>{q.icon || '📌'}</span>
-                    <span>{q.name}</span>
-                  </div>
+                      const activeInfo = activeQuests[qid];
+                      const pInfo = getPacingInfo(q, activeInfo);
+                      const total = q.totalUnits || 1;
+                      const progress = activeInfo.progress || 0;
+                      const progressPct = Math.round((progress / total) * 100);
+                      const remains = Math.max(0, total - progress);
 
-                  {/* Sub Tasks (if any) */}
-                  {q.subTasks && q.subTasks.length > 0 && (
-                    <div style={{ marginBottom: 12, padding: '8px 10px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid var(--border-subtle)' }}>
-                      {q.subTasks.map((st, idx) => (
-                        <div key={st.id || idx} style={{ fontSize: 11, color: 'var(--text-secondary)', display: 'flex', gap: 6, padding: '3px 0' }}>
-                          <span style={{ color: pInfo.color }}>•</span> {st.n}
+                      const spentHrs = Math.round(((progress * (q.estUnitDuration || 0)) / 60) * 10) / 10;
+                      const remHrs = Math.round(((remains * (q.estUnitDuration || 0)) / 60) * 10) / 10;
+
+                      return (
+                        <div key={qid} style={{ position: 'relative' }}>
+                          {index > 0 && <div style={{ height: 1, background: 'var(--border-subtle)', position: 'absolute', top: -10, left: 0, right: 0 }} />}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                            <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ fontSize: 18 }}>{q.icon || '📌'}</span>
+                              <span>{q.name}</span>
+                            </div>
+                            <span className="badge" style={{ background: `${pInfo.color}15`, color: pInfo.color, border: `1px solid ${pInfo.color}33`, fontSize: 8, fontWeight: 800, textTransform: 'uppercase' }}>
+                              {pInfo.title}
+                            </span>
+                          </div>
+
+                          {/* Sub Tasks (if any) */}
+                          {q.subTasks && q.subTasks.length > 0 && (
+                            <div style={{ marginBottom: 12, padding: '8px 10px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid var(--border-subtle)' }}>
+                              {q.subTasks.map((st, idx) => (
+                                <div key={st.id || idx} style={{ fontSize: 11, color: 'var(--text-secondary)', display: 'flex', gap: 6, padding: '3px 0' }}>
+                                  <span style={{ color: pInfo.color }}>•</span> {st.n}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Unit Progress Controls */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.15)', padding: '10px 12px', borderRadius: 10, marginBottom: 12 }}>
+                            <div>
+                              <div className="number-display" style={{ fontSize: 18, fontWeight: 900, color: 'var(--text-primary)' }}>
+                                {progress} <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>/ {total} {q.unitName}</span>
+                              </div>
+                              <div style={{ fontSize: 10, color: 'var(--text-tertiary)', marginTop: 2 }}>
+                                {spentHrs} hrs completed • {remHrs} hrs left
+                              </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: 6 }}>
+                              <button className="btn" onClick={() => updateQuestProgress(qid, progress - 1)} style={{
+                                width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-subtle)',
+                                color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900
+                              }}>-</button>
+                              <button className="btn animate-glow-purple" onClick={() => updateQuestProgress(qid, progress + 1)} style={{
+                                width: 32, height: 32, borderRadius: 8, background: `${pInfo.color}18`, border: `1px solid ${pInfo.color}44`,
+                                color: pInfo.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900
+                              }}>+</button>
+                            </div>
+                          </div>
+
+                          {/* Progress Bar */}
+                          <div style={{ height: 5, background: 'rgba(255,255,255,0.03)', borderRadius: 3, overflow: 'hidden', border: '1px solid var(--border-subtle)', marginBottom: 8 }}>
+                            <div style={{ height: '100%', width: `${progressPct}%`, background: `linear-gradient(90deg, ${pInfo.color}aa, ${pInfo.color})`, transition: 'width 0.4s' }} />
+                          </div>
+
+                          {/* Pacing Speed Description */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-secondary)' }}>
+                            <span>Pacing required: <strong style={{ color: pInfo.color }}>{pInfo.requiredDailyPace} {q.unitName}/day</strong></span>
+                            <span>Deadline: <strong>{pInfo.daysRemaining} days left</strong></span>
+                          </div>
+
+                          {/* Warning descriptions */}
+                          {pInfo.title === "Faltering" && (
+                            <div style={{ fontSize: 10, color: 'var(--accent-red)', marginTop: 8, background: 'rgba(248,113,113,0.05)', padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(248,113,113,0.1)' }}>
+                              ⚠ Warning: You are falling behind deadline pace. Complete this unit more regularly to clear the penalty check!
+                            </div>
+                          )}
+
+                          {/* Deactivate Quest */}
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
+                            <button className="btn" onClick={() => deactivateQuest(qid)} style={{
+                              background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8,
+                              padding: '5px 12px', color: 'var(--text-tertiary)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.04em'
+                            }}>
+                              Deactivate Quest
+                            </button>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Unit Progress Controls */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.15)', padding: '10px 12px', borderRadius: 10, marginBottom: 12 }}>
-                    <div>
-                      <div className="number-display" style={{ fontSize: 18, fontWeight: 900, color: 'var(--text-primary)' }}>
-                        {progress} <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>/ {total} {q.unitName}</span>
-                      </div>
-                      <div style={{ fontSize: 10, color: 'var(--text-tertiary)', marginTop: 2 }}>
-                        {spentHrs} hrs completed • {remHrs} hrs left
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <button className="btn" onClick={() => updateQuestProgress(qid, progress - 1)} style={{
-                        width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-subtle)',
-                        color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900
-                      }}>-</button>
-                      <button className="btn animate-glow-purple" onClick={() => updateQuestProgress(qid, progress + 1)} style={{
-                        width: 32, height: 32, borderRadius: 8, background: `${pInfo.color}18`, border: `1px solid ${pInfo.color}44`,
-                        color: pInfo.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900
-                      }}>+</button>
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div style={{ height: 5, background: 'rgba(255,255,255,0.03)', borderRadius: 3, overflow: 'hidden', border: '1px solid var(--border-subtle)', marginBottom: 8 }}>
-                    <div style={{ height: '100%', width: `${progressPct}%`, background: `linear-gradient(90deg, ${pInfo.color}aa, ${pInfo.color})`, transition: 'width 0.4s' }} />
-                  </div>
-
-                  {/* Pacing Speed Description */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-secondary)' }}>
-                    <span>Pacing required: <strong style={{ color: pInfo.color }}>{pInfo.requiredDailyPace} {q.unitName}/day</strong></span>
-                    <span>Deadline: <strong>{pInfo.daysRemaining} days left</strong></span>
-                  </div>
-
-                  {/* Warning descriptions */}
-                  {pInfo.title === "Faltering" && (
-                    <div style={{ fontSize: 10, color: 'var(--accent-red)', marginTop: 8, background: 'rgba(248,113,113,0.05)', padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(248,113,113,0.1)' }}>
-                      ⚠ Warning: You are falling behind deadline pace. Complete this unit more regularly to clear the penalty check!
-                    </div>
-                  )}
-
-                  {/* Deactivate Quest */}
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12, borderTop: '1px solid var(--border-subtle)', paddingTop: 10 }}>
-                    <button className="btn" onClick={() => deactivateQuest(qid)} style={{
-                      background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8,
-                      padding: '5px 12px', color: 'var(--text-tertiary)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.04em'
-                    }}>
-                      Deactivate Quest
-                    </button>
+                      );
+                    })}
                   </div>
                 </div>
-              );
-            })
+              ));
+            })()
           )}
         </div>
       )}
