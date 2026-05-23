@@ -2,10 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   RANKS, RANK_TITLES, RANK_COLORS, getRankInfo,
   DAILY_TASKS, WEEKEND_TASKS, ONE_TIME_TASKS, STOIC_QUOTES, YOUTUBE_DATA, CATS,
-  DEADLINE_DATE, DEADLINE_LABEL, MOTIVATION_TIPS
+  DEADLINE_DATE, DEADLINE_LABEL, MOTIVATION_TIPS, CATEGORY_LIMITS
 } from "./data/constants";
 import DashTab from "./components/DashTab";
-import DailyTab from "./components/DailyTab";
 import QuestsTab from "./components/QuestsTab";
 import YtTab from "./components/YtTab";
 import StatsTab from "./components/StatsTab";
@@ -15,13 +14,12 @@ import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-
 
 const TABS = [
   ["dash","⚡","Home"],
-  ["daily","📋","Daily"],
   ["quests","🗺️","Quests"],
   ["yt","▶️","Learn"],
   ["stats","📊","Stats"]
 ];
 
-const DAILY_PLAN_VERSION = "2026-04-27-v2";
+const DAILY_PLAN_VERSION = "2026-04-27-v2"; 
 const DAILY_TRACKING_START = "2026-04-27";
 const KOSOVO_TIME_ZONE = "Europe/Belgrade";
 const KOSOVO_DATE_FORMATTER = new Intl.DateTimeFormat("en-CA", {
@@ -103,6 +101,8 @@ function loadPersistedState(todayStr){
     completedOnce: {},
     missedTasks: [],
     watchedYt: {},
+    activeQuests: {},
+    customQuests: [],
     pendingHistoryEntry: null,
   };
 
@@ -118,6 +118,8 @@ function loadPersistedState(todayStr){
     xp: savedState.xp || 0,
     completedOnce: savedState.completedOnce || {},
     watchedYt: savedState.watchedYt || {},
+    activeQuests: savedState.activeQuests || {},
+    customQuests: savedState.customQuests || [],
   };
 
   if (matchesDailyPlan && savedState.lastDate === todayStr) {
@@ -173,11 +175,25 @@ export default function SoloLevel(){
   const[completedOnce,setCompletedOnce]=useState(() => initialState.completedOnce);
   const[missedTasks,setMissedTasks]=useState(() => initialState.missedTasks);
   const[watchedYt,setWatchedYt]=useState(() => initialState.watchedYt);
+  const[activeQuests,setActiveQuests]=useState(() => initialState.activeQuests || {});
+  const[customQuests,setCustomQuests]=useState(() => initialState.customQuests || []);
   const[popup,setPopup]=useState(null);
   const[ytCat,setYtCat]=useState("CS2");
   const[ytIdx,setYtIdx]=useState(0);
   const[expandedDaily,setExpandedDaily]=useState(null);
   const[nowTime,setNowTime]=useState(() => getKosovoNow());
+
+  useEffect(() => {
+    // Automatically purge any active focus quests that are completed
+    const toRemove = Object.keys(activeQuests).filter(id => completedOnce[id]);
+    if (toRemove.length > 0) {
+      setActiveQuests(prev => {
+        const next = { ...prev };
+        toRemove.forEach(id => delete next[id]);
+        return Object.keys(prev).length !== Object.keys(next).length ? next : prev;
+      });
+    }
+  }, [completedOnce, activeQuests]);
 
   useEffect(() => {
     const timer = setInterval(() => setNowTime(getKosovoNow()), 1000);
@@ -212,7 +228,7 @@ export default function SoloLevel(){
   }, []);
 
   useEffect(()=>{
-    writeJsonStorage("solo_grind_v2", { xp, streak, completedDaily, completedOnce, missedTasks, lastDate: todayStr, watchedYt, planVersion: DAILY_PLAN_VERSION });
+    writeJsonStorage("solo_grind_v2", { xp, streak, completedDaily, completedOnce, missedTasks, lastDate: todayStr, watchedYt, activeQuests, customQuests, planVersion: DAILY_PLAN_VERSION });
 
     const savedStats = readJsonStorage("solo_grind_stats", {});
     savedStats[todayStr] = {
@@ -220,7 +236,7 @@ export default function SoloLevel(){
       extras: savedStats[todayStr]?.extras || [],
     };
     writeJsonStorage("solo_grind_stats", savedStats);
-  },[xp,streak,completedDaily,completedOnce,missedTasks,watchedYt,todayStr]);
+  },[xp,streak,completedDaily,completedOnce,missedTasks,watchedYt,activeQuests,customQuests,todayStr]);
 
   function doPopup(msg){setPopup(msg);setTimeout(()=>setPopup(null),2500);}
 
@@ -251,7 +267,7 @@ export default function SoloLevel(){
   }
   function completeOnce(id){
     if(completedOnce[id])return;
-    const t=ONE_TIME_TASKS.find(x=>x.id===id);
+    const t=[...ONE_TIME_TASKS, ...customQuests].find(x=>x.id===id);
     if(!t)return;
     setCompletedOnce(p=>({...p,[id]:true}));
     setXp(p=>p+t.xp);
@@ -260,7 +276,7 @@ export default function SoloLevel(){
   }
   function undoOnce(id){
     if(!completedOnce[id])return;
-    const t=ONE_TIME_TASKS.find(x=>x.id===id);
+    const t=[...ONE_TIME_TASKS, ...customQuests].find(x=>x.id===id);
     if(!t)return;
     setCompletedOnce(p=>{const n={...p}; delete n[id]; return n;});
     setXp(p=>Math.max(0, p-t.xp));
@@ -274,6 +290,74 @@ export default function SoloLevel(){
       setXp(p=>p+40);
       doPopup("+40 XP • Knowledge acquired!");
     }
+  }
+
+  function activateQuest(id) {
+    const allQuests = [...ONE_TIME_TASKS, ...customQuests];
+    const quest = allQuests.find(q => q.id === id);
+    if (!quest) return false;
+
+    // Check category constraints
+    const limit = CATEGORY_LIMITS[quest.cat] || 99;
+    const currentActiveInCat = Object.keys(activeQuests).filter(qid => {
+      const q = allQuests.find(x => x.id === qid);
+      return q && q.cat === quest.cat;
+    }).length;
+
+    if (currentActiveInCat >= limit) {
+      alert(`SYSTEM DECREE: Cannot activate quest! Focus limit reached for "${quest.cat}". You are only permitted to have ${limit} active quest(s) of this category simultaneously. Complete or deactivate your current active quest first to avoid a debuff status!`);
+      return false;
+    }
+
+    setActiveQuests(prev => ({
+      ...prev,
+      [id]: { activatedAt: todayStr, progress: 0 }
+    }));
+    doPopup(`Quest Activated • Focus assigned!`);
+    return true;
+  }
+
+  function deactivateQuest(id, silent = false) {
+    setActiveQuests(prev => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    if (!silent) doPopup(`Quest Deactivated • Backlog`);
+  }
+
+  function updateQuestProgress(id, newProgress) {
+    const allQuests = [...ONE_TIME_TASKS, ...customQuests];
+    const quest = allQuests.find(q => q.id === id);
+    if (!quest) return;
+
+    const clampedProgress = Math.max(0, Math.min(quest.totalUnits || 1, newProgress));
+
+    setActiveQuests(prev => {
+      if (!prev[id]) return prev;
+      return {
+        ...prev,
+        [id]: { ...prev[id], progress: clampedProgress }
+      };
+    });
+
+    if (clampedProgress === quest.totalUnits && !completedOnce[id]) {
+      completeOnce(id);
+      deactivateQuest(id, true);
+    } else if (clampedProgress < quest.totalUnits && completedOnce[id]) {
+      undoOnce(id);
+    }
+  }
+
+  function forgeCustomQuest(newQuest) {
+    setCustomQuests(prev => [...prev, newQuest]);
+    doPopup(`Quest Forged • Custom Quest Added!`);
+  }
+
+  function removeCustomQuest(id) {
+    deactivateQuest(id);
+    setCustomQuests(prev => prev.filter(q => q.id !== id));
+    doPopup(`Quest Forged • Custom Quest Deleted`);
   }
 
   const ri=getRankInfo(xp);
@@ -369,9 +453,8 @@ export default function SoloLevel(){
         {/* ── Content ── */}
         <div style={{padding:"16px 16px"}} className="tab-anim" key={tab}>
           <Routes>
-            <Route path="/" element={<DashTab ri={ri} rc={rc} streak={streak} daysLeft={daysLeft} dailyDone={dailyDone} onceDone={onceDone} missed={missedTasks} setTab={setTab} />} />
-            <Route path="/daily" element={<DailyTab tasks={DAILY_TASKS} weekendTasks={WEEKEND_TASKS} completed={completedDaily} missed={missedTasks} onComplete={completeDaily} onUndo={undoDaily} onCompleteSub={completeSub} onUndoSub={undoSub} quotes={todayQuotes} expanded={expandedDaily} setExpanded={setExpandedDaily}/>} />
-            <Route path="/quests" element={<QuestsTab tasks={ONE_TIME_TASKS} completed={completedOnce} onComplete={completeOnce} onUndo={undoOnce} />} />
+            <Route path="/" element={<DashTab ri={ri} rc={rc} streak={streak} daysLeft={daysLeft} dailyDone={dailyDone} onceDone={onceDone} missed={missedTasks} setTab={setTab} activeQuests={activeQuests} customQuests={customQuests} />} />
+            <Route path="/quests" element={<QuestsTab tasks={ONE_TIME_TASKS} completed={completedOnce} onComplete={completeOnce} onUndo={undoOnce} activeQuests={activeQuests} customQuests={customQuests} activateQuest={activateQuest} deactivateQuest={deactivateQuest} updateQuestProgress={updateQuestProgress} forgeCustomQuest={forgeCustomQuest} removeCustomQuest={removeCustomQuest} />} />
             <Route path="/yt" element={<YtTab data={YOUTUBE_DATA} cats={CATS} cat={ytCat} setCat={c=>{setYtCat(c);setYtIdx(0);}} idx={ytIdx} setIdx={setYtIdx} watched={watchedYt} onWatch={watchVideo}/>} />
             <Route path="/stats" element={<StatsTab />} />
             <Route path="*" element={<Navigate to="/" replace />} />

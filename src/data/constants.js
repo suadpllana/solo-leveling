@@ -13,8 +13,8 @@ export function getRankInfo(xp) {
 }
 
 // ── DEADLINE ──
-export const DEADLINE_DATE = '2026-06-01T00:00:00';
-export const DEADLINE_LABEL = '1 JUNE 2026';
+export const DEADLINE_DATE = '2026-07-01T00:00:00';
+export const DEADLINE_LABEL = '1 JULY 2026';
 
 export const DAILY_TASKS = [
   { id: 'wake_up', name: 'Wake Up', time: '07:10', icon: '🌅', xp: 20, tip: 'Get out of bed immediately. No snoozing. Win the first battle of the day.' },
@@ -204,63 +204,77 @@ export const STOIC_QUOTES = [
   { q: "How long are you going to wait before you demand the best for yourself?", a: "Epictetus" }
 ];
 
+// ── FOCUS CATEGORY CONSTRAINTS & LIMITS ──
+export const CATEGORY_LIMITS = {
+  '📚 Books': 1,
+  '📺 TV Shows/Anime': 1,
+  '🎮 Gaming': 1,
+  '🎬 Films': 2,
+  '🎞️ Documentaries': 1,
+  '🎯 Hobbies': 2,
+  '🏆 Challenges': 1,
+};
+
 // ── ONE-TIME QUESTS (May 2026 Edition) ──
-// Old uncompleted tasks kept, completed quests removed, new content added
+// Enriched with dynamic pacing metadata
 export const ONE_TIME_TASKS = [
-  // 📚 Books (kept from before + new)
-  { id: 'jam', name: 'Read "Jam Mysliman"', cat: '📚 Books', xp: 300, icon: '📖' },
-  { id: 'prince', name: 'Read "The Prince" — Machiavelli', cat: '📚 Books', xp: 300, icon: '📖' },
-  { id: 'book_animalfarm', name: 'Read "Animal Farm" — George Orwell', cat: '📚 Books', xp: 300, icon: '📖' },
+  // 📚 Books
+  { id: 'jam', name: 'Read "Jam Mysliman"', cat: '📚 Books', xp: 300, icon: '📖', totalUnits: 12, unitName: 'chapters', estUnitDuration: 30, defaultDurationDays: 14 },
+  { id: 'prince', name: 'Read "The Prince" — Machiavelli', cat: '📚 Books', xp: 300, icon: '📖', totalUnits: 26, unitName: 'chapters', estUnitDuration: 15, defaultDurationDays: 20 },
+  { id: 'book_animalfarm', name: 'Read "Animal Farm" — George Orwell', cat: '📚 Books', xp: 300, icon: '📖', totalUnits: 10, unitName: 'chapters', estUnitDuration: 20, defaultDurationDays: 10 },
 
-  // 🎬 Films (new selection)
-  { id: 'film_harakiri', name: 'Watch "Harakiri" (1962)', cat: '🎬 Films', xp: 150, icon: '🎬' },
-  { id: 'film_comeandsee', name: 'Watch "Come and See" (1985)', cat: '🎬 Films', xp: 150, icon: '🎬' },
-  { id: 'film_silence', name: 'Watch "The Silence of the Lambs" (1991)', cat: '🎬 Films', xp: 150, icon: '🎬' },
-  { id: 'film_oppenheimer', name: 'Watch "Oppenheimer" (2023)', cat: '🎬 Films', xp: 150, icon: '🎬' },
-  { id: 'film_incendies', name: 'Watch "Incendies" (2010)', cat: '🎬 Films', xp: 150, icon: '🎬' },
+  // 🎬 Films
+  { id: 'film_harakiri', name: 'Watch "Harakiri" (1962)', cat: '🎬 Films', xp: 150, icon: '🎬', totalUnits: 1, unitName: 'movie', estUnitDuration: 133, defaultDurationDays: 3 },
+  { id: 'film_comeandsee', name: 'Watch "Come and See" (1985)', cat: '🎬 Films', xp: 150, icon: '🎬', totalUnits: 1, unitName: 'movie', estUnitDuration: 142, defaultDurationDays: 3 },
+  { id: 'film_silence', name: 'Watch "The Silence of the Lambs" (1991)', cat: '🎬 Films', xp: 150, icon: '🎬', totalUnits: 1, unitName: 'movie', estUnitDuration: 118, defaultDurationDays: 3 },
+  { id: 'film_oppenheimer', name: 'Watch "Oppenheimer" (2023)', cat: '🎬 Films', xp: 150, icon: '🎬', totalUnits: 1, unitName: 'movie', estUnitDuration: 180, defaultDurationDays: 3 },
+  { id: 'film_projecthailmary', name: 'Watch "Project Hail Mary"', cat: '🎬 Films', xp: 150, icon: '🎬', totalUnits: 1, unitName: 'movie', estUnitDuration: 120, defaultDurationDays: 3 },
 
-  // 🎞️ Documentaries (new)
-  { id: 'doc_europe', name: 'Watch "Europa: The Last Battle" (10 parts)', cat: '🎞️ Documentaries', xp: 200, icon: '🎞️', url: 'https://www.youtube.com/results?search_query=europa+the+last+battle' },
-  { id: 'doc_planetearth', name: 'Watch "Planet Earth 1" (11 eps)', cat: '🎞️ Documentaries', xp: 200, icon: '🎞️', url: 'https://www.youtube.com/results?search_query=planet+earth+1+documentary' },
-  { id: 'doc_socialdilemma', name: 'Watch "The Social Dilemma"', cat: '🎞️ Documentaries', xp: 150, icon: '🎞️', url: 'https://www.youtube.com/results?search_query=the+social+dilemma' },
+  // 🎞️ Documentaries
+  { id: 'doc_europe', name: 'Watch "Europa: The Last Battle"', cat: '🎞️ Documentaries', xp: 200, icon: '🎞️', url: 'https://www.youtube.com/results?search_query=europa+the+last+battle', totalUnits: 10, unitName: 'parts', estUnitDuration: 60, defaultDurationDays: 10 },
+  { id: 'doc_planetearth', name: 'Watch "Planet Earth 1" (11 eps)', cat: '🎞️ Documentaries', xp: 200, icon: '🎞️', url: 'https://www.youtube.com/results?search_query=planet+earth+1+documentary', totalUnits: 11, unitName: 'episodes', estUnitDuration: 50, defaultDurationDays: 11 },
+  { id: 'doc_socialdilemma', name: 'Watch "The Social Dilemma"', cat: '🎞️ Documentaries', xp: 150, icon: '🎞️', url: 'https://www.youtube.com/results?search_query=the+social+dilemma', totalUnits: 1, unitName: 'documentary', estUnitDuration: 94, defaultDurationDays: 2 },
 
-  // 🎮 Gaming (kept old + new)
-  { id: 'origins', name: "Play Assassin's Creed Origins", cat: '🎮 Gaming', xp: 200, icon: '🎮' },
-  { id: 'game_ghost', name: 'Play Ghost of Tsushima', cat: '🎮 Gaming', xp: 200, icon: '🎮' },
-  { id: 'game_arkhamcity', name: 'Play Batman: Arkham City', cat: '🎮 Gaming', xp: 200, icon: '🎮' },
-  { id: 'game_arkhamknight', name: 'Play Batman: Arkham Knight', cat: '🎮 Gaming', xp: 200, icon: '🎮' },
+  // 🎮 Gaming
+  { id: 'origins', name: "Play Assassin's Creed Origins", cat: '🎮 Gaming', xp: 200, icon: '🎮', totalUnits: 8, unitName: 'parts', estUnitDuration: 90, defaultDurationDays: 14 },
+  { id: 'game_ghost', name: 'Play Ghost of Tsushima', cat: '🎮 Gaming', xp: 200, icon: '🎮', totalUnits: 7, unitName: 'parts', estUnitDuration: 90, defaultDurationDays: 14 },
+  { id: 'game_arkhamcity', name: 'Play Batman: Arkham City', cat: '🎮 Gaming', xp: 200, icon: '🎮', totalUnits: 3, unitName: 'parts', estUnitDuration: 90, defaultDurationDays: 7 },
+  { id: 'game_arkhamknight', name: 'Play Batman: Arkham Knight', cat: '🎮 Gaming', xp: 200, icon: '🎮', totalUnits: 3, unitName: 'parts', estUnitDuration: 90, defaultDurationDays: 7 },
 
-  // 🎯 Hobbies (new)
-  { id: 'hobby_cs2', name: 'CS2 Master', cat: '🎯 Hobbies', xp: 300, icon: '🎯' },
-  { id: 'hobby_chess', name: 'Chess Master', cat: '🎯 Hobbies', xp: 300, icon: '♟️' },
-  { id: 'hobby_pingpong', name: 'Ping Pong Master', cat: '🎯 Hobbies', xp: 300, icon: '🏓' },
-  { id: 'hobby_eafc', name: 'EAFC 26 Master', cat: '🎯 Hobbies', xp: 300, icon: '⚽' },
+  // 🎯 Hobbies
+  { id: 'hobby_cs2', name: 'CS2 Master', cat: '🎯 Hobbies', xp: 300, icon: '🎯', totalUnits: 12, unitName: 'sessions', estUnitDuration: 30, defaultDurationDays: 12 },
+  { id: 'hobby_chess', name: 'Chess Master', cat: '🎯 Hobbies', xp: 300, icon: '♟️', totalUnits: 12, unitName: 'sessions', estUnitDuration: 30, defaultDurationDays: 12 },
+  { id: 'hobby_pingpong', name: 'Ping Pong Master', cat: '🎯 Hobbies', xp: 300, icon: '🏓', totalUnits: 12, unitName: 'sessions', estUnitDuration: 30, defaultDurationDays: 12 },
+  { id: 'hobby_eafc', name: 'EAFC 26 Master', cat: '🎯 Hobbies', xp: 300, icon: '⚽', totalUnits: 12, unitName: 'sessions', estUnitDuration: 30, defaultDurationDays: 12 },
 
-  // 🛒 Purchases (kept)
-  { id: 'cd', name: 'Buy a CD Album', cat: '🛒 Purchases', xp: 50, icon: '💿' },
-  { id: 'mirror', name: 'Buy a Mirror', cat: '🛒 Purchases', xp: 50, icon: '🪞' },
-  { id: 'poster', name: 'Buy Attack on Titan Poster', cat: '🛒 Purchases', xp: 50, icon: '🖼️' },
+  // 🛒 Purchases
+  { id: 'cd', name: 'Buy a CD Album', cat: '🛒 Purchases', xp: 50, icon: '💿', totalUnits: 1, unitName: 'item', estUnitDuration: 0, defaultDurationDays: 7 },
+  { id: 'mirror', name: 'Buy a Mirror', cat: '🛒 Purchases', xp: 50, icon: '🪞', totalUnits: 1, unitName: 'item', estUnitDuration: 0, defaultDurationDays: 7 },
+  { id: 'poster', name: 'Buy Attack on Titan Poster', cat: '🛒 Purchases', xp: 50, icon: '🖼️', totalUnits: 1, unitName: 'item', estUnitDuration: 0, defaultDurationDays: 7 },
 
-  // ⚖️ Body (kept)
-  { id: 'weight', name: 'Reach 80kg', cat: '⚖️ Body', xp: 500, icon: '⚖️' },
+  // ⚖️ Body
+  { id: 'weight', name: 'Reach 80kg', cat: '⚖️ Body', xp: 500, icon: '⚖️', totalUnits: 2, unitName: 'milestones', estUnitDuration: 0, defaultDurationDays: 30, subTasks: [
+    { id: 'w_ex', n: 'Consistent Exercise Routine' },
+    { id: 'w_lm', n: 'Consistent Looksmaxing Routine' }
+  ] },
 
-  // 💰 Finance (kept + new)
-  { id: 'money', name: 'Make $400 this month', cat: '💰 Finance', xp: 500, icon: '💵' },
+  // 💰 Finance
+  { id: 'money', name: 'Make $400 this month', cat: '💰 Finance', xp: 500, icon: '💵', totalUnits: 1, unitName: 'milestone', estUnitDuration: 0, defaultDurationDays: 30 },
 
-  // 🧠 Knowledge (kept)
-  { id: 'knowledge', name: 'Complete all knowledge videos', cat: '🧠 Knowledge', xp: 200, icon: '🧠' },
+  // 🧠 Knowledge
+  { id: 'knowledge', name: 'Complete all knowledge videos', cat: '🧠 Knowledge', xp: 200, icon: '🧠', totalUnits: 1, unitName: 'milestone', estUnitDuration: 0, defaultDurationDays: 30 },
 
-  // 📺 TV Shows (ordered by your current progress)
-  { id: 'anime_cowboybebop', name: 'Watch "Cowboy Bebop"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
-  { id: 'tv_chernobyl', name: 'Watch "Chernobyl" (Mini Series)', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
-  { id: 'tv_bcs', name: 'Watch "Better Call Saul"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
-  { id: 'anime_fmab', name: 'Watch "Fullmetal Alchemist: Brotherhood"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺' },
+  // 📺 TV Shows
+  { id: 'anime_cowboybebop', name: 'Watch "Cowboy Bebop"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺', totalUnits: 26, unitName: 'episodes', estUnitDuration: 24, defaultDurationDays: 14 },
+  { id: 'tv_chernobyl', name: 'Watch "Chernobyl" (Mini Series)', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺', totalUnits: 5, unitName: 'episodes', estUnitDuration: 65, defaultDurationDays: 7 },
+  { id: 'tv_bcs', name: 'Watch "Better Call Saul"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺', totalUnits: 63, unitName: 'episodes', estUnitDuration: 47, defaultDurationDays: 30 },
+  { id: 'anime_fmab', name: 'Watch "Fullmetal Alchemist: Brotherhood"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺', totalUnits: 64, unitName: 'episodes', estUnitDuration: 24, defaultDurationDays: 21 },
 
-  // 🏃 Challenges (new)
-  { id: 'ch_cold', name: '7-Day Cold Shower Challenge', cat: '🏆 Challenges', xp: 300, icon: '🥶' },
-  { id: 'ch_social', name: 'No Social Media for 3 Consecutive Days', cat: '🏆 Challenges', xp: 250, icon: '📵' },
-  { id: 'ch_walk', name: 'Walk 10,000 Steps in One Day', cat: '🏆 Challenges', xp: 150, icon: '🚶' },
-  { id: 'ch_cook', name: 'Cook 3 Healthy Meals from Scratch', cat: '🏆 Challenges', xp: 200, icon: '👨‍🍳' },
+  // 🏃 Challenges
+  { id: 'ch_cold', name: '7-Day Cold Shower Challenge', cat: '🏆 Challenges', xp: 300, icon: '🥶', totalUnits: 7, unitName: 'days', estUnitDuration: 10, defaultDurationDays: 7 },
+  { id: 'ch_social', name: 'No Social Media for 3 Consecutive Days', cat: '🏆 Challenges', xp: 250, icon: '📵', totalUnits: 3, unitName: 'days', estUnitDuration: 0, defaultDurationDays: 3 },
+  { id: 'ch_walk', name: 'Walk 10,000 Steps in One Day', cat: '🏆 Challenges', xp: 150, icon: '🚶', totalUnits: 1, unitName: 'day', estUnitDuration: 60, defaultDurationDays: 1 },
+  { id: 'ch_cook', name: 'Cook 3 Healthy Meals from Scratch', cat: '🏆 Challenges', xp: 200, icon: '👨‍🍳', totalUnits: 3, unitName: 'meals', estUnitDuration: 45, defaultDurationDays: 5 },
 ];
 
 export const LOOKSMAX_AREAS = [
