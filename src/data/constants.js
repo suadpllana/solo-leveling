@@ -212,7 +212,6 @@ export const CATEGORY_LIMITS = {
   '🎬 Films': 2,
   '🎞️ Documentaries': 1,
   '🎯 Hobbies': 2,
-  '🏆 Challenges': 1,
 };
 
 // ── ONE-TIME QUESTS (May 2026 Edition) ──
@@ -270,12 +269,6 @@ export const ONE_TIME_TASKS = [
   { id: 'tv_chernobyl', name: 'Watch "Chernobyl" (Mini Series)', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺', totalUnits: 5, unitName: 'episodes', estUnitDuration: 65, defaultDurationDays: 7 },
   { id: 'tv_bcs', name: 'Watch "Better Call Saul"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺', totalUnits: 63, unitName: 'episodes', estUnitDuration: 47, defaultDurationDays: 30 },
   { id: 'anime_fmab', name: 'Watch "Fullmetal Alchemist: Brotherhood"', cat: '📺 TV Shows/Anime', xp: 200, icon: '📺', totalUnits: 64, unitName: 'episodes', estUnitDuration: 24, defaultDurationDays: 21 },
-
-  // 🏃 Challenges
-  { id: 'ch_cold', name: '7-Day Cold Shower Challenge', cat: '🏆 Challenges', xp: 300, icon: '🥶', totalUnits: 7, unitName: 'days', estUnitDuration: 10, defaultDurationDays: 7 },
-  { id: 'ch_social', name: 'No Social Media for 3 Consecutive Days', cat: '🏆 Challenges', xp: 250, icon: '📵', totalUnits: 3, unitName: 'days', estUnitDuration: 0, defaultDurationDays: 3 },
-  { id: 'ch_walk', name: 'Walk 10,000 Steps in One Day', cat: '🏆 Challenges', xp: 150, icon: '🚶', totalUnits: 1, unitName: 'day', estUnitDuration: 60, defaultDurationDays: 1 },
-  { id: 'ch_cook', name: 'Cook 3 Healthy Meals from Scratch', cat: '🏆 Challenges', xp: 200, icon: '👨‍🍳', totalUnits: 3, unitName: 'meals', estUnitDuration: 45, defaultDurationDays: 5 },
 ];
 
 export const LOOKSMAX_AREAS = [
