@@ -222,9 +222,9 @@ export const ONE_TIME_TASKS = [
   { id: 'book_animalfarm', name: 'Read "Animal Farm" — George Orwell', cat: '📚 Books', xp: 300, icon: '📖', totalUnits: 10, unitName: 'chapters', estUnitDuration: 20, defaultDurationDays: 10 },
 
   // 🎬 Films
-  { id: 'film_harakiri', name: 'Watch "Harakiri" (1962)', cat: '🎬 Films', xp: 150, icon: '🎬', totalUnits: 1, unitName: 'movie', estUnitDuration: 133, defaultDurationDays: 3 },
-  { id: 'film_comeandsee', name: 'Watch "Come and See" (1985)', cat: '🎬 Films', xp: 150, icon: '🎬', totalUnits: 1, unitName: 'movie', estUnitDuration: 142, defaultDurationDays: 3 },
-  { id: 'film_silence', name: 'Watch "The Silence of the Lambs" (1991)', cat: '🎬 Films', xp: 150, icon: '🎬', totalUnits: 1, unitName: 'movie', estUnitDuration: 118, defaultDurationDays: 3 },
+  { id: 'film_oneflew', name: 'Watch "One Flew Over the Cuckoo\'s Nest"', cat: '🎬 Films', xp: 150, icon: '🎬', totalUnits: 1, unitName: 'movie', estUnitDuration: 133, defaultDurationDays: 3 },
+  { id: 'film_backtothefuture', name: 'Watch "Back to the Future"', cat: '🎬 Films', xp: 150, icon: '🎬', totalUnits: 1, unitName: 'movie', estUnitDuration: 142, defaultDurationDays: 3 },
+  { id: 'film_spiritedaway', name: 'Watch "Spirited Away"', cat: '🎬 Films', xp: 150, icon: '🎬', totalUnits: 1, unitName: 'movie', estUnitDuration: 118, defaultDurationDays: 3 },
   { id: 'film_oppenheimer', name: 'Watch "Oppenheimer" (2023)', cat: '🎬 Films', xp: 150, icon: '🎬', totalUnits: 1, unitName: 'movie', estUnitDuration: 180, defaultDurationDays: 3 },
   { id: 'film_projecthailmary', name: 'Watch "Project Hail Mary"', cat: '🎬 Films', xp: 150, icon: '🎬', totalUnits: 1, unitName: 'movie', estUnitDuration: 120, defaultDurationDays: 3 },
 
@@ -237,7 +237,7 @@ export const ONE_TIME_TASKS = [
   { id: 'origins', name: "Play Assassin's Creed Origins", cat: '🎮 Gaming', xp: 200, icon: '🎮', totalUnits: 8, unitName: 'parts', estUnitDuration: 90, defaultDurationDays: 14 },
   { id: 'game_ghost', name: 'Play Ghost of Tsushima', cat: '🎮 Gaming', xp: 200, icon: '🎮', totalUnits: 7, unitName: 'parts', estUnitDuration: 90, defaultDurationDays: 14 },
   { id: 'game_arkhamcity', name: 'Play Batman: Arkham City', cat: '🎮 Gaming', xp: 200, icon: '🎮', totalUnits: 3, unitName: 'parts', estUnitDuration: 90, defaultDurationDays: 7 },
-  { id: 'game_arkhamknight', name: 'Play Batman: Arkham Knight', cat: '🎮 Gaming', xp: 200, icon: '🎮', totalUnits: 3, unitName: 'parts', estUnitDuration: 90, defaultDurationDays: 7 },
+  { id: 'game_raft', name: 'Play Raft', cat: '🎮 Gaming', xp: 200, icon: '🎮', totalUnits: 3, unitName: 'parts', estUnitDuration: 90, defaultDurationDays: 7 },
 
   // 🎯 Hobbies
   { id: 'hobby_cs2', name: 'CS2 Master', cat: '🎯 Hobbies', xp: 300, icon: '🎯', totalUnits: 12, unitName: 'sessions', estUnitDuration: 30, defaultDurationDays: 12 },
