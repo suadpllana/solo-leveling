@@ -10,10 +10,28 @@ export default function Header() {
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-void/80 border-b border-edge">
       {/* Top row: logo + countdown */}
       <div className="mx-auto max-w-5xl px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 min-w-0">
-     
-       
-        </div>
+        <NavLink to="/" className="flex items-center gap-3 min-w-0 group">
+          <div
+            className="relative grid place-items-center w-10 h-10 rounded-[12px] shrink-0 border border-white/10"
+            style={{ background: "#0a0a0f" }}
+          >
+            <span
+              className="font-display font-black italic text-lg leading-none"
+              style={{
+                background: "linear-gradient(135deg, #00e5ff, #8b5cf6)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              SP
+            </span>
+            <span className="absolute inset-0 rounded-[12px] glow-pulse" style={{ boxShadow: "0 0 18px rgba(0,229,255,0.35)" }} />
+          </div>
+          <span className="font-display font-black uppercase italic tracking-[0.12em] text-lg sm:text-xl text-white leading-none truncate">
+            Ascend!
+          </span>
+        </NavLink>
 
         <Countdown />
       </div>
