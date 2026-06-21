@@ -43,7 +43,7 @@ export default function Header() {
                 backgroundClip: "text",
               }}
             >
-              SP
+              AD
             </span>
             <span className="absolute inset-0 rounded-[12px] glow-pulse" style={{ boxShadow: "0 0 18px rgba(0,229,255,0.35)" }} />
           </div>
