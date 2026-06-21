@@ -3,8 +3,9 @@ import {
   CATEGORIES,
   categoryProgress,
   categoryDoneCount,
+  mergeCategoryTasks,
 } from "../data/tasks";
-import { useProgress, usePinned } from "../hooks/useLocalStorage";
+import { useProgress, usePinned, useCustomTasks } from "../hooks/useLocalStorage";
 import FocusedTasks from "./FocusedTasks";
 
 function Ring({ pct, accent, size = 56 }) {
@@ -44,14 +45,19 @@ function Ring({ pct, accent, size = 56 }) {
 export default function Dashboard() {
   const [progress] = useProgress();
   const [pinned] = usePinned();
+  const { customTasks, hiddenTasks, taskEdits } = useCustomTasks();
 
-  // Per-category stats
-  const stats = CATEGORIES.map((c) => ({
-    category: c,
-    pct: categoryProgress(c, progress),
-    done: categoryDoneCount(c, progress),
-    total: c.tasks.length,
-  }));
+  // Per-category stats — merge in custom/deleted/edited tasks so the counts
+  // match what the category pages show.
+  const stats = CATEGORIES.map((base) => {
+    const c = mergeCategoryTasks(base, { customTasks, hiddenTasks, taskEdits });
+    return {
+      category: c,
+      pct: categoryProgress(c, progress),
+      done: categoryDoneCount(c, progress),
+      total: c.tasks.length,
+    };
+  });
 
   const totalTasks = stats.reduce((n, s) => n + s.total, 0);
   const totalDone = stats.reduce((n, s) => n + s.done, 0);
