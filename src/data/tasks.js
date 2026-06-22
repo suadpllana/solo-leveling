@@ -1,6 +1,9 @@
 // ── DEADLINE ──
 export const DEADLINE_DATE = "2027-07-01T00:00:00";
 export const DEADLINE_LABEL = "1 JULY 2027";
+// When the journey began — used to gauge whether you're on pace. Pacing
+// assumes a steady, linear effort from START_DATE to DEADLINE_DATE.
+export const START_DATE = "2026-06-22T00:00:00";
 
 // Task types:
 //   { type: 'check' }                       → simple done/not done toggle
@@ -94,25 +97,12 @@ export const CATEGORIES = [
     accent: "#f87171",
     tagline: "Temper the vessel",
     tasks: [
-      { id: "bod_gym", type: "check", name: "Gym 4x per week consistently" },
+      { id: "bod_gym", type: "check", name: "Gym 6x per week consistently" },
       { id: "bod_physique", type: "check", name: "Reach target physique goal" },
-      { id: "bod_diet", type: "check", name: "Fix diet — cut junk food" },
-      { id: "bod_skincare", type: "check", name: "Build skincare routine" },
-      { id: "bod_sleep_sched", type: "check", name: "Fix sleep schedule before midnight" },
-      { id: "bod_wake", type: "check", name: "Wake up before 8am daily" },
+      { id: "bod_skincare", type: "check", name: "Looksmaxx" },
+      { id: "bod_sleep_sched", type: "check", name: "Sleep 8 hours in the same time each night" },
       { id: "bod_water", type: "check", name: "Drink 2L water daily" },
-      { id: "bod_steps", type: "check", name: "Walk 8000 steps/day habit" },
-      { id: "bod_hair", type: "check", name: "Hair care routine" },
-      { id: "bod_no_phone_wake", type: "check", name: "No phone first 30 min after waking" },
-      { id: "bod_no_phone_sleep", type: "check", name: "No phone 1hr before sleep" },
-      { id: "bod_cut_habit", type: "check", name: "Cut 1 bad habit completely" },
-      { id: "bod_morning_routine", type: "check", name: "Build consistent morning routine" },
-      { id: "bod_evening_routine", type: "check", name: "Build consistent evening routine" },
-      { id: "bod_weekly_plan", type: "check", name: "Weekly planning every Sunday" },
-      { id: "bod_stretch", type: "check", name: "Stretch / mobility routine 3x per week" },
-      { id: "bod_calories", type: "checklist", target: 60, name: "Track calories for 60 days" },
-      { id: "bod_wardrobe", type: "checklist", target: 5, name: "Improve wardrobe — quality pieces" },
-      { id: "bod_self_review", type: "checklist", target: 10, name: "Monthly self-review/reflection" },
+      { id: "bod_stretch", type: "check", name: "Stretch daily" },
     ],
   },
   {
@@ -126,6 +116,27 @@ export const CATEGORIES = [
       { id: "wish_phone", type: "check", name: "Buy a phone" },
       { id: "wish_laptop", type: "check", name: "Buy a laptop" },
       { id: "wish_ps5", type: "check", name: "Buy a PS5" },
+      { id: "wish_cd_album", type: "check", name: "Buy a CD album" },
+      { id: "wish_cups", type: "check", name: "2 cups" },
+      { id: "wish_wallet", type: "check", name: "Wallet" },
+      { id: "wish_logo_real_madrid", type: "check", name: "Logo with Real Madrid" },
+      { id: "wish_logo_psg", type: "check", name: "Logo with PSG" },
+      { id: "wish_rm_jersey", type: "check", name: "Real Madrid jersey" },
+      { id: "wish_funko_naruto", type: "check", name: "2 Funko Pop Naruto toys" },
+      { id: "wish_magnesium_forte", type: "check", name: "Magnesium Forte" },
+      { id: "wish_carpet", type: "check", name: "Carpet" },
+      { id: "wish_fridge", type: "check", name: "Small fridge" },
+      { id: "wish_bean_bags", type: "check", name: "2 bean bags" },
+      { id: "wish_mirror", type: "check", name: "Mirror" },
+      { id: "wish_room_parfume", type: "check", name: "Room parfume" },
+      { id: "wish_lamps", type: "check", name: "Lamps" },
+      { id: "wish_corner_shelf", type: "check", name: "Corner shelf" },
+      { id: "wish_christian_cross", type: "check", name: "Christian cross" },
+      { id: "wish_laptop_shelf", type: "check", name: "Shelf for laptop" },
+      { id: "wish_door_poster", type: "check", name: "Poster for door" },
+      { id: "wish_zoro_sword", type: "check", name: "Zoro sword" },
+      { id: "wish_skanderbeg_figure", type: "check", name: "Skanderbeg figure" },
+      { id: "wish_funko_other", type: "check", name: "Other Funko Pop toys" },
     ],
   },
 ];
@@ -200,4 +211,57 @@ export function categoryDoneCount(category, progress) {
     (n, t) => n + (isTaskComplete(t, progress[t.id]) ? 1 : 0),
     0
   );
+}
+
+// ── PACING ──
+// Are you on track to finish everything by the deadline? Compares your actual
+// completion against the steady pace expected between START_DATE and
+// DEADLINE_DATE. Returns the numbers a UI needs to say "ahead / behind".
+export function computePace({ totalTasks, totalDone, now = Date.now() }) {
+  const start = new Date(START_DATE).getTime();
+  const end = new Date(DEADLINE_DATE).getTime();
+
+  const totalMs = Math.max(1, end - start);
+  const elapsedMs = Math.min(Math.max(0, now - start), totalMs);
+  const remainingMs = Math.max(0, end - now);
+
+  const DAY = 86400000;
+  const MONTH = DAY * 30.437; // avg month length
+
+  const daysLeft = Math.ceil(remainingMs / DAY);
+  const monthsLeft = remainingMs / MONTH;
+
+  // Where a steady effort would put you by now, vs. where you actually are.
+  const timeElapsedFrac = elapsedMs / totalMs; // 0..1
+  const expectedDone = Math.round(timeElapsedFrac * totalTasks);
+  const expectedPct = Math.round(timeElapsedFrac * 100);
+  const actualPct = totalTasks ? Math.round((totalDone / totalTasks) * 100) : 0;
+
+  const remainingTasks = Math.max(0, totalTasks - totalDone);
+  // Pace needed from now on to still finish on time.
+  const perMonthNeeded = monthsLeft > 0 ? remainingTasks / monthsLeft : remainingTasks;
+  const perWeekNeeded = remainingTasks / Math.max(remainingMs / (DAY * 7), 1e-9);
+
+  const deltaPct = actualPct - expectedPct; // + ahead, − behind
+  let status = "on-track";
+  if (deltaPct >= 5) status = "ahead";
+  else if (deltaPct <= -5) status = "behind";
+
+  const finished = remainingTasks === 0;
+  const overdue = remainingMs === 0 && !finished;
+
+  return {
+    actualPct,
+    expectedPct,
+    expectedDone,
+    deltaPct,
+    status, // "ahead" | "on-track" | "behind"
+    finished,
+    overdue,
+    daysLeft,
+    monthsLeft,
+    remainingTasks,
+    perMonthNeeded,
+    perWeekNeeded,
+  };
 }

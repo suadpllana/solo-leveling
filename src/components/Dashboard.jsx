@@ -7,6 +7,7 @@ import {
 } from "../data/tasks";
 import { useProgress, usePinned, useCustomTasks } from "../hooks/useLocalStorage";
 import FocusedTasks from "./FocusedTasks";
+import PaceIndicator from "./PaceIndicator";
 
 function Ring({ pct, accent, size = 56 }) {
   const stroke = 5;
@@ -104,6 +105,9 @@ export default function Dashboard() {
           </div>
         </div>
       </section>
+
+      {/* Are you on track for the deadline? */}
+      <PaceIndicator totalTasks={totalTasks} totalDone={totalDone} />
 
       {/* Strongest / weakest momentum */}
       <section className="grid grid-cols-2 gap-3 mb-6">
