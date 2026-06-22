@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useScrollLock } from "../hooks/useScrollLock";
 
 // A centered confirmation dialog. Rendered only when `open` is true.
 // Closes on Escape or backdrop click (treated as cancel).
@@ -12,6 +13,8 @@ export default function ConfirmModal({
   onConfirm,
   onCancel,
 }) {
+  useScrollLock(open);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => {
@@ -19,12 +22,7 @@ export default function ConfirmModal({
       if (e.key === "Enter") onConfirm();
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [open, onCancel, onConfirm]);
 
   if (!open) return null;

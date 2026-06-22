@@ -58,6 +58,7 @@ export const CATEGORIES = [
       { id: "mon_upwork", type: "check", name: "Upwork / Freelancer / Fiverr" },
       { id: "mon_u7buy", type: "check", name: "U7buy" },
       { id: "mon_hunt_sidehustles", type: "check", name: "Hunt daily in Reddit/X/Discord/Telegram for side hustles" },
+      { id: "mon_revamp_portfolio", type: "check", name: "Revamp portfolio and lscorporation.online" },
       { id: "mon_ls_clients_3", type: "checklist", target: 3, name: "Get projects from LS Corporation" },
     ],
   },
@@ -165,9 +166,11 @@ export function checklistCount(state) {
 
 // The live goal for a checklist: starts at `target`, but grows so it always
 // covers however many items you've added (add a 9th book → goal becomes 9).
+// Floored at 1 so a checklist can never be "complete" with zero checked items
+// (guards against a stray target: 0 with no items).
 export function checklistGoal(task, state) {
   const itemCount = state?.items?.length ?? 0;
-  return Math.max(task.target, itemCount);
+  return Math.max(1, task.target ?? 1, itemCount);
 }
 
 // A task counts as complete when:

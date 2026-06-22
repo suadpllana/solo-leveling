@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useScrollLock } from "../hooks/useScrollLock";
 
 // Modal for editing a task's name and type. Pre-filled from the current task.
 // Calls onSave({ name, type }) — only when something actually changed.
 export default function EditTaskModal({ open, task, accent, onSave, onCancel }) {
   const [name, setName] = useState(task?.name ?? "");
   const [type, setType] = useState(task?.type ?? "check");
+
+  useScrollLock(open);
 
   // Re-sync the form whenever a different task is opened.
   useEffect(() => {
@@ -21,12 +24,7 @@ export default function EditTaskModal({ open, task, accent, onSave, onCancel }) 
       if (e.key === "Escape") onCancel();
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [open, onCancel]);
 
   if (!open) return null;
@@ -79,7 +77,7 @@ export default function EditTaskModal({ open, task, accent, onSave, onCancel }) 
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") save();
+            if (e.key === "Enter" && dirty) save();
           }}
           placeholder="Task name…"
           className="w-full bg-white/[0.04] border border-edge rounded-md px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-white/25 transition-colors"

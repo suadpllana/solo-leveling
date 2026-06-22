@@ -74,10 +74,17 @@ export default function Dashboard() {
     <main className="mx-auto max-w-3xl px-4 sm:px-6 pb-24 pt-6 animate-rise">
       {/* Overall hero */}
       <section
-        className="clip-panel relative overflow-hidden rounded-xl border border-cyan-400/25 p-5 sm:p-6 mb-6"
-        style={{ background: "linear-gradient(135deg, rgba(34,211,238,0.08), transparent 60%), var(--color-panel)" }}
+        className="relative overflow-hidden rounded-2xl border border-cyan-400/40 p-5 sm:p-6 mb-6"
+        style={{
+          background: "linear-gradient(135deg, rgba(34,211,238,0.12), transparent 55%), var(--color-panel)",
+          boxShadow: "0 0 0 1px rgba(34,211,238,0.07), 0 18px 40px -24px rgba(34,211,238,0.4)",
+        }}
       >
-        <div className="absolute -top-16 -right-10 w-48 h-48 rounded-full blur-3xl glow-pulse" style={{ background: "rgba(34,211,238,0.18)" }} />
+        <div className="pointer-events-none absolute -top-20 -right-12 w-56 h-56 rounded-full blur-3xl glow-pulse" style={{ background: "rgba(34,211,238,0.22)" }} />
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-px"
+          style={{ background: "linear-gradient(90deg, transparent, rgba(34,211,238,0.67), transparent)" }}
+        />
         <div className="relative flex items-center gap-5">
           <div className="relative grid place-items-center shrink-0">
             <Ring pct={overallPct} accent="#22d3ee" size={92} />

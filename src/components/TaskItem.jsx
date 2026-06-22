@@ -340,60 +340,6 @@ export default function TaskItem({ task, value, accent, pinned, onChange, onTogg
     );
   }
 
-  // progress task
-  const count = Math.min(value ?? 0, task.target);
-  const pct = Math.round((count / task.target) * 100);
-
-  return (
-    <div
-      className="px-3.5 py-3 rounded-lg border bg-panel/60 transition-colors duration-200"
-      style={{ borderColor: done ? `${accent}55` : "var(--color-edge)" }}
-    >
-      <div className="flex items-center gap-3 mb-2.5">
-        <CheckBox done={done} accent={accent} />
-        <span
-          className={`flex-1 text-[15px] font-medium leading-snug ${
-            done ? "line-through text-slate-500" : "text-slate-100"
-          }`}
-        >
-          {task.name}
-        </span>
-        <span
-          className="font-mono text-sm font-bold tabular-nums shrink-0"
-          style={{ color: done ? accent : "#cbd5e1" }}
-        >
-          {count}
-          <span className="text-slate-500">/{task.target}</span>
-        </span>
-        {!done && (
-          <PinButton pinned={pinned} accent={accent} onClick={onTogglePin} />
-        )}
-      </div>
-
-      <div className="flex items-center gap-3">
-        <ProgressBar pct={pct} accent={accent} />
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            aria-label="Decrease"
-            onClick={() => onChange(Math.max(0, (value ?? 0) - 1))}
-            disabled={(value ?? 0) <= 0}
-            className="w-7 h-7 grid place-items-center rounded-md border border-edge text-slate-300 text-lg font-bold leading-none hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
-          >
-            −
-          </button>
-          <button
-            type="button"
-            aria-label="Increase"
-            onClick={() => onChange(Math.min(task.target, (value ?? 0) + 1))}
-            disabled={done}
-            className="w-7 h-7 grid place-items-center rounded-md text-lg font-bold leading-none text-[#05060a] disabled:opacity-40 disabled:cursor-not-allowed transition"
-            style={{ background: accent, boxShadow: `0 0 10px ${accent}66` }}
-          >
-            +
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  // Unknown task type — nothing to render.
+  return null;
 }

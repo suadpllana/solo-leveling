@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 const ToastContext = createContext(null);
@@ -29,13 +29,22 @@ function ToastIcon({ variant }) {
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
   const idRef = useRef(0);
+  const timers = useRef(new Set());
 
   const toast = useCallback((message, variant = "success") => {
     const id = ++idRef.current;
     setToasts((prev) => [...prev, { id, message, variant }]);
-    setTimeout(() => {
+    const timer = setTimeout(() => {
+      timers.current.delete(timer);
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 2600);
+    timers.current.add(timer);
+  }, []);
+
+  // Clear any pending dismissal timers if the provider unmounts.
+  useEffect(() => {
+    const pending = timers.current;
+    return () => pending.forEach(clearTimeout);
   }, []);
 
   return (
