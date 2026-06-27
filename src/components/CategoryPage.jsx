@@ -196,7 +196,7 @@ export default function CategoryPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={`Search ${category.name} tasks…`}
-          className="w-full bg-panel/60 border border-edge rounded-lg pl-9 pr-9 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-white/25 transition-colors"
+          className="w-full bg-panel/60 border border-edge rounded-lg pl-9 pr-9 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-white/25 transition-colors [font-size:16px]"
         />
         {searching && (
           <button
