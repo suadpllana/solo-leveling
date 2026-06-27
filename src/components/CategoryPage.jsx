@@ -82,14 +82,16 @@ export default function CategoryPage() {
         : !pinned[t.id] || isTaskComplete(t, progress[t.id])
     )
     .sort((a, b) => {
-      // Daily tasks always sit at the very top of the list.
+      const aDone = isTaskComplete(a, progress[a.id]) ? 1 : 0;
+      const bDone = isTaskComplete(b, progress[b.id]) ? 1 : 0;
+      if (aDone !== bDone) return bDone - aDone;
+      // Among incomplete tasks: daily first, then check before checklist/progress.
       const aDaily = a.daily ? 1 : 0;
       const bDaily = b.daily ? 1 : 0;
       if (aDaily !== bDaily) return bDaily - aDaily;
-      // Within each group, completed tasks float up.
-      const aDone = isTaskComplete(a, progress[a.id]) ? 1 : 0;
-      const bDone = isTaskComplete(b, progress[b.id]) ? 1 : 0;
-      return bDone - aDone;
+      const aSimple = a.type === "check" ? 1 : 0;
+      const bSimple = b.type === "check" ? 1 : 0;
+      return bSimple - aSimple;
     });
 
   return (

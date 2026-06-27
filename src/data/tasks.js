@@ -371,6 +371,9 @@ export const CATEGORIES = [
       { id: "wish_bible", type: "check", name: "The Bible" },
       { id: "wish_sea_salt_spray", type: "check", name: "Sea salt spray" },
       { id: "wish_phone_case", type: "check", name: "Phone case" },
+      { id: "wish_joystick", type: "check", name: "Joystick" },
+      { id: "wish_table_chair", type: "check", name: "Table with chair" },
+      { id: "wish_tv_shelf", type: "check", name: "One small shelf above TV" },
       {
         id: "wish_supplements",
         type: "checklist",
