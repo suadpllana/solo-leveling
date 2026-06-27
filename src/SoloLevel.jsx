@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import CategoryPage from "./components/CategoryPage";
 import Dashboard from "./components/Dashboard";
+import StatsPage from "./components/StatsPage";
 import { ProgressProvider } from "./hooks/useLocalStorage";
 import { ToastProvider } from "./components/Toast";
 
@@ -25,6 +26,7 @@ export default function SoloLevel() {
           <Header />
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/stats" element={<StatsPage />} />
             <Route path="/:id" element={<CategoryPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

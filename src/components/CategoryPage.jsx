@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, Navigate, useSearchParams } from "react-router-dom";
 import { CATEGORY_MAP, categoryProgress, isTaskComplete, mergeCategoryTasks } from "../data/tasks";
 import { useProgress, usePinned, useCustomTasks } from "../hooks/useLocalStorage";
 import TaskItem from "./TaskItem";
@@ -16,6 +16,33 @@ export default function CategoryPage() {
     useCustomTasks();
   const toast = useToast();
   const [query, setQuery] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const highlightId = searchParams.get("highlight");
+
+  // When arriving from the Stats page with ?highlight=<taskId>, scroll that
+  // task into view and pulse it for ~2.5s, then drop the query param so a
+  // refresh doesn't replay the animation.
+  useEffect(() => {
+    if (!highlightId) return;
+    let cleared = false;
+    const accent = CATEGORY_MAP[id]?.accent ?? "#22d3ee";
+    // Wait a tick so the task list has rendered.
+    const raf = requestAnimationFrame(() => {
+      const el = document.getElementById(`task-${highlightId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.style.setProperty("--hl", accent);
+        el.classList.add("task-highlight");
+        setTimeout(() => el.classList.remove("task-highlight"), 2600);
+      }
+      // Remove the param (keep history clean) regardless of whether we found it.
+      cleared = true;
+      setSearchParams({}, { replace: true });
+    });
+    return () => {
+      if (!cleared) cancelAnimationFrame(raf);
+    };
+  }, [highlightId, id, setSearchParams]);
 
   if (!baseCategory) return <Navigate to="/religion" replace />;
 
@@ -34,15 +61,32 @@ export default function CategoryPage() {
   // completed tasks float to the top.
   const q = query.trim().toLowerCase();
   const searching = q.length > 0;
+
+  function taskMatchesQuery(t) {
+    if (t.name.toLowerCase().includes(q)) return true;
+    if (t.type === "checklist") {
+      const stored = progress[t.id];
+      const storedItems = stored?.items ?? [];
+      if (storedItems.some((it) => it.name.toLowerCase().includes(q))) return true;
+      if ((t.defaultItems ?? []).some((name) => name.toLowerCase().includes(q))) return true;
+    }
+    return false;
+  }
+
   const listTasks = category.tasks
-    // While searching, match against the whole category by name; otherwise the
-    // main list hides pinned (still-active) tasks shown in the Focused section.
+    // While searching, match against the whole category by name or subtasks;
+    // otherwise the main list hides pinned (still-active) tasks shown in the Focused section.
     .filter((t) =>
       searching
-        ? t.name.toLowerCase().includes(q)
+        ? taskMatchesQuery(t)
         : !pinned[t.id] || isTaskComplete(t, progress[t.id])
     )
     .sort((a, b) => {
+      // Daily tasks always sit at the very top of the list.
+      const aDaily = a.daily ? 1 : 0;
+      const bDaily = b.daily ? 1 : 0;
+      if (aDaily !== bDaily) return bDaily - aDaily;
+      // Within each group, completed tasks float up.
       const aDone = isTaskComplete(a, progress[a.id]) ? 1 : 0;
       const bDone = isTaskComplete(b, progress[b.id]) ? 1 : 0;
       return bDone - aDone;
@@ -177,7 +221,7 @@ export default function CategoryPage() {
       ) : (
         <ul className="flex flex-col gap-2.5">
           {listTasks.map((task) => (
-            <li key={task.id}>
+            <li key={task.id} id={`task-${task.id}`}>
               <TaskItem
                 task={task}
                 value={progress[task.id]}

@@ -7,6 +7,7 @@ import { useScrollLock } from "../hooks/useScrollLock";
 export default function EditTaskModal({ open, task, accent, onSave, onCancel }) {
   const [name, setName] = useState(task?.name ?? "");
   const [type, setType] = useState(task?.type ?? "check");
+  const [daily, setDaily] = useState(!!task?.daily);
 
   useScrollLock(open);
 
@@ -15,6 +16,7 @@ export default function EditTaskModal({ open, task, accent, onSave, onCancel }) 
     if (open) {
       setName(task?.name ?? "");
       setType(task?.type ?? "check");
+      setDaily(!!task?.daily);
     }
   }, [open, task]);
 
@@ -30,11 +32,12 @@ export default function EditTaskModal({ open, task, accent, onSave, onCancel }) 
   if (!open) return null;
 
   const trimmed = name.trim();
-  const dirty = trimmed && (trimmed !== task.name || type !== task.type);
+  const dirty =
+    trimmed && (trimmed !== task.name || type !== task.type || daily !== !!task.daily);
 
   const save = () => {
     if (!dirty) return;
-    onSave({ name: trimmed, type });
+    onSave({ name: trimmed, type, daily });
   };
 
   const TypeButton = ({ value, label, hint }) => {
@@ -87,6 +90,35 @@ export default function EditTaskModal({ open, task, accent, onSave, onCancel }) 
           <TypeButton value="check" label="Check" hint="Done / not done" />
           <TypeButton value="checklist" label="Checklist" hint="Sub-items" />
         </div>
+
+        <button
+          type="button"
+          onClick={() => setDaily((d) => !d)}
+          className="mt-3 w-full flex items-center justify-between rounded-md border px-3 py-2 transition-colors"
+          style={{
+            borderColor: daily ? accent : "var(--color-edge)",
+            background: daily ? `${accent}1a` : "transparent",
+          }}
+        >
+          <span className="text-left">
+            <span
+              className="block text-sm font-semibold"
+              style={{ color: daily ? accent : "#e2e8f0" }}
+            >
+              Daily
+            </span>
+            <span className="block text-xs text-slate-500 mt-0.5">Resets every 24h</span>
+          </span>
+          <span
+            className="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors"
+            style={{ background: daily ? accent : "rgba(255,255,255,0.15)" }}
+          >
+            <span
+              className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+              style={{ transform: daily ? "translateX(18px)" : "translateX(2px)" }}
+            />
+          </span>
+        </button>
 
         {type !== task.type && (
           <p className="mt-2 text-xs text-amber-300/80 leading-snug">

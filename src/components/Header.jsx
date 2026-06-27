@@ -17,6 +17,7 @@ function useNavItems(progress) {
       accent: c.accent,
       pct: categoryProgress(c, progress),
     })),
+    { id: "__stats", to: "/stats", end: false, icon: "📊", name: "Stats", accent: "#22d3ee", pct: null },
   ];
 }
 

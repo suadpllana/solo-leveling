@@ -1,4 +1,12 @@
-import { createContext, createElement, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, createElement, useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+  collectDailyTaskIds,
+  dayKey,
+  isTaskComplete,
+  mergeAllTasks,
+  resetDailyProgress,
+  seedDefaultItems,
+} from "../data/tasks";
 
 // Persist a piece of state to localStorage under `key`.
 // Returns [value, setValue] just like useState.
@@ -40,9 +48,132 @@ export function ProgressProvider({ children }) {
   // built-in tasks the user has deleted (can't be removed from the static
   // CATEGORIES array, so we hide them): { [taskId]: true }
   const [hiddenTasks, setHiddenTasks] = useLocalStorage("solo-hidden-tasks", {});
-  // edits to built-in tasks (name/type overrides), merged at render time:
-  //   { [taskId]: { name?, type? } }
+  // edits to built-in tasks (name/type/daily overrides), merged at render time:
+  //   { [taskId]: { name?, type?, daily? } }
   const [taskEdits, setTaskEdits] = useLocalStorage("solo-task-edits", {});
+  // the local calendar day we last reset daily tasks on (YYYY-MM-DD)
+  const [lastDailyReset, setLastDailyReset] = useLocalStorage("solo-last-daily-reset", null);
+  // completion history, keyed by local day → taskId → snapshot:
+  //   { "YYYY-MM-DD": { [taskId]: { name, daily, categoryId } } }
+  // Powers the Stats page. Recorded the moment a task becomes complete; if it's
+  // un-completed on the SAME day it's removed again. Past days are immutable.
+  const [completions, setCompletions] = useLocalStorage("solo-completions", {});
+  // which checklist tasks have had their default items seeded (one-shot):
+  //   { [taskId]: true }
+  const [seeded, setSeeded] = useLocalStorage("solo-seeded", {});
+
+  // Keep the latest task-definition state in a ref so the long-lived effects
+  // below (which we don't want to re-subscribe on every keystroke) can read
+  // current values without listing them as dependencies. Updated in an effect,
+  // never during render.
+  const taskDefsRef = useRef({ customTasks, hiddenTasks, taskEdits });
+  const progressRef = useRef(progress);
+  const seededRef = useRef(seeded);
+  useEffect(() => {
+    taskDefsRef.current = { customTasks, hiddenTasks, taskEdits };
+    progressRef.current = progress;
+    seededRef.current = seeded;
+  });
+
+  // Seed checklist tasks that ship with `defaultItems` (e.g. the daily hunt
+  // sources) the first time we see them — one-shot, tracked by the `seeded`
+  // marker so we NEVER overwrite the user's later edits/deletions on reload.
+  // Existing users whose items predate the marker are simply adopted (marked
+  // seeded without touching their items). Mount-only; the setters are stable.
+  useEffect(() => {
+    const result = seedDefaultItems(
+      progressRef.current,
+      seededRef.current,
+      taskDefsRef.current
+    );
+    if (result.progress !== progressRef.current) setProgress(result.progress);
+    if (result.seeded !== seededRef.current) setSeeded(result.seeded);
+  }, [setProgress, setSeeded]);
+
+  // Clear daily tasks' progress whenever the local day rolls over. Runs on
+  // mount and again at the next midnight (and on tab focus, in case the device
+  // slept past midnight). Uses the live customTasks/taskEdits so custom and
+  // edited daily tasks are included.
+  useEffect(() => {
+    const runReset = () => {
+      const today = dayKey();
+      if (lastDailyReset === today) return;
+      const dailyIds = collectDailyTaskIds(taskDefsRef.current);
+      setProgress((prev) => resetDailyProgress(prev, dailyIds));
+      setLastDailyReset(today);
+    };
+
+    runReset();
+
+    // Schedule a reset just after the next local midnight.
+    const now = new Date();
+    const nextMidnight = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1,
+      0,
+      0,
+      5 // 5s past midnight to avoid edge timing
+    );
+    const timer = setTimeout(runReset, nextMidnight.getTime() - now.getTime());
+
+    const onFocus = () => runReset();
+    window.addEventListener("focus", onFocus);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [lastDailyReset, setProgress, setLastDailyReset]);
+
+  // ── COMPLETION LOGGER ──
+  // Watch `progress` and, whenever a task's completion state flips, record it
+  // into today's completion log (or un-record it if it flips back off the same
+  // day). We diff against the previous progress snapshot so any code path that
+  // changes progress — checkbox, checklist, focused view — is captured.
+  const prevProgressRef = useRef(progress);
+
+  useEffect(() => {
+    const prev = prevProgressRef.current;
+    prevProgressRef.current = progress;
+    if (prev === progress) return;
+
+    const tasks = mergeAllTasks(taskDefsRef.current);
+    const today = dayKey();
+    const turnedOn = [];
+    const turnedOff = [];
+
+    for (const task of tasks) {
+      const wasDone = isTaskComplete(task, prev[task.id]);
+      const nowDone = isTaskComplete(task, progress[task.id]);
+      if (wasDone === nowDone) continue;
+      if (nowDone) turnedOn.push(task);
+      else turnedOff.push(task);
+    }
+
+    if (turnedOn.length === 0 && turnedOff.length === 0) return;
+
+    setCompletions((log) => {
+      const day = { ...(log[today] ?? {}) };
+      let changed = false;
+      for (const t of turnedOn) {
+        day[t.id] = { name: t.name, daily: !!t.daily, categoryId: t.categoryId };
+        changed = true;
+      }
+      for (const t of turnedOff) {
+        // Only un-record if it was completed today; never touch past days.
+        if (t.id in day) {
+          delete day[t.id];
+          changed = true;
+        }
+      }
+      if (!changed) return log;
+      const next = { ...log };
+      if (Object.keys(day).length === 0) delete next[today];
+      else next[today] = day;
+      return next;
+    });
+  }, [progress, setCompletions]);
 
   const setTask = useCallback(
     (taskId, next) => {
@@ -164,6 +295,7 @@ export function ProgressProvider({ children }) {
         addCustomTask,
         deleteTask,
         editTask,
+        completions,
       },
     },
     children
@@ -186,6 +318,11 @@ export function useProgress() {
 export function usePinned() {
   const { pinned, togglePin } = useAppState();
   return [pinned, togglePin];
+}
+
+// Completion history: { "YYYY-MM-DD": { [taskId]: { name, daily, categoryId } } }
+export function useCompletions() {
+  return useAppState().completions;
 }
 
 // Tasks the user has customized: added (customTasks), deleted/hidden

@@ -15,7 +15,7 @@ export default function PaceIndicator({ totalTasks, totalDone }) {
     ? { color: "#f87171", label: "Behind pace", tint: "rgba(248,113,113," }
     : { color: "#fbbf24", label: "On track", tint: "rgba(251,191,36," };
 
-  const perMonth = Math.ceil(p.perMonthNeeded);
+  const perWeek = Math.ceil(p.perWeekNeeded);
   const expectedClamped = Math.min(100, Math.max(0, p.expectedPct));
 
   return (
@@ -91,8 +91,8 @@ export default function PaceIndicator({ totalTasks, totalDone }) {
             of the steady pace. To finish the remaining{" "}
             <span className="font-bold text-slate-100">{p.remainingTasks}</span> tasks in{" "}
             <span className="font-bold text-slate-100">{p.daysLeft}</span> days, aim for about{" "}
-            <span className="font-bold text-slate-100">{perMonth}</span> task
-            {perMonth === 1 ? "" : "s"} / month.
+            <span className="font-bold text-slate-100">{perWeek}</span> task
+            {perWeek === 1 ? "" : "s"} / week.
           </>
         )}
       </p>

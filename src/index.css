@@ -31,6 +31,17 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Enabled buttons / links should always show the pointer cursor (covers task
+   rows, action icons, nav, etc.); disabled buttons fall back to default. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+a {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+}
+
 body {
   margin: 0;
   background: var(--color-void);
@@ -78,6 +89,31 @@ body::before {
 
 .animate-rise { animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .glow-pulse { animation: glow-pulse 2.6s ease-in-out infinite; }
+
+/* Highlight a task when arriving from the Stats page. Pulses a colored ring +
+   glow for ~2.5s. The color comes from --hl (set inline to the category accent). */
+@keyframes task-highlight {
+  0% {
+    box-shadow: 0 0 0 0 var(--hl, #22d3ee), 0 0 0 0 transparent;
+    transform: scale(1);
+  }
+  12% {
+    box-shadow: 0 0 0 2px var(--hl, #22d3ee), 0 0 26px 2px var(--hl, #22d3ee);
+    transform: scale(1.02);
+  }
+  85% {
+    box-shadow: 0 0 0 2px var(--hl, #22d3ee), 0 0 22px 1px var(--hl, #22d3ee);
+    transform: scale(1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent, 0 0 0 0 transparent;
+    transform: scale(1);
+  }
+}
+.task-highlight {
+  animation: task-highlight 2.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  border-radius: 0.75rem;
+}
 
 /* Clipped "system panel" corners */
 .clip-panel {

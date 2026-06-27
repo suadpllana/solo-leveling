@@ -25,16 +25,60 @@ export const CATEGORIES = [
     accent: "#fbbf24",
     tagline: "Forge the spirit",
     tasks: [
-      { id: "rel_morning_prayer", type: "check", name: "Daily morning prayer streak" },
-      { id: "rel_evening_prayer", type: "check", name: "Daily evening prayer streak" },
-      { id: "rel_read_bible", type: "check", name: "Read the Bible fully" },
+      { id: "rel_morning_prayer", type: "check", daily: true, name: "Morning prayer streak" },
+      { id: "rel_evening_prayer", type: "check", daily: true, name: "Evening prayer streak" },
+      { id: "rel_read_bible", type: "check", name: "Read the Bible" },
       { id: "rel_church", type: "check", name: "Attend church every Sunday" },
       { id: "rel_fast", type: "check", name: "Fast regularly" },
-      { id: "rel_theology_book", type: "check", name: "Study 1 theology/faith book" },
       { id: "rel_tv_show", type: "check", name: "Watch the chosen TV show" },
-      { id: "rel_cut_sins", type: "checklist", target: 3, name: "Cut 3 major sins completely" },
-      { id: "rel_help", type: "checklist", target: 10, name: "Help someone in need" },
-      { id: "rel_christianity_videos", type: "checklist", target: 10, name: "Watch 10 videos about Christianity arguments" },
+      {
+        id: "rel_cut_sins",
+        type: "checklist",
+        target: 3,
+        name: "Cut the 7 deadly sins",
+        defaultItems: [
+          "Pride — thinking you're above others, not admitting fault, letting ego rule",
+          "Envy — resenting others' success, comparing yourself constantly",
+          "Wrath — losing control, damaging relationships through anger",
+          "Sloth — procrastinating on things you know you should do, spiritual laziness",
+          "Greed — making money your god, never being satisfied, hoarding",
+          "Gluttony — no discipline with food, drink, or consumption",
+          "Lust — pornography, objectifying people, giving in to sexual sin",
+        ],
+      },
+      {
+        id: "rel_help",
+        type: "checklist",
+        target: 7,
+        name: "Practice the 7 Christian virtues",
+        defaultItems: [
+          "Humility — serve others, put God first, don't seek glory or praise for yourself",
+          "Kindness — show compassion to strangers, enemies, and the poor as Jesus commanded",
+          "Patience — endure hardship without bitterness, trust God's timing not your own",
+          "Diligence — work faithfully with the gifts God gave you, don't waste your potential",
+          "Generosity — give your time, money, and help freely without expecting anything back",
+          "Temperance — practice self-control over your body, desires, and habits daily",
+          "Chastity — keep purity of mind and body, honor relationships as God designed them",
+        ],
+      },
+      {
+        id: "rel_christianity_videos",
+        type: "checklist",
+        target: 10,
+        name: "Study 10 Christianity debatable arguments",
+        defaultItems: [
+          "Trinity",
+          "Did Jesus claim to be God",
+          "The Resurrection of Jesus",
+          "Altering of the Bible",
+          "New Testament vs Old Testament rules",
+          "Free Will vs All-Knowing God",
+          "Why did God create humans",
+          "The Problem of Evil (including Animal Suffering)",
+          "Religion by Geography",
+          "The Divine Hiddenness",
+        ],
+      },
     ],
   },
   {
@@ -45,10 +89,11 @@ export const CATEGORIES = [
     tagline: "Build the empire",
     tasks: [
       { id: "mon_forge_500", type: "check", name: "ForgeKs" },
-      { id: "mon_investing", type: "check", name: "Learn investing basics" },
       { id: "mon_polymarket", type: "check", name: "Polymarket Bot" },
       { id: "mon_arbitrage", type: "check", name: "Arbitrage betting" },
-      { id: "mon_gmaps_leads", type: "check", name: "Sell Google Maps leads" },
+      { id: "mon_gmaps_leads", type: "check", name: "Sell Datasets/Leads" },
+      { id: "mon_bug_bounty", type: "check", name: "Bug Bounty Program" },
+      { id: "mon_respondent", type: "check", name: "Respondent.io (get paid for research interviews)" },
       { id: "mon_frontend_job", type: "check", name: "Full-time frontend developer job" },
       { id: "mon_pi_network", type: "check", name: "Pi Network" },
       { id: "mon_cs2_cases", type: "check", name: "CS2 cases" },
@@ -58,11 +103,36 @@ export const CATEGORIES = [
       { id: "mon_fortnite_accounts", type: "check", name: "Sell Fortnite accounts" },
       { id: "mon_usertesting", type: "check", name: "UserTesting" },
       { id: "mon_stake", type: "check", name: "Stake" },
-      { id: "mon_upwork", type: "check", name: "Upwork / Freelancer / Fiverr" },
-      { id: "mon_u7buy", type: "check", name: "U7buy" },
-      { id: "mon_hunt_sidehustles", type: "check", name: "Hunt daily in Reddit/X/Discord/Telegram for side hustles" },
       { id: "mon_revamp_portfolio", type: "check", name: "Revamp portfolio and lscorporation.online" },
-      { id: "mon_ls_clients_3", type: "checklist", target: 3, name: "Get projects from LS Corporation" },
+  
+      { id: "mon_u7buy", type: "check", name: "U7buy" },
+          {
+        id: "mon_upwork",
+        type: "checklist",
+        target: 3,
+        name: "Work as a Freelancer",
+        defaultItems: [
+          "Upwork",
+          "Freelancer",
+          "Fiverr",
+        ],
+      },
+      {
+        id: "mon_hunt_sidehustles",
+        type: "checklist",
+        daily: true,
+        target: 5,
+        name: "Hunt side hustles ",
+        defaultItems: [
+          "Reddit: r/slavelabour, r/forhire, r/jobbit, r/freelance, r/hiring",
+          "Discord: r/forhire server, Freelance Hub, Devnet, Reactiflux jobs, Indie Hackers",
+          "X: “hiring developer”, “need a dev”, “looking for freelancer”, #hiring, #freelance",
+          "Telegram: Freelance Jobs, Remote Jobs, Web Dev Jobs, Crypto Jobs, Upwork Alerts",
+          "Facebook: freelance groups, web dev jobs, remote work, startup jobs, local biz groups",
+          "Solvearn: browse coding gigs, new postings, open bounties, client requests, my proposals",
+        ],
+      },
+      { id: "mon_ls_clients_3", type: "checklist", target: 3, name: "Get projects from Google Maps Scrapper" },
     ],
   },
   {
@@ -72,22 +142,149 @@ export const CATEGORIES = [
     accent: "#a78bfa",
     tagline: "Sharpen the blade",
     tasks: [
-      { id: "min_meditation", type: "check", name: "Build meditation habit (10 min/day)" },
-      { id: "min_outside_tech", type: "check", name: "Learn a topic outside tech deeply" },
-      { id: "min_sunday_review", type: "check", name: "Reflect weekly — Sunday review habit" },
-      { id: "min_sleep", type: "check", name: "Sleep 8 hours at consistent hours" },
-      { id: "min_supplements", type: "check", name: "Take useful supplements (e.g. magnesium)" },
-      { id: "min_university", type: "check", name: "Finish university with strong grades" },
-      { id: "min_course", type: "check", name: "Complete 1 full online course" },
-      { id: "min_books", type: "checklist", target: 8, name: "Read books" },
-      { id: "min_films", type: "checklist", target: 20, name: "Watch quality films" },
-      { id: "min_tv", type: "checklist", target: 5, name: "Watch TV shows" },
-      { id: "min_anime", type: "checklist", target: 3, name: "Watch anime series" },
-      { id: "min_games", type: "checklist", target: 5, name: "Play story-driven games" },
-      { id: "min_documentaries", type: "checklist", target: 5, name: "Watch documentaries" },
-      { id: "min_hobbies", type: "checklist", target: 2, name: "Pick up new hobbies" },
+      { id: "min_meditation", type: "check", daily: true, name: "Meditate" },
+      { id: "min_university", type: "check", name: "Finish university " },
+      { id: "min_course", type: "check", name: "Complete freeCodeCamp \"Build & Deploy a SaaS\" course" },
+      { id: "min_course_crypto", type: "check", name: "Complete MoneyZG \"Full Cryptocurrency Trading Course - From Beginner To Expert\" (YouTube)" },
+        { id: "min_letterboxd", type: "check", name: "List my watched movies in Letterboxd" },
+      { id: "min_worldcup_highlights", type: "check", name: "Watch highlights of every World Cup game" },
+      { id: "min_panini", type: "check", name: "Finish Panini Sticker Album" },
+      {
+        id: "min_books",
+        type: "checklist",
+        target: 8,
+        name: "Read books",
+        defaultItems: [
+          "Jam Mysliman — Ben Blushi",
+          "The Prince — Niccolò Machiavelli",
+          "The Myth of Sisyphus — Albert Camus",
+          "Emotional Intelligence — Daniel Goleman",
+          "Notes from Underground — Fyodor Dostoevsky",
+          "Animal Farm — George Orwell",
+          "The Bible",
+          "Letters from a Stoic — Seneca",
+        ],
+      },
+      {
+        id: "min_films",
+        type: "checklist",
+        target: 20,
+        name: "Watch Movies",
+        defaultItems: [
+          "Chronicle",
+          "Capernaum",
+          "Come and See",
+          "Lawrence of Arabia",
+          "Spirited Away",
+          "Stalker",
+          "A Separation",
+          "Burning",
+          "Bicycle Thieves",
+          "Into the Wild",
+          "Apocalypse Now",
+          "Spring, Summer, Fall, Winter... and Spring",
+          "Rashomon",
+          "Silence",
+          "Paradise Now",
+          "Incendies",
+          "In the Mood for Love",
+          "Ex Machina",
+          "Obsession",
+          "Little Miss Sunshine",
+        ],
+      },
+      {
+        id: "min_tv",
+        type: "checklist",
+        target: 6,
+        name: "Watch TV shows",
+        defaultItems: [
+          "The Sopranos",
+          "True Detective",
+          "Better Call Saul",
+          "Dexter",
+          "Mr. Robot",
+          "The Chosen"
+        ],
+      },
+      {
+        id: "min_anime",
+        type: "checklist",
+        target: 8,
+        name: "Watch anime series",
+        defaultItems: [
+          "Bungou Stray Dogs",
+          "Cowboy Bebop",
+          "JoJo's Bizarre Adventure",
+          "Assassination Classroom",
+          "Fullmetal Alchemist: Brotherhood",
+          "Kingdom",
+          "Another",
+          "Steins;Gate",
+        ],
+      },
+      {
+        id: "min_games",
+        type: "checklist",
+        target: 9,
+        name: "Play  games",
+        defaultItems: [
+          "Batman: Arkham City",
+          "God of War: Ragnarök",
+          "Ghost of Tsushima",
+          "Kingdom Come: Deliverance 2",
+          "The Witcher 3: Wild Hunt",
+          "GTA 6",
+          "Assassin's Creed: Origins",
+          "Far Cry Primal",
+          "Call of Duty: Modern Warfare 2",
+        ],
+      },
+      {
+        id: "min_documentaries",
+        type: "checklist",
+        target: 5,
+        name: "Watch documentaries",
+        defaultItems: [
+          "The Social Dilemma",
+          "Europa: The Last Battle",
+          "Planet Earth I",
+          "Planet Earth II",
+          "Inside Job",
+        ],
+      },
+      {
+        id: "min_hobbies",
+        type: "checklist",
+        target: 4,
+        name: "Master Hobbies",
+        defaultItems: [
+          "CS2",
+          "Ping Pong",
+          "Chess",
+          "FIFA 26",
+        ],
+      },
       { id: "min_yt", type: "checklist", target: 60, name: "Watch educational YouTube video essays" },
-      { id: "min_podcasts", type: "checklist", target: 10, name: "Listen to long-form podcasts" },
+      {
+        id: "min_podcasts",
+        type: "checklist",
+        target: 10,
+        name: "Listen to long-form podcasts",
+        defaultItems: [
+          "Ex-CIA Spy John Kiriakou on Israel, Double Agents, and Direct Energy Weapons",
+          "Aristotle: The World's Greatest Philosopher?",
+          "Is the AfD a threat to Germany? Mehdi Hasan & Maximilian Krah | Head to Head",
+          "1 Psychiatrist & 20 Depressed People (ft. Dr. K) | Surrounded",
+          "NVIDIA CEO Jensen Huang's Vision for the Future",
+          "Your Brain: Who's in Control? | Full Documentary | NOVA | PBS",
+          "Professor Jiang: World War 3 Is About To Begin, Let Me Explain!",
+          "Andrew Tate x Jack Neel Podcast (2026 Interview)",
+          "Alex O'Connor: Why You Feel Stuck in Life (#1 Question to Ask Yourself NOW)",
+          "Christian Vs Muslim: Was Jesus Muslim?",
+        ],
+      },
+    
     ],
   },
   {
@@ -97,12 +294,44 @@ export const CATEGORIES = [
     accent: "#f87171",
     tagline: "Temper the vessel",
     tasks: [
-      { id: "bod_gym", type: "check", name: "Gym 6x per week consistently" },
+      { id: "bod_gym", type: "check", daily: true, name: "Gym 6x per week consistently" },
       { id: "bod_physique", type: "check", name: "Reach target physique goal" },
-      { id: "bod_skincare", type: "check", name: "Looksmaxx" },
+      {
+        id: "bod_skincare",
+        type: "checklist",
+        daily: true,
+        target: 9,
+        name: "Looksmaxx",
+        defaultItems: [
+          "Hunter Eyes — Exercise 1",
+          "Hunter Eyes — Exercise 2",
+          "Sharp Jawline — Exercise 1",
+          "Sharp Jawline — Exercise 2",
+          "Skin — Step 1",
+          "Skin — Step 2",
+          "Posture — Exercise 1",
+          "Hair — Step 1",
+          "Teeth — Step 1",
+        ],
+      },
       { id: "bod_sleep_sched", type: "check", name: "Sleep 8 hours in the same time each night" },
-      { id: "bod_water", type: "check", name: "Drink 2L water daily" },
-      { id: "bod_stretch", type: "check", name: "Stretch daily" },
+      {
+        id: "min_supplements",
+        type: "checklist",
+        target: 3,
+        name: "Take useful supplements",
+        defaultItems: [
+          "Magnesium Glycinate",
+          "Vitamin D3",
+          "Omega-3",
+        ],
+      },
+      { id: "bod_water", type: "check", daily: true, name: "Drink 2L water" },
+      { id: "bod_stretch", type: "check", daily: true, name: "Stretch" },
+      { id: "bod_protein", type: "check", daily: true, name: "Hit protein target (164–182g at 91kg)" },
+      { id: "bod_track_macros", type: "check", daily: true, name: "Track calories" },
+      { id: "bod_minimize_processed", type: "check", daily: true, name: "Minimize sugar" },
+      { id: "bod_cold_shower", type: "check", daily: true, name: "Cold shower" },
     ],
   },
   {
@@ -112,18 +341,17 @@ export const CATEGORIES = [
     accent: "#38bdf8",
     tagline: "Claim the rewards",
     tasks: [
-      { id: "wish_car", type: "check", name: "Buy a car" },
-      { id: "wish_phone", type: "check", name: "Buy a phone" },
-      { id: "wish_laptop", type: "check", name: "Buy a laptop" },
-      { id: "wish_ps5", type: "check", name: "Buy a PS5" },
-      { id: "wish_cd_album", type: "check", name: "Buy a CD album" },
+      { id: "wish_car", type: "check", name: "Car" },
+      { id: "wish_phone", type: "check", name: "Phone" },
+      { id: "wish_laptop", type: "check", name: "Laptop" },
+      { id: "wish_ps5", type: "check", name: "PS5" },
+      { id: "wish_cd_album", type: "check", name: "CD album" },
       { id: "wish_cups", type: "check", name: "2 cups" },
       { id: "wish_wallet", type: "check", name: "Wallet" },
       { id: "wish_logo_real_madrid", type: "check", name: "Logo with Real Madrid" },
       { id: "wish_logo_psg", type: "check", name: "Logo with PSG" },
       { id: "wish_rm_jersey", type: "check", name: "Real Madrid jersey" },
       { id: "wish_funko_naruto", type: "check", name: "2 Funko Pop Naruto toys" },
-      { id: "wish_magnesium_forte", type: "check", name: "Magnesium Forte" },
       { id: "wish_carpet", type: "check", name: "Carpet" },
       { id: "wish_fridge", type: "check", name: "Small fridge" },
       { id: "wish_bean_bags", type: "check", name: "2 bean bags" },
@@ -134,14 +362,87 @@ export const CATEGORIES = [
       { id: "wish_christian_cross", type: "check", name: "Christian cross" },
       { id: "wish_laptop_shelf", type: "check", name: "Shelf for laptop" },
       { id: "wish_door_poster", type: "check", name: "Poster for door" },
-      { id: "wish_zoro_sword", type: "check", name: "Zoro sword" },
+      { id: "wish_zoro_sword", type: "check", name: "Sword" },
       { id: "wish_skanderbeg_figure", type: "check", name: "Skanderbeg figure" },
       { id: "wish_funko_other", type: "check", name: "Other Funko Pop toys" },
+      { id: "wish_240hz_monitor", type: "check", name: "240Hz Monitor" },
+      { id: "wish_gaming_chair", type: "check", name: "Better Gaming Chair" },
+      { id: "wish_laptop_holder", type: "check", name: "Laptop Holder" },
+      { id: "wish_bible", type: "check", name: "The Bible" },
+      { id: "wish_sea_salt_spray", type: "check", name: "Sea salt spray" },
+      { id: "wish_phone_case", type: "check", name: "Phone case" },
+      {
+        id: "wish_supplements",
+        type: "checklist",
+        target: 3,
+        name: "Supplements",
+        defaultItems: [
+          "Magnesium Glycinate",
+          "Vitamin D3",
+          "Omega-3",
+        ],
+      },
     ],
   },
 ];
 
 export const CATEGORY_MAP = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
+
+// ── DAILY TASKS ──
+// Daily tasks (task.daily === true) reset their progress at the start of each
+// local day. We track which day we last reset on with a "day key" — the local
+// calendar date as YYYY-MM-DD. When the current day key differs from the stored
+// one, every daily task's progress is cleared (see resetDailyProgress).
+export function dayKey(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+// Reset daily tasks at day rollover. For a simple check the whole value is
+// removed; for a checklist we keep its `items` (the permanent source links) and
+// only clear the `checked` map, so a daily checklist re-presents the same items
+// unchecked each day. Returns the same reference when nothing changed.
+export function resetDailyProgress(progress, dailyTaskIds) {
+  let changed = false;
+  const next = { ...progress };
+  for (const id of dailyTaskIds) {
+    if (!(id in next)) continue;
+    const value = next[id];
+    if (value && typeof value === "object" && Array.isArray(value.items)) {
+      // Daily checklist: keep items, wipe checks (skip if already empty).
+      if (value.checked && Object.keys(value.checked).length > 0) {
+        next[id] = { items: value.items, checked: {} };
+        changed = true;
+      }
+    } else {
+      delete next[id];
+      changed = true;
+    }
+  }
+  return changed ? next : progress;
+}
+
+// Collect the ids of all daily tasks across built-in + custom + edited tasks.
+// `customTasks` is the per-category custom task map; `taskEdits` lets a built-in
+// task be turned daily (or un-daily) via an edit override.
+export function collectDailyTaskIds({ customTasks = {}, taskEdits = {} } = {}) {
+  const ids = new Set();
+  const edits = taskEdits ?? {};
+  for (const cat of CATEGORIES) {
+    for (const t of cat.tasks) {
+      const daily = "daily" in (edits[t.id] ?? {}) ? edits[t.id].daily : t.daily;
+      if (daily) ids.add(t.id);
+    }
+  }
+  for (const list of Object.values(customTasks)) {
+    for (const t of list ?? []) {
+      if (t.daily) ids.add(t.id);
+    }
+  }
+  return ids;
+}
 
 // Build a category's effective task list: built-in tasks (minus any the user
 // deleted, with name/type edits applied) plus the user's custom tasks. Used by
@@ -167,6 +468,90 @@ export function mergeCategoryTasks(baseCategory, { customTasks, hiddenTasks, tas
     .map(applyEdit);
 
   return { ...baseCategory, tasks: [...visibleBuiltIn, ...custom] };
+}
+
+// Flatten every effective task across all categories into a single list, each
+// tagged with its category. Used by the Stats page and the completion logger,
+// which need to resolve a task id → name/type/daily/category regardless of
+// which category it lives in.
+export function mergeAllTasks(opts = {}) {
+  const out = [];
+  for (const base of CATEGORIES) {
+    const cat = mergeCategoryTasks(base, opts);
+    for (const t of cat.tasks) {
+      out.push({ ...t, categoryId: base.id });
+    }
+  }
+  return out;
+}
+
+// Build the seeded value for a checklist's defaultItems.
+function buildSeedValue(task) {
+  return {
+    items: task.defaultItems.map((name, i) => ({
+      id: `seed_${task.id}_${i}`,
+      name,
+    })),
+    checked: {},
+  };
+}
+
+// (Removed: content-based seed migration. It could not tell a user edit from a
+// stale default and overwrote edits on reload. Seeding is now one-shot — see
+// seedDefaultItems below.)
+/* removed
+function isPristineSeed_REMOVED(task, value) {
+  if (!value || typeof value !== "object" || !Array.isArray(value.items)) return false;
+  if (Object.values(value.checked ?? {}).some(Boolean)) return false;
+  const seedPrefix = `seed_${task.id}_`;
+  const allSeed = value.items.every((it) => it.id.startsWith(seedPrefix));
+  if (!allSeed) return false;
+  // Same set of names as the current defaults? → nothing to migrate.
+  const current = task.defaultItems.join(" ");
+  const stored = value.items.map((it) => it.name).join(" ");
+  return current !== stored; // pristine AND out of date
+}
+
+*/
+
+// Seed checklist tasks that declare `defaultItems`, but ONLY once per task and
+// ONLY when it has no stored items yet. We never overwrite an existing item
+// list. `seeded` is a persisted marker map ({ [taskId]: true }); once a task is
+// marked we leave it alone forever, even if the user empties it.
+// Returns { progress, seeded }; new object refs only when something changed.
+export function seedDefaultItems(progress, seeded = {}, opts = {}) {
+  let changed = false;
+  const nextProgress = { ...progress };
+  const nextSeeded = { ...seeded };
+  for (const task of mergeAllTasks(opts)) {
+    if (!task.defaultItems || task.type !== "checklist") continue;
+    if (seeded[task.id]) continue; // already handled once — never touch again
+    const value = nextProgress[task.id];
+    const hasItems = value && typeof value === "object" && Array.isArray(value.items);
+    if (!hasItems) nextProgress[task.id] = buildSeedValue(task);
+    nextSeeded[task.id] = true; // mark seeded regardless, so it's one-shot
+    changed = true;
+  }
+  return changed
+    ? { progress: nextProgress, seeded: nextSeeded }
+    : { progress, seeded };
+}
+
+// Human-readable date label, e.g. "28th of June 2026", from a YYYY-MM-DD key.
+export function formatDayLabel(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  const day = date.getDate();
+  const month = date.toLocaleString("en-US", { month: "long" });
+  const suffix =
+    day % 10 === 1 && day !== 11
+      ? "st"
+      : day % 10 === 2 && day !== 12
+      ? "nd"
+      : day % 10 === 3 && day !== 13
+      ? "rd"
+      : "th";
+  return `${day}${suffix} of ${month} ${y}`;
 }
 
 // Number of checked items in a checklist task's stored value.

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { CATEGORIES, isTaskComplete } from "../data/tasks";
 import { useProgress, usePinned, useCustomTasks } from "../hooks/useLocalStorage";
-import TaskItem, { itemPinKey } from "./TaskItem";
+import TaskItem from "./TaskItem";
 import { useToast } from "./Toast";
 
 // A single pinned checklist item (e.g. one book) shown in the Focused section.
@@ -167,7 +167,7 @@ export default function FocusedTasks({ category }) {
         {focus.map(({ task, category: cat }) => {
           const isCustom = (customTasks[cat.id] ?? []).some((t) => t.id === task.id);
           return (
-            <li key={task.id} className="flex flex-col gap-1.5">
+            <li key={task.id} id={`task-${task.id}`} className="flex flex-col gap-1.5">
               {showCategory && <CategoryBadge category={cat} />}
               <div className="relative">
                 <TaskItem

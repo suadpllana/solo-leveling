@@ -3,7 +3,11 @@ import {
   CATEGORIES,
   categoryProgress,
   categoryDoneCount,
+  collectDailyTaskIds,
+  isTaskComplete,
   mergeCategoryTasks,
+  checklistCount,
+  checklistGoal,
 } from "../data/tasks";
 import { useProgress, usePinned, useCustomTasks } from "../hooks/useLocalStorage";
 import FocusedTasks from "./FocusedTasks";
@@ -64,6 +68,32 @@ export default function Dashboard() {
   const totalDone = stats.reduce((n, s) => n + s.done, 0);
   const overallPct = totalTasks ? Math.round((totalDone / totalTasks) * 100) : 0;
 
+  // Pace is about finishing one-time milestones by the deadline — daily habits
+  // never "finish", so they're excluded from the pace totals.
+  const dailyIds = collectDailyTaskIds({ customTasks, taskEdits });
+  const paceStats = stats.reduce(
+    (acc, s) => {
+      for (const t of s.category.tasks) {
+        if (dailyIds.has(t.id)) continue;
+        const state = progress[t.id];
+        if (t.type === "checklist") {
+          const goal = checklistGoal(t, state);
+          const checked = checklistCount(state);
+          acc.total += goal;
+          acc.done += Math.min(checked, goal);
+        } else if (t.type === "progress") {
+          acc.total += t.target;
+          acc.done += Math.min(state ?? 0, t.target);
+        } else {
+          acc.total += 1;
+          if (isTaskComplete(t, state)) acc.done += 1;
+        }
+      }
+      return acc;
+    },
+    { total: 0, done: 0 }
+  );
+
   // Strongest / weakest by completion %
   const sorted = [...stats].sort((a, b) => b.pct - a.pct);
   const strongest = sorted[0];
@@ -107,7 +137,7 @@ export default function Dashboard() {
       </section>
 
       {/* Are you on track for the deadline? */}
-      <PaceIndicator totalTasks={totalTasks} totalDone={totalDone} />
+      <PaceIndicator totalTasks={paceStats.total} totalDone={paceStats.done} />
 
       {/* Strongest / weakest momentum */}
       <section className="grid grid-cols-2 gap-3 mb-6">
