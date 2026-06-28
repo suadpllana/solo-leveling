@@ -175,6 +175,7 @@ export default function FocusedTasks({ category }) {
                   value={progress[task.id]}
                   accent={cat.accent}
                   pinned={!!pinned[task.id]}
+                  categoryId={cat.id}
                   onChange={(next) => setTask(task.id, next)}
                   onTogglePin={() => togglePin(task.id)}
                   onEdit={

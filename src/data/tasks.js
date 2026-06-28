@@ -1,4 +1,4 @@
-// ── DEADLINE ──
+﻿// ── DEADLINE ──
 export const DEADLINE_DATE = "2027-07-01T00:00:00";
 export const DEADLINE_LABEL = "1 JULY 2027";
 // When the journey began — used to gauge whether you're on pace. Pacing
@@ -98,9 +98,7 @@ export const CATEGORIES = [
       { id: "mon_pi_network", type: "check", name: "Pi Network" },
       { id: "mon_cs2_cases", type: "check", name: "CS2 cases" },
       { id: "mon_ecfito", type: "check", name: "Ecfito" },
-      { id: "mon_worldcup_site", type: "check", name: "World Cup website" },
-      { id: "mon_barber_app", type: "check", name: "Barber appointment app" },
-      { id: "mon_fortnite_accounts", type: "check", name: "Sell Fortnite accounts" },
+{ id: "mon_fortnite_accounts", type: "check", name: "Sell Fortnite accounts" },
       { id: "mon_usertesting", type: "check", name: "UserTesting" },
       { id: "mon_stake", type: "check", name: "Stake" },
       { id: "mon_revamp_portfolio", type: "check", name: "Revamp portfolio and lscorporation.online" },
@@ -124,8 +122,8 @@ export const CATEGORIES = [
         target: 5,
         name: "Hunt side hustles ",
         defaultItems: [
-          "Reddit: r/slavelabour, r/forhire, r/jobbit, r/freelance, r/hiring",
-          "Discord: r/forhire server, Freelance Hub, Devnet, Reactiflux jobs, Indie Hackers",
+          "Reddit: r/slavelabour, r/forhire, r/jobbit, r/freelance, r/hiring, r/freelance_for_hire",
+          "Discord: r/forhire server, Freelance Hub, Devnet, Reactiflux jobs, Indie Hackers, /job, For Hire, Freelancer, Freelancer community, MarkitupX, Freelanzo",
           "X: “hiring developer”, “need a dev”, “looking for freelancer”, #hiring, #freelance",
           "Telegram: Freelance Jobs, Remote Jobs, Web Dev Jobs, Crypto Jobs, Upwork Alerts",
           "Facebook: freelance groups, web dev jobs, remote work, startup jobs, local biz groups",
@@ -143,6 +141,7 @@ export const CATEGORIES = [
     tagline: "Sharpen the blade",
     tasks: [
       { id: "min_meditation", type: "check", daily: true, name: "Meditate" },
+      { id: "min_communities", type: "check", name: "Search for cool communities in Discord and Reddit" },
       { id: "min_university", type: "check", name: "Finish university " },
       { id: "min_course", type: "check", name: "Complete freeCodeCamp \"Build & Deploy a SaaS\" course" },
       { id: "min_course_crypto", type: "check", name: "Complete MoneyZG \"Full Cryptocurrency Trading Course - From Beginner To Expert\" (YouTube)" },
@@ -300,21 +299,23 @@ export const CATEGORIES = [
         id: "bod_skincare",
         type: "checklist",
         daily: true,
-        target: 9,
+        target: 11,
         name: "Looksmaxx",
         defaultItems: [
-          "Hunter Eyes — Exercise 1",
-          "Hunter Eyes — Exercise 2",
-          "Sharp Jawline — Exercise 1",
-          "Sharp Jawline — Exercise 2",
-          "Skin — Step 1",
-          "Skin — Step 2",
-          "Posture — Exercise 1",
-          "Hair — Step 1",
-          "Teeth — Step 1",
+          "Mewing — tongue fully flat on palate (back third included), teeth lightly touching, lips sealed. Constant habit.",
+          "Canthal Tilt Massage — index fingers at outer eye corners, pull upward/outward toward temples while slightly squinting. 30–60 sec.",
+          "Eyelid Hooding Drill — forehead relaxed, slowly lower upper eyelid without raising brows. 15 reps × 3 sets.",
+          "Neck Curls — lie flat, curl chin to chest, hold 1 sec, lower slowly. 3 sets × 25 reps.",
+          "Cheeks Pinch — squeeze cheeks, make kissing face, hold 10 sec. 10 reps.",
+          "Chin Tucks — pull chin straight back (not down), hold 10 sec. 15 reps.",
+          "Eyebrows — spoolie brush upward and slightly outward every morning.",
+          "Nasal Tip Lift — index finger under nose tip, push upward against resistance. 30 reps × 2 sets.",
+          "Skincare — wash with gentle cleanser, apply moisturizer with SPF.",
+          "Ice Roller — 90-sec ice roller or ice cube after skincare.",
+          "Hair — matte clay pomade on slightly damp hair. Wash max 3×/week.",
         ],
       },
-      { id: "bod_sleep_sched", type: "check", name: "Sleep 8 hours in the same time each night" },
+      { id: "bod_sleep_sched", type: "check",daily: true, name: "Sleep 8 hours in the same time each night" },
       {
         id: "min_supplements",
         type: "checklist",
@@ -385,6 +386,7 @@ export const CATEGORIES = [
           "Omega-3",
         ],
       },
+      { id: "wish_game_posters", type: "check", name: "Buy more game posters" },
     ],
   },
 ];
@@ -573,13 +575,13 @@ export function checklistGoal(task, state) {
 }
 
 // A task counts as complete when:
-//   check     → state === true
+//   check     → state === true OR state === "no-profit" (completed but earned nothing)
 //   progress  → state (count) >= target
 //   checklist → checked items >= goal (all items checked, ≥ target of them)
 export function isTaskComplete(task, state) {
   if (task.type === "progress") return (state ?? 0) >= task.target;
   if (task.type === "checklist") return checklistCount(state) >= checklistGoal(task, state);
-  return state === true;
+  return state === true || state === "no-profit";
 }
 
 // Category completion %  (each task weighted equally)

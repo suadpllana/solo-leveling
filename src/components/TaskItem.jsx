@@ -9,21 +9,38 @@ import EditTaskModal from "./EditTaskModal";
 // Focused section without pinning the whole "Read 8 books" task.
 export const itemPinKey = (taskId, itemId) => `${taskId}::${itemId}`;
 
-function CheckBox({ done, accent }) {
+function CheckBox({ done, noProfit, accent }) {
+  const active = done || noProfit;
+  const bg = noProfit ? "rgba(100,116,139,0.35)" : done ? accent : "transparent";
+  const border = noProfit ? "rgba(100,116,139,0.6)" : done ? accent : "rgba(255,255,255,0.18)";
+  const shadow = noProfit ? "none" : done ? `0 0 12px ${accent}66` : "none";
   return (
     <span
       className="shrink-0 grid place-items-center w-6 h-6 rounded-md border-2 transition-all duration-200"
-      style={{
-        borderColor: done ? accent : "rgba(255,255,255,0.18)",
-        background: done ? accent : "transparent",
-        boxShadow: done ? `0 0 12px ${accent}66` : "none",
-      }}
+      style={{ borderColor: border, background: bg, boxShadow: shadow }}
     >
-      {done && (
-        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="#05060a" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+      {active && (
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke={noProfit ? "rgba(148,163,184,0.9)" : "#05060a"} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M5 13l4 4L19 7" />
         </svg>
       )}
+    </span>
+  );
+}
+
+function NoProfitBadge() {
+  return (
+    <span
+      className="shrink-0 inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+      style={{ borderColor: "rgba(100,116,139,0.5)", color: "#94a3b8", background: "rgba(100,116,139,0.12)" }}
+      title="Completed but no profit made"
+    >
+      <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23" />
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        <line x1="4" y1="4" x2="20" y2="20" />
+      </svg>
+      No Profit
     </span>
   );
 }
@@ -389,7 +406,14 @@ function ChecklistTask({ task, value, accent, onChange, onDelete, onEdit }) {
   );
 }
 
-export default function TaskItem({ task, value, accent, pinned, onChange, onTogglePin, onDelete, onEdit }) {
+// Cycle for money check tasks: undone → profit → no-profit → undone
+function nextMoneyState(value) {
+  if (!value) return true;
+  if (value === true) return "no-profit";
+  return false;
+}
+
+export default function TaskItem({ task, value, accent, pinned, categoryId, onChange, onTogglePin, onDelete, onEdit }) {
   const done = isTaskComplete(task, value);
 
   if (task.type === "checklist") {
@@ -406,25 +430,35 @@ export default function TaskItem({ task, value, accent, pinned, onChange, onTogg
   }
 
   if (task.type === "check") {
+    const isMoney = categoryId === "money";
+    const noProfit = value === "no-profit";
+
+    const borderColor = noProfit
+      ? "rgba(100,116,139,0.4)"
+      : done
+      ? `${accent}55`
+      : "var(--color-edge)";
+
     return (
       <div
         className="group w-full flex items-center gap-3 px-3.5 py-3 rounded-lg border bg-panel/60 transition-colors duration-200"
-        style={{ borderColor: done ? `${accent}55` : "var(--color-edge)" }}
+        style={{ borderColor }}
       >
         <button
           type="button"
-          onClick={() => onChange(!value)}
+          onClick={() => onChange(isMoney ? nextMoneyState(value) : !value)}
           className="flex-1 min-w-0 flex items-center gap-3 text-left cursor-pointer hover:opacity-90 transition-opacity"
         >
-          <CheckBox done={done} accent={accent} />
+          <CheckBox done={done} noProfit={noProfit} accent={accent} />
           <span
             className={`flex-1 text-[15px] font-medium leading-snug transition-colors ${
-              done ? "line-through text-slate-500" : "text-slate-100"
+              noProfit ? "line-through text-slate-500" : done ? "line-through text-slate-500" : "text-slate-100"
             }`}
           >
             {task.name}
           </span>
           {task.daily && <DailyBadge accent={accent} />}
+          {noProfit && <NoProfitBadge />}
         </button>
         {!done && (
           <PinButton pinned={pinned} accent={accent} onClick={onTogglePin} />

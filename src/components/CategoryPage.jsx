@@ -82,9 +82,17 @@ export default function CategoryPage() {
         : !pinned[t.id] || isTaskComplete(t, progress[t.id])
     )
     .sort((a, b) => {
-      const aDone = isTaskComplete(a, progress[a.id]) ? 1 : 0;
-      const bDone = isTaskComplete(b, progress[b.id]) ? 1 : 0;
+      const aVal = progress[a.id];
+      const bVal = progress[b.id];
+      const aDone = isTaskComplete(a, aVal) ? 1 : 0;
+      const bDone = isTaskComplete(b, bVal) ? 1 : 0;
       if (aDone !== bDone) return bDone - aDone;
+      // Among completed money tasks: profit (true) above no-profit.
+      if (aDone && id === "money") {
+        const aNoProfit = aVal === "no-profit" ? 1 : 0;
+        const bNoProfit = bVal === "no-profit" ? 1 : 0;
+        if (aNoProfit !== bNoProfit) return aNoProfit - bNoProfit;
+      }
       // Among incomplete tasks: daily first, then check before checklist/progress.
       const aDaily = a.daily ? 1 : 0;
       const bDaily = b.daily ? 1 : 0;
@@ -229,6 +237,7 @@ export default function CategoryPage() {
                 value={progress[task.id]}
                 accent={accent}
                 pinned={!!pinned[task.id]}
+                categoryId={id}
                 onChange={(next) => setTask(task.id, next)}
                 onTogglePin={() => togglePin(task.id)}
                 onDelete={() => {
