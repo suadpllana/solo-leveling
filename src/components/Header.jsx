@@ -30,7 +30,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-void/80 border-b border-edge">
       {/* Top row: logo + countdown (+ hamburger on mobile) */}
       <div className="mx-auto max-w-5xl px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-        <NavLink to="/" className="flex items-center gap-3 min-w-0 group">
+        <NavLink to="/" className="flex items-center gap-3 shrink-0 group">
           <div
             className="relative grid place-items-center w-10 h-10 rounded-[12px] shrink-0 border border-white/10"
             style={{ background: "#0a0a0f" }}
@@ -48,7 +48,7 @@ export default function Header() {
             </span>
             <span className="absolute inset-0 rounded-[12px] glow-pulse" style={{ boxShadow: "0 0 18px rgba(0,229,255,0.35)" }} />
           </div>
-          <span className="font-display font-black uppercase italic tracking-[0.12em] text-lg sm:text-xl text-white leading-none truncate">
+          <span className="font-display font-black uppercase italic tracking-[0.06em] text-base sm:text-xl text-white leading-none whitespace-nowrap">
             Ascend!
           </span>
         </NavLink>
