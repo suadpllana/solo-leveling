@@ -88,7 +88,7 @@ export default function AddTask({ accent, onAdd }) {
                 if (e.key === "Escape") reset();
               }}
               placeholder="Task name…"
-              className="w-full bg-white/[0.04] border border-edge rounded-md px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-white/25 transition-colors"
+              className="w-full bg-white/[0.04] border border-edge rounded-md px-3 py-2 text-base sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-white/25 transition-colors"
             />
 
             <div className="flex gap-2">

@@ -298,7 +298,7 @@ function ChecklistTask({ task, value, accent, onChange, onDelete, onEdit }) {
                       if (e.key === "Enter") saveEdit();
                       if (e.key === "Escape") cancelEdit();
                     }}
-                    className="flex-1 min-w-0 bg-white/[0.04] border rounded-md px-2.5 py-1.5 text-sm text-slate-100 focus:outline-none transition-colors"
+                    className="flex-1 min-w-0 bg-white/[0.04] border rounded-md px-2.5 py-1.5 text-base sm:text-sm text-slate-100 focus:outline-none transition-colors"
                     style={{ borderColor: accent }}
                   />
                   <button
@@ -388,7 +388,7 @@ function ChecklistTask({ task, value, accent, onChange, onDelete, onEdit }) {
                 if (e.key === "Enter") addItem();
               }}
               placeholder="Add an item…"
-              className="flex-1 min-w-0 bg-white/[0.04] border border-edge rounded-md px-2.5 py-1.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-white/25 transition-colors"
+              className="flex-1 min-w-0 bg-white/[0.04] border border-edge rounded-md px-2.5 py-1.5 text-base sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-white/25 transition-colors"
             />
             <button
               type="button"
