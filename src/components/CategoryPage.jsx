@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Navigate, useSearchParams } from "react-router-dom";
-import { CATEGORY_MAP, categoryProgress, isTaskComplete, mergeCategoryTasks } from "../data/tasks";
+import { CATEGORY_MAP, categoryUnitProgress, isTaskComplete, mergeCategoryTasks } from "../data/tasks";
 import { useProgress, usePinned, useCustomTasks } from "../hooks/useLocalStorage";
 import TaskItem from "./TaskItem";
 import FocusedTasks from "./FocusedTasks";
@@ -51,8 +51,9 @@ export default function CategoryPage() {
   const category = mergeCategoryTasks(baseCategory, { customTasks, hiddenTasks, taskEdits });
   const customIds = new Set((customTasks[id] ?? []).map((t) => t.id));
 
-  const pct = categoryProgress(category, progress);
-  const doneCount = category.tasks.filter((t) => isTaskComplete(t, progress[t.id])).length;
+  // Sub-task–aware progress: a checklist counts once per item (e.g. "Read 8
+  // books" = 8 units), so partially-done checklists move the bar.
+  const { done: doneCount, total: totalCount, pct } = categoryUnitProgress(category, progress);
   const accent = category.accent;
 
   // Pinned tasks are surfaced in the Focused Tasks section above, so the main
@@ -169,7 +170,7 @@ export default function CategoryPage() {
               <span className="font-bold" style={{ color: accent }}>
                 {doneCount}
               </span>
-              /{category.tasks.length} · {pct}%
+              /{totalCount} · {pct}%
             </span>
           </div>
           <div className="h-2.5 w-full rounded-full bg-white/[0.06] overflow-hidden border border-white/5">

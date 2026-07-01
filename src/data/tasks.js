@@ -603,6 +603,39 @@ export function categoryDoneCount(category, progress) {
   );
 }
 
+// Sub-task–aware counting. A checklist task contributes one unit per item it
+// tracks (its live goal) rather than a single unit, so "Read books" with 8
+// books counts as 8 toward the total and however many are checked toward done.
+// check/progress tasks still count as one unit each.
+//   check     → done 0/1, total 1
+//   progress  → total = target, done = min(count, target)
+//   checklist → total = goal (grows with items), done = checked count (capped)
+export function taskUnitCount(task, state) {
+  if (task.type === "progress") {
+    const total = Math.max(1, task.target ?? 1);
+    return { done: Math.min(state ?? 0, total), total };
+  }
+  if (task.type === "checklist") {
+    const total = checklistGoal(task, state);
+    return { done: Math.min(checklistCount(state), total), total };
+  }
+  const done = state === true || state === "no-profit" ? 1 : 0;
+  return { done, total: 1 };
+}
+
+// Category counts that weight each task by its number of sub-tasks.
+// Returns { done, total, pct } — pct rounded to a whole percent.
+export function categoryUnitProgress(category, progress) {
+  let done = 0;
+  let total = 0;
+  for (const t of category.tasks) {
+    const c = taskUnitCount(t, progress[t.id]);
+    done += c.done;
+    total += c.total;
+  }
+  return { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
+}
+
 // ── PACING ──
 // Are you on track to finish everything by the deadline? Compares your actual
 // completion against the steady pace expected between START_DATE and
