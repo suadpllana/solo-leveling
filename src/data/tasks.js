@@ -131,6 +131,7 @@ export const CATEGORIES = [
         ],
       },
       { id: "mon_ls_clients_3", type: "checklist", target: 3, name: "Get projects from Google Maps Scrapper" },
+      { id: "mon_nanoblock_store", type: "check", name: "Nanoblock store" },
     ],
   },
   {
