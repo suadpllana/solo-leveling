@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:sync": "npx --yes netlify-cli dev",
     "build": "vite build",
     "deploy": "npm run build && npx netlify deploy --prod",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@netlify/blobs": "^10.7.9",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.14.1"

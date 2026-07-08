@@ -1,8 +1,45 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { CATEGORIES, categoryProgress } from "../data/tasks";
-import { useProgress } from "../hooks/useLocalStorage";
+import { useProgress, useSync } from "../hooks/useLocalStorage";
 import Countdown from "./Countdown";
+import SyncModal from "./SyncModal";
+
+const SYNC_DOT_COLOR = {
+  off: "transparent",
+  syncing: "#22d3ee",
+  synced: "#34d399",
+  error: "#f87171",
+};
+
+// Cloud button in the header: opens the sync dialog, and its dot shows the
+// current sync state at a glance.
+function SyncButton() {
+  const { status } = useSync();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        aria-label="Sync settings"
+        onClick={() => setOpen(true)}
+        className="relative grid place-items-center w-10 h-10 rounded-lg border border-edge text-slate-300 hover:bg-white/5 transition-colors"
+      >
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z" />
+        </svg>
+        {status !== "off" && (
+          <span
+            className={`absolute top-1 right-1 w-2 h-2 rounded-full${status === "syncing" ? " animate-pulse" : ""}`}
+            style={{ background: SYNC_DOT_COLOR[status] }}
+          />
+        )}
+      </button>
+      {open && <SyncModal onClose={() => setOpen(false)} />}
+    </>
+  );
+}
 
 // Build the list of nav entries once (Home + each category).
 function useNavItems(progress) {
@@ -55,6 +92,7 @@ export default function Header() {
 
         <div className="flex items-center gap-2 shrink-0">
           <Countdown />
+          <SyncButton />
           {/* Hamburger — mobile only */}
           <button
             type="button"

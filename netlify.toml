@@ -2,6 +2,10 @@
   command = "npm run build"
   publish = "dist"
 
+# Serverless backend for cross-device sync (see netlify/functions/sync.mjs).
+[functions]
+  directory = "netlify/functions"
+
 # Single Page Application (SPA) Routing
 # This ensures that any refresh or direct URL navigation
 # falls back to your index.html so React Router takes over.

@@ -1,4 +1,4 @@
-import { createContext, createElement, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { createContext, createElement, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   collectDailyTaskIds,
   dayKey,
@@ -7,6 +7,7 @@ import {
   resetDailyProgress,
   seedDefaultItems,
 } from "../data/tasks";
+import { useRemoteSync } from "./useRemoteSync";
 
 // Persist a piece of state to localStorage under `key`.
 // Returns [value, setValue] just like useState.
@@ -61,6 +62,9 @@ export function ProgressProvider({ children }) {
   // which checklist tasks have had their default items seeded (one-shot):
   //   { [taskId]: true }
   const [seeded, setSeeded] = useLocalStorage("solo-seeded", {});
+  // cross-device sync code (null = sync off). The code is the secret that
+  // identifies this user's document on the server.
+  const [syncKey, setSyncKey] = useLocalStorage("solo-sync-key", null);
 
   // Keep the latest task-definition state in a ref so the long-lived effects
   // below (which we don't want to re-subscribe on every keystroke) can read
@@ -268,6 +272,87 @@ export function ProgressProvider({ children }) {
     [setCustomTasks, setTaskEdits, setProgress]
   );
 
+  // CROSS-DEVICE SYNC
+  // The full serializable app state, as one document. Field order matters:
+  // useRemoteSync compares JSON strings to detect changes, and mergeDocs in
+  // useRemoteSync.js builds documents with this same key order.
+  const doc = useMemo(
+    () => ({
+      progress,
+      pinned,
+      customTasks,
+      hiddenTasks,
+      taskEdits,
+      seeded,
+      completions,
+      lastDailyReset,
+    }),
+    [progress, pinned, customTasks, hiddenTasks, taskEdits, seeded, completions, lastDailyReset]
+  );
+
+  const normalizeSyncedDoc = useCallback((data = {}) => {
+    const next = {
+      progress: data.progress ?? {},
+      pinned: data.pinned ?? {},
+      customTasks: data.customTasks ?? {},
+      hiddenTasks: data.hiddenTasks ?? {},
+      taskEdits: data.taskEdits ?? {},
+      seeded: data.seeded ?? {},
+      completions: data.completions ?? {},
+      lastDailyReset: data.lastDailyReset ?? null,
+    };
+
+    const today = dayKey();
+    if (next.lastDailyReset !== today) {
+      const dailyIds = collectDailyTaskIds({
+        customTasks: next.customTasks,
+        taskEdits: next.taskEdits,
+      });
+      next.progress = resetDailyProgress(next.progress, dailyIds);
+      next.lastDailyReset = today;
+    }
+
+    return next;
+  }, []);
+
+  // Write a server document back into local state (all setters batch into one
+  // render). Missing fields fall back to empty so an older document shape
+  // can't wipe state with `undefined`.
+  const applyRemote = useCallback(
+    (data) => {
+      const next = normalizeSyncedDoc(data);
+
+      // Remote progress is history arriving from another device, not a fresh
+      // local completion event. Keep the completion logger from re-recording it
+      // as completed today.
+      prevProgressRef.current = next.progress;
+      progressRef.current = next.progress;
+      taskDefsRef.current = {
+        customTasks: next.customTasks,
+        hiddenTasks: next.hiddenTasks,
+        taskEdits: next.taskEdits,
+      };
+      seededRef.current = next.seeded;
+
+      setProgress(next.progress);
+      setPinned(next.pinned);
+      setCustomTasks(next.customTasks);
+      setHiddenTasks(next.hiddenTasks);
+      setTaskEdits(next.taskEdits);
+      setSeeded(next.seeded);
+      setCompletions(next.completions);
+      setLastDailyReset(next.lastDailyReset);
+    },
+    [normalizeSyncedDoc, setProgress, setPinned, setCustomTasks, setHiddenTasks, setTaskEdits, setSeeded, setCompletions, setLastDailyReset]
+  );
+
+  const { status: syncStatus, lastSyncedAt, syncNow } = useRemoteSync({
+    syncKey,
+    doc,
+    applyRemote,
+    normalizeDoc: normalizeSyncedDoc,
+  });
+
   const togglePin = useCallback(
     (taskId) => {
       setPinned((prev) => {
@@ -296,6 +381,7 @@ export function ProgressProvider({ children }) {
         deleteTask,
         editTask,
         completions,
+        sync: { key: syncKey, setKey: setSyncKey, status: syncStatus, lastSyncedAt, syncNow },
       },
     },
     children
@@ -323,6 +409,12 @@ export function usePinned() {
 // Completion history: { "YYYY-MM-DD": { [taskId]: { name, daily, categoryId } } }
 export function useCompletions() {
   return useAppState().completions;
+}
+
+// Cross-device sync: { key, setKey, status, lastSyncedAt, syncNow }.
+// status: "off" | "syncing" | "synced" | "error".
+export function useSync() {
+  return useAppState().sync;
 }
 
 // Tasks the user has customized: added (customTasks), deleted/hidden
