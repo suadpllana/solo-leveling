@@ -55,6 +55,15 @@ function useNavItems(progress) {
       pct: categoryProgress(c, progress),
     })),
     { id: "__stats", to: "/stats", end: false, icon: "📊", name: "Stats", accent: "#22d3ee", pct: null },
+    // External link to the entertainment tracking app (opens in a new tab).
+    {
+      id: "__media",
+      href: "https://all-in-one-media.netlify.app/movies",
+      icon: "🎬",
+      name: "Media",
+      accent: "#f472b6",
+      pct: null,
+    },
   ];
 }
 
@@ -118,34 +127,47 @@ export default function Header() {
 
       {/* Desktop / tablet nav — inline row, hidden on phones */}
       <nav className="hidden sm:flex mx-auto max-w-5xl px-6 pb-2 gap-2">
-        {items.map((it) => (
-          <NavLink key={it.id} to={it.to} end={it.end} className="group relative flex-1 basis-0 min-w-0">
-            {({ isActive }) => (
-              <div
-                className="flex flex-col items-center gap-0.5 px-1 py-2 rounded-lg border transition-all duration-200"
-                style={{
-                  borderColor: isActive ? `${it.accent}77` : "transparent",
-                  background: isActive ? `${it.accent}14` : "transparent",
-                }}
-              >
-                <span className="flex items-center gap-1.5 min-w-0 max-w-full">
-                  <span className="text-base leading-none">{it.icon}</span>
-                  <span
-                    className="font-display font-bold uppercase text-xs tracking-wider truncate max-w-full"
-                    style={{ color: isActive ? it.accent : "#94a3b8" }}
-                  >
-                    {it.name}
-                  </span>
+        {items.map((it) => {
+          const inner = (isActive) => (
+            <div
+              className="flex flex-col items-center gap-0.5 px-1 py-2 rounded-lg border transition-all duration-200"
+              style={{
+                borderColor: isActive ? `${it.accent}77` : "transparent",
+                background: isActive ? `${it.accent}14` : "transparent",
+              }}
+            >
+              <span className="flex items-center gap-1.5 min-w-0 max-w-full">
+                <span className="text-base leading-none">{it.icon}</span>
+                <span
+                  className="font-display font-bold uppercase text-xs tracking-wider truncate max-w-full"
+                  style={{ color: isActive ? it.accent : "#94a3b8" }}
+                >
+                  {it.name}
                 </span>
-                {it.pct !== null && (
-                  <span className="font-mono text-[10px] tabular-nums" style={{ color: isActive ? it.accent : "#64748b" }}>
-                    {it.pct}%
-                  </span>
-                )}
-              </div>
-            )}
-          </NavLink>
-        ))}
+              </span>
+              {it.pct !== null && (
+                <span className="font-mono text-[10px] tabular-nums" style={{ color: isActive ? it.accent : "#64748b" }}>
+                  {it.pct}%
+                </span>
+              )}
+            </div>
+          );
+          return it.href ? (
+            <a
+              key={it.id}
+              href={it.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative flex-1 basis-0 min-w-0"
+            >
+              {inner(false)}
+            </a>
+          ) : (
+            <NavLink key={it.id} to={it.to} end={it.end} className="group relative flex-1 basis-0 min-w-0">
+              {({ isActive }) => inner(isActive)}
+            </NavLink>
+          );
+        })}
       </nav>
 
       {/* Mobile drawer */}
@@ -157,37 +179,50 @@ export default function Header() {
             onClick={() => setMenuOpen(false)}
           />
           <nav className="sm:hidden relative z-50 border-t border-edge bg-void/95 backdrop-blur-xl px-3 py-3 flex flex-col gap-1.5">
-            {items.map((it) => (
-              <NavLink
-                key={it.id}
-                to={it.to}
-                end={it.end}
-                onClick={() => setMenuOpen(false)}
-              >
-                {({ isActive }) => (
-                  <div
-                    className="flex items-center gap-3 px-3 py-3 rounded-lg border transition-colors"
-                    style={{
-                      borderColor: isActive ? `${it.accent}77` : "var(--color-edge)",
-                      background: isActive ? `${it.accent}14` : "transparent",
-                    }}
+            {items.map((it) => {
+              const inner = (isActive) => (
+                <div
+                  className="flex items-center gap-3 px-3 py-3 rounded-lg border transition-colors"
+                  style={{
+                    borderColor: isActive ? `${it.accent}77` : "var(--color-edge)",
+                    background: isActive ? `${it.accent}14` : "transparent",
+                  }}
+                >
+                  <span className="text-xl leading-none">{it.icon}</span>
+                  <span
+                    className="flex-1 font-display font-bold uppercase text-sm tracking-wider"
+                    style={{ color: isActive ? it.accent : "#cbd5e1" }}
                   >
-                    <span className="text-xl leading-none">{it.icon}</span>
-                    <span
-                      className="flex-1 font-display font-bold uppercase text-sm tracking-wider"
-                      style={{ color: isActive ? it.accent : "#cbd5e1" }}
-                    >
-                      {it.name}
+                    {it.name}
+                  </span>
+                  {it.pct !== null && (
+                    <span className="font-mono text-xs tabular-nums" style={{ color: isActive ? it.accent : "#64748b" }}>
+                      {it.pct}%
                     </span>
-                    {it.pct !== null && (
-                      <span className="font-mono text-xs tabular-nums" style={{ color: isActive ? it.accent : "#64748b" }}>
-                        {it.pct}%
-                      </span>
-                    )}
-                  </div>
-                )}
-              </NavLink>
-            ))}
+                  )}
+                </div>
+              );
+              return it.href ? (
+                <a
+                  key={it.id}
+                  href={it.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {inner(false)}
+                </a>
+              ) : (
+                <NavLink
+                  key={it.id}
+                  to={it.to}
+                  end={it.end}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {({ isActive }) => inner(isActive)}
+                </NavLink>
+              );
+            })}
           </nav>
         </>
       )}

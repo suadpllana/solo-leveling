@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { CATEGORIES, isTaskComplete } from "../data/tasks";
+import { CATEGORIES, isTaskComplete, mergeCategoryTasks } from "../data/tasks";
 import { useProgress, usePinned, useCustomTasks } from "../hooks/useLocalStorage";
 import TaskItem from "./TaskItem";
 import { useToast } from "./Toast";
@@ -88,14 +88,18 @@ function CategoryBadge({ category }) {
 export default function FocusedTasks({ category }) {
   const [progress, setTask] = useProgress();
   const [pinned, togglePin] = usePinned();
-  const { customTasks, editTask } = useCustomTasks();
+  const { customTasks, hiddenTasks, taskEdits, editTask } = useCustomTasks();
   const toast = useToast();
   // On the home view no category is passed → pins are aggregated, so label them.
   const showCategory = !category;
 
   // Only show pinned tasks that aren't completed yet — once a focused task is
   // done it leaves this section and rejoins the main list (at the top).
-  const scope = category ? [category] : CATEGORIES;
+  // The category page passes an already-merged category; on home we must merge
+  // custom tasks, deletions, and edits ourselves so UI-added pins show up too.
+  const scope = category
+    ? [category]
+    : CATEGORIES.map((c) => mergeCategoryTasks(c, { customTasks, hiddenTasks, taskEdits }));
   const focus = [];
   for (const c of scope) {
     for (const t of c.tasks) {
