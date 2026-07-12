@@ -146,7 +146,7 @@ export default function FocusedTasks({ category }) {
       </h2>
       <ul className="flex flex-col gap-2.5">
         {focusItems.map(({ key, parentTask, item, category: cat, value }) => (
-          <li key={key} className="flex flex-col gap-1.5">
+          <li key={key} id={`task-${key}`} className="flex flex-col gap-1.5">
             {showCategory && <CategoryBadge category={cat} />}
             <div className="relative">
               <FocusedItem
@@ -157,10 +157,10 @@ export default function FocusedTasks({ category }) {
                 setTask={setTask}
                 onUnpin={() => togglePin(key)}
               />
-              {/* On home, the row navigates to its category instead of toggling */}
+              {/* On home, the row navigates to its category and highlights this item */}
               {showCategory && (
                 <Link
-                  to={`/${cat.id}`}
+                  to={`/${cat.id}?highlight=${encodeURIComponent(key)}`}
                   aria-label={`Go to ${cat.name}`}
                   className="absolute inset-0 rounded-lg"
                 />
@@ -192,10 +192,10 @@ export default function FocusedTasks({ category }) {
                         }
                   }
                 />
-                {/* On home, the row navigates to its category instead of toggling */}
+                {/* On home, the row navigates to its category and highlights this task */}
                 {showCategory && (
                   <Link
-                    to={`/${cat.id}`}
+                    to={`/${cat.id}?highlight=${encodeURIComponent(task.id)}`}
                     aria-label={`Go to ${cat.name}`}
                     className="absolute inset-0 rounded-lg"
                   />

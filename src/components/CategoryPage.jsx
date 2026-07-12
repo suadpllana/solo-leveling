@@ -19,9 +19,10 @@ export default function CategoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const highlightId = searchParams.get("highlight");
 
-  // When arriving from the Stats page with ?highlight=<taskId>, scroll that
-  // task into view and pulse it for ~2.5s, then drop the query param so a
-  // refresh doesn't replay the animation.
+  // When arriving with ?highlight=<taskId> (from the Stats page or a Focused
+  // Task on home; pinned items use "taskId::itemId"), scroll that task into
+  // view and pulse it for ~2.5s, then drop the query param so a refresh
+  // doesn't replay the animation.
   useEffect(() => {
     if (!highlightId) return;
     let cleared = false;
@@ -205,7 +206,7 @@ export default function CategoryPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={`Search ${category.name} tasks…`}
-          className="w-full bg-panel/60 border border-edge rounded-lg pl-9 pr-9 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-white/25 transition-colors [font-size:16px]"
+          className="w-full bg-panel/60 border border-edge rounded-lg pl-9 pr-9 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-white/25 transition-colors"
         />
         {searching && (
           <button

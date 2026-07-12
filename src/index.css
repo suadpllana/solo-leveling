@@ -27,6 +27,17 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Mobile Safari auto-zooms the page when a focused input's font-size is under
+   16px. Force 16px on touch devices so tapping any input never zooms in
+   (!important so it beats Tailwind text-sm/text-xs utilities). */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }
