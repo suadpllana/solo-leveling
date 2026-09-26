@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronDown, Crosshair, Info, Plus, Repeat, ScrollText, Search, Trophy, X } from "lucide-react";
+import { Crosshair, Info, Plus, Repeat, ScrollText, Search, Trophy, X } from "lucide-react";
 import { CATEGORY_MAP, isTaskComplete } from "../data/tasks";
 import { useGame } from "../hooks/game-context";
-import { useCustomTasks, useLocalStorage, usePinned, useProgress } from "../hooks/useLocalStorage";
+import { useCustomTasks, usePinned, useProgress } from "../hooks/useLocalStorage";
 import { useToast } from "../components/feedback/toast-context";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import Panel, { PanelTitle } from "../components/ui/Panel";
@@ -74,16 +74,6 @@ function CategoryPage({ id }) {
     () => new Set(category.tasks.filter((t) => !t.daily && isTaskComplete(t, progress[t.id])).map((t) => t.id))
   );
   const [focusFinished] = useState(() => doneKeys(pinned, progress, [path]));
-  // The Cleared section remembers whether you keep it open. Arriving via a
-  // deep link to a cleared quest (e.g. from Stats) opens it so the
-  // highlighted row is actually on screen.
-  const [clearedPref, setClearedPref] = useLocalStorage("ascend-show-cleared", false);
-  const [clearedVisible, setClearedVisible] = useState(() => clearedPref || clearedOnArrival.has(highlightId));
-  const clearedOpen = clearedVisible || filter === "cleared";
-  const toggleCleared = () => {
-    setClearedVisible(!clearedVisible);
-    setClearedPref(!clearedVisible);
-  };
 
   // Deep link (?highlight=<taskId>): scroll the row into view, pulse it, then
   // drop the param so a refresh doesn't replay it.
@@ -337,28 +327,13 @@ function CategoryPage({ id }) {
               id="cleared-title"
               icon={Trophy}
               title="Cleared"
-              right={
-                filter === "all" && clearedQuests.length > 0 ? (
-                  <button
-                    type="button"
-                    onClick={toggleCleared}
-                    aria-expanded={clearedOpen}
-                    className="flex items-center gap-1.5 h-8 px-2.5 -mr-1 rounded-lg text-xs font-medium text-ink-3 hover:text-ink hover:bg-white/[0.05] transition-colors"
-                  >
-                    <span className="font-mono tabular">{clearedQuests.length}</span>
-                    {clearedOpen ? "Hide" : "Show"}
-                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${clearedOpen ? "rotate-180" : ""}`} aria-hidden="true" />
-                  </button>
-                ) : (
-                  <span className="font-mono text-xs text-ink-3">{clearedQuests.length}</span>
-                )
-              }
+              right={<span className="font-mono text-xs text-ink-3">{clearedQuests.length}</span>}
             >
               {clearedQuests.length === 0 ? (
                 <EmptyNote>Nothing cleared yet — your first victory is waiting.</EmptyNote>
-              ) : clearedOpen ? (
+              ) : (
                 <ul className="flex flex-col gap-2">{clearedQuests.map((t) => renderTask(t))}</ul>
-              ) : null}
+              )}
             </Section>
           )}
         </div>
