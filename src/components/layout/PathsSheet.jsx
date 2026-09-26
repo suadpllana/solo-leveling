@@ -29,7 +29,10 @@ export default function PathsSheet({ open, onClose }) {
                 <span className="mt-1.5 block h-1.5 rounded-full bg-white/[0.07] overflow-hidden">
                   <span className="block h-full rounded-full bg-(--accent)" style={{ width: `${p.journey.pct}%` }} />
                 </span>
-                <span className="mt-1.5 flex items-center gap-3 text-xs text-ink-3">
+                <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-ink-3">
+                  <span>
+                    {p.journey.done}/{p.journey.total} steps
+                  </span>
                   <span>
                     {p.cleared}/{p.quests} quests
                   </span>

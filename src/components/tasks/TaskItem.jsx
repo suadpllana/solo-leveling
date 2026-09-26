@@ -7,6 +7,7 @@ import {
   ChevronDown,
   CircleDollarSign,
   Flame,
+  ListChecks,
   Pencil,
   Pin,
   PinOff,
@@ -22,7 +23,7 @@ import { useToast } from "../feedback/toast-context";
 import CheckMark from "../ui/CheckMark";
 import Menu from "../ui/Menu";
 import PathIcon from "../ui/PathIcon";
-import { ProgressBar } from "../ui/Progress";
+import { ProgressRing } from "../ui/Progress";
 import ConfirmModal from "../ConfirmModal";
 import TaskFormModal from "./TaskFormModal";
 
@@ -163,13 +164,24 @@ export default function TaskItem({
     <div
       style={{ "--accent": accent }}
       className={`group rounded-2xl border transition-colors duration-200 ${
-        done
+        isChecklist
+          ? `relative overflow-hidden bg-gradient-to-r from-(--accent)/[0.07] via-panel/55 to-panel/55 ${
+              done ? "border-(--accent)/35" : "border-(--accent)/20 hover:border-(--accent)/40"
+            }`
+          : done
           ? noProfit
             ? "border-edge/70 bg-panel/35"
             : "border-(--accent)/25 bg-(--accent)/[0.04]"
           : "border-edge bg-panel/55 hover:border-edge-hi"
       }`}
     >
+      {isChecklist && (
+        <span
+          aria-hidden="true"
+          className="absolute left-0 inset-y-0 w-[3px] bg-(--accent) shadow-[0_0_12px_var(--accent)]"
+          style={{ opacity: done ? 0.9 : 0.55 }}
+        />
+      )}
       <div className="flex items-center gap-1 pl-3 pr-1.5">
         <button
           type="button"
@@ -181,7 +193,17 @@ export default function TaskItem({
           className="flex-1 min-w-0 flex items-center gap-3 py-3 text-left min-h-[56px]"
         >
           <span ref={checkRef} className="shrink-0">
-            <CheckMark state={noProfit ? "muted" : done ? "on" : "off"} />
+            {isChecklist ? (
+              <ProgressRing value={goal ? count / goal : 0} size={34} stroke={3.5} glow={done}>
+                {done ? (
+                  <Check className="w-4 h-4 text-(--accent)" strokeWidth={3} aria-hidden="true" />
+                ) : (
+                  <ListChecks className="w-4 h-4 text-(--accent)/80" aria-hidden="true" />
+                )}
+              </ProgressRing>
+            ) : (
+              <CheckMark state={noProfit ? "muted" : done ? "on" : "off"} />
+            )}
           </span>
           <span className="min-w-0 flex-1">
             <span
@@ -191,16 +213,27 @@ export default function TaskItem({
             >
               {task.name}
             </span>
+            {isChecklist && (
+              <span className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
+                <ListChecks className="w-3 h-3" aria-hidden="true" />
+                Checklist · {done ? "all" : count} of {goal} item{goal === 1 ? "" : "s"}
+                {done ? " done" : ""}
+              </span>
+            )}
             <Meta task={task} streak={streak} noProfit={noProfit} path={path} done={done} showDaily={showDaily} />
           </span>
           {isChecklist && (
-            <span className="shrink-0 flex items-center gap-1.5 pl-1">
-              <span className="font-mono text-sm font-bold tabular">
+            <span
+              className={`shrink-0 flex items-center gap-1 h-8 pl-2.5 pr-1.5 rounded-full border transition-colors ${
+                expanded ? "border-(--accent)/50 bg-(--accent)/15" : "border-(--accent)/25 bg-(--accent)/[0.06]"
+              }`}
+            >
+              <span className="font-mono text-[13px] font-bold tabular">
                 <span className={done ? "text-(--accent)" : "text-ink"}>{count}</span>
                 <span className="text-ink-3">/{goal}</span>
               </span>
               <ChevronDown
-                className={`w-4 h-4 text-ink-3 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+                className={`w-4 h-4 text-ink-2 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
                 aria-hidden="true"
               />
             </span>
@@ -212,11 +245,7 @@ export default function TaskItem({
         <Menu items={menuItems} label={`Actions for ${task.name}`} />
       </div>
 
-      {isChecklist && (
-        <div className="px-3.5 pb-3 -mt-1">
-          <ProgressBar value={goal ? count / goal : 0} height={4} label={`${task.name} progress`} />
-        </div>
-      )}
+      {isChecklist && <SegmentBar count={count} goal={goal} label={`${task.name} progress`} />}
 
       {expanded && <ChecklistBody task={task} value={value} accent={accent} />}
 
@@ -242,6 +271,41 @@ export default function TaskItem({
           onDelete();
         }}
       />
+    </div>
+  );
+}
+
+// Checklist progress: one segment per item (a continuous bar past 24 items).
+function SegmentBar({ count, goal, label }) {
+  const segments = goal <= 24;
+  return (
+    <div
+      className="px-3.5 pb-3 -mt-1"
+      role="progressbar"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={goal}
+      aria-valuenow={count}
+    >
+      {segments ? (
+        <div className="flex gap-[3px]">
+          {Array.from({ length: goal }, (_, i) => (
+            <span
+              key={i}
+              className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
+                i < count ? "bg-(--accent) shadow-[0_0_6px_var(--accent)]" : "bg-white/[0.08]"
+              }`}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
+          <div
+            className="h-full rounded-full bg-(--accent) shadow-[0_0_8px_var(--accent)] transition-[width] duration-500"
+            style={{ width: `${(count / goal) * 100}%` }}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -302,7 +366,7 @@ function ChecklistBody({ task, value, accent }) {
       {items.length === 0 && (
         <p className="px-2 py-3 text-sm text-ink-3">No items yet — add the first one below.</p>
       )}
-      <ul className="flex flex-col">
+      <ul className="flex flex-col ml-3 pl-1.5 border-l border-(--accent)/20">
         {items.map((it) => {
           const itemDone = !!checked[it.id];
           const key = itemPinKey(task.id, it.id);
