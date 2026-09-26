@@ -1,46 +1,24 @@
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
-import { useScrollLock } from "../hooks/useScrollLock";
+import { useState } from "react";
+import { Cloud, Copy, RefreshCw } from "lucide-react";
+import Modal from "./ui/Modal";
 import { useSync } from "../hooks/useLocalStorage";
 import { generateSyncCode, normalizeSyncCode } from "../hooks/useRemoteSync";
-import { useToast } from "./Toast";
-
-const STATUS_LABEL = {
-  off: "Off",
-  syncing: "Syncing...",
-  synced: "Synced",
-  error: "Offline - will retry",
-};
-
-const STATUS_COLOR = {
-  off: "#64748b",
-  syncing: "#22d3ee",
-  synced: "#34d399",
-  error: "#f87171",
-};
+import { useToast } from "./feedback/toast-context";
+import { SYNC_STATUS } from "./layout/sync-status";
 
 // Settings dialog for cross-device sync. One device creates a sync code, the
 // other enters it; from then on both read/write the same server document.
-// Mounted only while open (see Header), so input state starts fresh each time.
+// Mounted only while open, so input state starts fresh each time.
 export default function SyncModal({ onClose }) {
   const { key, setKey, status, lastSyncedAt, syncNow } = useSync();
   const toast = useToast();
   const [codeInput, setCodeInput] = useState("");
   const [inputError, setInputError] = useState(null);
-
-  useScrollLock(true);
-
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  const s = SYNC_STATUS[status] ?? SYNC_STATUS.off;
 
   const createCode = () => {
     setKey(generateSyncCode());
-    toast("Sync enabled - enter this code on your other device");
+    toast("Sync enabled — enter this code on your other device");
   };
 
   const connect = () => {
@@ -50,7 +28,7 @@ export default function SyncModal({ onClose }) {
       return;
     }
     setKey(code);
-    toast("Connected - pulling progress...");
+    toast("Connected — pulling progress…");
   };
 
   const copyCode = async () => {
@@ -58,164 +36,148 @@ export default function SyncModal({ onClose }) {
       await navigator.clipboard.writeText(key);
       toast("Sync code copied");
     } catch {
-      toast("Couldn't copy - select the code manually", "error");
+      toast("Couldn't copy — select the code manually", "error");
     }
   };
 
   const disconnect = () => {
     setKey(null);
-    toast("Sync turned off - data stays on this device");
+    toast("Sync turned off — data stays on this device");
   };
 
-  return createPortal(
-    <div
-      className="fixed inset-0 z-[100] grid justify-items-center items-start p-4 pt-[20vh]"
-      role="dialog"
-      aria-modal="true"
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      icon={Cloud}
+      accent="#4da3ff"
+      title="Cross-device sync"
+      description={
+        key
+          ? "Progress on this device syncs with every device using this code."
+          : "Keep your phone and PC on the same progress."
+      }
     >
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-
-      <div className="relative w-full max-w-sm rounded-xl border border-edge bg-panel p-5 shadow-2xl animate-rise">
-        <div className="flex items-start gap-3">
-          <div className="shrink-0 grid place-items-center w-10 h-10 rounded-lg bg-cyan-500/15 text-cyan-400">
-            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z" />
-            </svg>
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-base font-bold text-slate-100">Cross-device sync</h3>
-            <p className="mt-1 text-sm text-slate-400 leading-snug">
-              {key
-                ? "Progress on this device syncs with every device using this code."
-                : "Sync your progress between your phone and PC."}
-            </p>
-          </div>
-        </div>
-
-        {key ? (
-          <div className="mt-4 space-y-3">
-            {/* current code */}
+      {key ? (
+        <div className="space-y-4">
+          <div>
+            <p className="sys-title text-[11px] mb-2">Your sync code</p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 min-w-0 truncate rounded-lg border border-edge bg-void/60 px-3 py-2.5 font-mono text-sm text-cyan-300 tracking-wider select-all">
+              <code className="flex-1 min-w-0 truncate rounded-xl border border-edge bg-void/70 px-3.5 h-12 flex items-center font-mono text-base text-system-hi tracking-wider select-all">
                 {key}
               </code>
               <button
                 type="button"
                 onClick={copyCode}
-                className="shrink-0 px-3 py-2.5 rounded-lg border border-edge text-sm font-medium text-slate-200 hover:bg-white/5 transition-colors"
+                className="shrink-0 inline-flex items-center gap-2 h-12 px-4 rounded-xl border border-edge-hi/70 text-sm font-semibold text-ink hover:bg-white/[0.06] transition-colors"
               >
+                <Copy className="w-4 h-4" aria-hidden="true" />
                 Copy
               </button>
             </div>
+          </div>
 
-            {/* status row */}
-            <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-2 text-slate-400">
-                <span
-                  className="inline-block w-2 h-2 rounded-full"
-                  style={{ background: STATUS_COLOR[status] }}
-                />
-                {STATUS_LABEL[status]}
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-edge bg-abyss/60 px-3.5 py-3">
+            <span className="flex items-center gap-2.5 text-sm text-ink-2 min-w-0">
+              <span
+                className={`inline-block w-2.5 h-2.5 rounded-full shrink-0 ${status === "syncing" ? "animate-pulse" : ""}`}
+                style={{ background: s.color, boxShadow: `0 0 10px ${s.color}` }}
+              />
+              <span className="truncate">
+                {s.label}
                 {status === "synced" && lastSyncedAt && (
-                  <span className="text-slate-500">
-                    {" - "}
+                  <span className="text-ink-3">
+                    {" · "}
                     {new Date(lastSyncedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </span>
                 )}
               </span>
-              <button
-                type="button"
-                onClick={syncNow}
-                className="px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider text-cyan-300 hover:bg-cyan-400/10 transition-colors"
-              >
-                Sync now
-              </button>
-            </div>
-
-            <p className="text-xs text-slate-500 leading-snug">
-              On your other device, open this dialog and enter the code above.
-              Keep it private - anyone with the code can see and change your progress.
-            </p>
-
-            <div className="flex items-center justify-between pt-1">
-              <button
-                type="button"
-                onClick={disconnect}
-                className="px-3 py-2 rounded-md text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
-              >
-                Turn off sync
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-white/5 transition-colors"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="mt-4 space-y-4">
+            </span>
             <button
               type="button"
-              onClick={createCode}
-              className="w-full px-4 py-2.5 rounded-lg text-sm font-bold text-black bg-cyan-400 hover:bg-cyan-300 transition-colors"
+              onClick={syncNow}
+              className="shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-lg font-display text-xs font-bold uppercase tracking-wider text-system hover:bg-system/10 transition-colors"
             >
-              Create a new sync code
+              <RefreshCw className={`w-3.5 h-3.5 ${status === "syncing" ? "animate-spin" : ""}`} aria-hidden="true" />
+              Sync now
             </button>
+          </div>
 
-            <div className="flex items-center gap-3">
-              <span className="flex-1 h-px bg-edge" />
-              <span className="text-xs uppercase tracking-wider text-slate-500">or</span>
-              <span className="flex-1 h-px bg-edge" />
-            </div>
+          <p className="text-xs text-ink-3 leading-relaxed">
+            On your other device, open this dialog and enter the code above. Keep it private —
+            anyone with the code can see and change your progress.
+          </p>
 
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                Enter a code from another device
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  value={codeInput}
-                  onChange={(e) => {
-                    setCodeInput(e.target.value);
-                    setInputError(null);
-                  }}
-                  onKeyDown={(e) => e.key === "Enter" && connect()}
-                  placeholder="abcd-efgh-jkmn"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  className="flex-1 min-w-0 rounded-lg border border-edge bg-void/60 px-3 py-2.5 font-mono text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-cyan-400/60"
-                />
-                <button
-                  type="button"
-                  onClick={connect}
-                  disabled={!codeInput.trim()}
-                  className="shrink-0 px-4 py-2.5 rounded-lg text-sm font-bold text-cyan-300 border border-cyan-400/40 hover:bg-cyan-400/10 disabled:opacity-40 disabled:pointer-events-none transition-colors"
-                >
-                  Connect
-                </button>
-              </div>
-              {inputError && <p className="mt-1.5 text-xs text-red-400">{inputError}</p>}
-              <p className="mt-2 text-xs text-slate-500 leading-snug">
-                Connecting pulls the progress stored under that code onto this device.
-              </p>
-            </div>
+          <div className="flex items-center justify-between pt-1">
+            <button
+              type="button"
+              onClick={disconnect}
+              className="h-10 px-3 rounded-lg text-sm font-semibold text-red-300 hover:bg-red-500/10 transition-colors"
+            >
+              Turn off sync
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="h-10 px-5 rounded-xl font-display text-sm font-bold tracking-wide bg-system text-void hover:brightness-110 transition"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={createCode}
+            className="w-full h-12 rounded-xl font-display text-[15px] font-bold tracking-wide bg-system text-void shadow-[0_0_24px_rgba(77,163,255,0.35)] hover:brightness-110 transition"
+          >
+            Create a new sync code
+          </button>
 
-            <div className="flex justify-end">
+          <div className="flex items-center gap-3">
+            <span className="flex-1 h-px bg-edge" />
+            <span className="sys-title text-[11px] text-ink-3">or</span>
+            <span className="flex-1 h-px bg-edge" />
+          </div>
+
+          <div>
+            <label htmlFor="sync-code" className="sys-title text-[11px] block mb-2">
+              Enter a code from another device
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                id="sync-code"
+                data-autofocus
+                value={codeInput}
+                onChange={(e) => {
+                  setCodeInput(e.target.value);
+                  setInputError(null);
+                }}
+                onKeyDown={(e) => e.key === "Enter" && connect()}
+                placeholder="abcd-efgh-jkmn"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                aria-invalid={!!inputError}
+                className="flex-1 min-w-0 h-12 rounded-xl border border-edge bg-void/70 px-3.5 font-mono text-sm text-ink placeholder:text-ink-3/70 focus:outline-none focus:border-system/60 transition-colors"
+              />
               <button
                 type="button"
-                onClick={onClose}
-                className="px-4 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-white/5 transition-colors"
+                onClick={connect}
+                disabled={!codeInput.trim()}
+                className="shrink-0 h-12 px-4 rounded-xl font-display text-sm font-bold text-system border border-system/40 hover:bg-system/10 disabled:opacity-40 disabled:pointer-events-none transition-colors"
               >
-                Close
+                Connect
               </button>
             </div>
+            {inputError && <p className="mt-2 text-xs text-red-300">{inputError}</p>}
+            <p className="mt-2 text-xs text-ink-3 leading-relaxed">
+              Connecting pulls the progress stored under that code onto this device.
+            </p>
           </div>
-        )}
-      </div>
-    </div>,
-    document.body
+        </div>
+      )}
+    </Modal>
   );
 }

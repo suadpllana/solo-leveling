@@ -659,7 +659,13 @@ export function computePace({ totalTasks, totalDone, now = Date.now() }) {
   const timeElapsedFrac = elapsedMs / totalMs; // 0..1
   const expectedDone = Math.round(timeElapsedFrac * totalTasks);
   const expectedPct = Math.round(timeElapsedFrac * 100);
-  const actualPct = totalTasks ? Math.round((totalDone / totalTasks) * 100) : 0;
+  // Floor (not round) so it matches the journey % shown elsewhere and never
+  // reads 100% before everything is actually done.
+  const actualPct = !totalTasks
+    ? 0
+    : totalDone >= totalTasks
+    ? 100
+    : Math.floor((totalDone / totalTasks) * 100);
 
   const remainingTasks = Math.max(0, totalTasks - totalDone);
   // Pace needed from now on to still finish on time.
