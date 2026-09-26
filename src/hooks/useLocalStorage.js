@@ -381,6 +381,7 @@ export function ProgressProvider({ children }) {
         deleteTask,
         editTask,
         completions,
+        lastDailyReset,
         sync: { key: syncKey, setKey: setSyncKey, status: syncStatus, lastSyncedAt, syncNow },
       },
     },
@@ -409,6 +410,12 @@ export function usePinned() {
 // Completion history: { "YYYY-MM-DD": { [taskId]: { name, daily, categoryId } } }
 export function useCompletions() {
   return useAppState().completions;
+}
+
+// The local day (YYYY-MM-DD) daily tasks were last reset on. Until it equals
+// today, daily progress still belongs to a previous day.
+export function useLastDailyReset() {
+  return useAppState().lastDailyReset;
 }
 
 // Cross-device sync: { key, setKey, status, lastSyncedAt, syncNow }.
