@@ -71,11 +71,14 @@ export function taskXp(task, state) {
   return bonus;
 }
 
-// Percent helper that never shows 100% until something is truly finished.
+// Completion percent with one decimal, so every single step moves it (one
+// item out of 137 is 0.7%, which a whole number would hide). Floored so it
+// never reads 100% before everything is done; multiplying before dividing
+// avoids float slips like 29 / 100 * 100 = 28.999…
 export function percent(done, total) {
   if (!total) return 0;
   if (done >= total) return 100;
-  return Math.floor((done / total) * 100);
+  return Math.floor((done * 1000) / total) / 10;
 }
 
 // ── DATES ──

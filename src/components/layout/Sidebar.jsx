@@ -53,6 +53,7 @@ export default function Sidebar() {
             <NavLink
               key={p.id}
               to={`/${p.id}`}
+              title={`${p.journey.done}/${p.journey.total} steps · ${p.cleared}/${p.quests} quests`}
               style={{ "--accent": p.accent }}
               className={({ isActive }) =>
                 `relative flex items-center gap-3 px-3 py-2 rounded-xl transition-colors ${

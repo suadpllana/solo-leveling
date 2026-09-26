@@ -665,7 +665,7 @@ export function computePace({ totalTasks, totalDone, now = Date.now() }) {
     ? 0
     : totalDone >= totalTasks
     ? 100
-    : Math.floor((totalDone / totalTasks) * 100);
+    : Math.floor((totalDone * 100) / totalTasks);
 
   const remainingTasks = Math.max(0, totalTasks - totalDone);
   // Pace needed from now on to still finish on time.

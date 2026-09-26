@@ -43,7 +43,7 @@ export default function PacePanel() {
 
       <div className="mt-4 flex items-end justify-between gap-3">
         <div>
-          <span className="font-display text-3xl font-bold text-white tabular leading-none">{p.actualPct}%</span>
+          <span className="font-display text-3xl font-bold text-white leading-none">{journey.pct}%</span>
           <span className="ml-2 text-sm text-ink-3">done</span>
         </div>
         {!p.finished && (
@@ -54,7 +54,7 @@ export default function PacePanel() {
       </div>
 
       <ProgressBar
-        value={p.actualPct / 100}
+        value={journey.pct / 100}
         marker={p.finished ? undefined : p.expectedPct / 100}
         markerLabel={`Expected ~${p.expectedPct}% by now`}
         height={8}
