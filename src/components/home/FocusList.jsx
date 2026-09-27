@@ -11,7 +11,13 @@ import { collectFocus, doneKeys } from "./focus";
 // (rows get a path chip); on a path page pass `pathIds` to scope it,
 // `manage` to allow editing / deleting from here, and the page's own
 // `finished` snapshot so both agree on what's listed.
-export default function FocusList({ pathIds, variant = "panel", manage = false, finished: finishedProp }) {
+export default function FocusList({
+  pathIds,
+  variant = "panel",
+  manage = false,
+  finished: finishedProp,
+  taskOpenProps,
+}) {
   const { paths, habitStreaks } = useGame();
   const [progress] = useProgress();
   const [pinned, togglePin] = usePinned();
@@ -70,6 +76,7 @@ export default function FocusList({ pathIds, variant = "panel", manage = false, 
               path={mixed ? { id: path.id, name: path.category.name } : undefined}
               openable={mixed}
               showDaily
+              {...taskOpenProps?.(task.id)}
               onEdit={
                 manage
                   ? (changes) => {

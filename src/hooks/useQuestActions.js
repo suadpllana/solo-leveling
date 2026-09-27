@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { Ban, Trophy } from "lucide-react";
+import { Ban, RotateCcw, Trophy } from "lucide-react";
 import { isTaskComplete } from "../data/tasks";
 import { taskXp } from "../data/game";
 import { useProgress } from "./useLocalStorage";
@@ -9,7 +9,8 @@ import { useToast } from "../components/feedback/toast-context";
 // Every change to a task's progress from the UI goes through update(), which
 // saves it and plays the matching feedback at the element that was clicked:
 //   • a particle burst + "+XP" float when XP is gained (a quieter "−XP" when lost)
-//   • a "Quest cleared" toast with Undo when a one-time quest is completed
+//   • a "Quest cleared" toast with Undo when a one-time quest is completed, and
+//     a "Quest reopened" one when it's un-cleared (it moves back to Quests)
 //   • a light haptic tick on phones that support it
 // Level-ups and the Daily Quest banner are detected globally by <FxProvider>.
 export function useQuestActions() {
@@ -40,6 +41,8 @@ export function useQuestActions() {
           accent: "#94a3b8",
           action: undo,
         });
+      } else if (!task.daily && wasDone && !nowDone) {
+        toast({ title: "Quest reopened", message: task.name, icon: RotateCcw, accent: "#94a3b8", action: undo });
       }
     },
     [progress, setTask, burst, toast]

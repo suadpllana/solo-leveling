@@ -92,6 +92,7 @@ function Meta({ task, streak, noProfit, path, done, showDaily }) {
 //   openable           — adds "Open in path" to the menu (home)
 //   showDaily          — label daily habits (lists that mix dailies with quests)
 //   streak             — current streak for daily habits
+//   open/onOpenChange  — control a checklist's expanded state from outside
 export default function TaskItem({
   task,
   value,
@@ -106,11 +107,15 @@ export default function TaskItem({
   openable = false,
   showDaily = false,
   forceOpen = false,
+  open: openProp,
+  onOpenChange,
 }) {
   const { update } = useQuestActions();
   const navigate = useNavigate();
   const [dialog, setDialog] = useState(null); // "edit" | "delete" | null
-  const [open, setOpen] = useState(false);
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const toggleOpen = () => (openProp === undefined ? setOpenState(!open) : onOpenChange?.(!open));
   const checkRef = useRef(null);
 
   const isChecklist = task.type === "checklist";
@@ -185,7 +190,7 @@ export default function TaskItem({
       <div className="flex items-center gap-1 pl-3 pr-1.5">
         <button
           type="button"
-          onClick={isChecklist ? () => setOpen((o) => !o) : toggleCheck}
+          onClick={isChecklist ? toggleOpen : toggleCheck}
           role={isChecklist ? undefined : "checkbox"}
           aria-checked={isChecklist ? undefined : done}
           aria-expanded={isChecklist ? expanded : undefined}

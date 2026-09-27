@@ -70,10 +70,19 @@ function CategoryPage({ id }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
-  const [clearedOnArrival] = useState(
-    () => new Set(category.tasks.filter((t) => !t.daily && isTaskComplete(t, progress[t.id])).map((t) => t.id))
-  );
-  const [focusFinished] = useState(() => doneKeys(pinned, progress, [path]));
+  // Expanded checklists, kept here rather than in each row so a checklist
+  // stays open when it moves between sections (e.g. its last item ticked).
+  const [openIds, setOpenIds] = useState(() => new Set());
+  const openProps = (taskId) => ({
+    open: openIds.has(taskId),
+    onOpenChange: (next) =>
+      setOpenIds((prev) => {
+        const ids = new Set(prev);
+        if (next) ids.add(taskId);
+        else ids.delete(taskId);
+        return ids;
+      }),
+  });
 
   // Deep link (?highlight=<taskId>): scroll the row into view, pulse it, then
   // drop the param so a refresh doesn't replay it.
@@ -117,19 +126,19 @@ function CategoryPage({ id }) {
 
   const customIds = new Set((customTasks[id] ?? []).map((t) => t.id));
   const tasks = category.tasks;
-  // Sections are sorted by what was cleared when you arrived: a quest you
-  // clear (or reopen) now stays where it is — showing its new state, one tap
-  // from undo — and moves to its new section on your next visit.
-  const wasCleared = (t) => clearedOnArrival.has(t.id);
+  // Every quest sits in the section matching its current state: clearing one
+  // moves it to Cleared, reopening it moves it straight back to Quests.
+  const isCleared = (t) => !t.daily && isTaskComplete(t, progress[t.id]);
+  const focusFinished = doneKeys(pinned, progress, [path]);
   const inFocus = (t) => pinned[t.id] && !focusFinished.has(t.id);
 
   const focusCount = collectFocus([path], pinned, progress, focusFinished).count;
   const dailyTasks = tasks.filter((t) => t.daily && !inFocus(t));
   const activeQuests = tasks
-    .filter((t) => !t.daily && !wasCleared(t) && !pinned[t.id])
+    .filter((t) => !t.daily && !isCleared(t) && !pinned[t.id])
     .sort((a, b) => (a.type === "check" ? 0 : 1) - (b.type === "check" ? 0 : 1));
   const clearedQuests = tasks
-    .filter((t) => !t.daily && wasCleared(t))
+    .filter(isCleared)
     .sort((a, b) => (progress[a.id] === "no-profit" ? 1 : 0) - (progress[b.id] === "no-profit" ? 1 : 0));
 
   const q = query.trim().toLowerCase();
@@ -149,6 +158,7 @@ function CategoryPage({ id }) {
         categoryId={id}
         pinned={!!pinned[task.id]}
         streak={game.habitStreaks[task.id] ?? 0}
+        {...openProps(task.id)}
         onTogglePin={() => togglePin(task.id)}
         onDelete={() => {
           deleteTask(id, task.id, customIds.has(task.id));
@@ -291,7 +301,7 @@ function CategoryPage({ id }) {
         <div className="flex flex-col gap-7 animate-rise [animation-delay:120ms]">
           {show("active") && focusCount > 0 && (
             <Section id="focus-title" icon={Crosshair} title="Focus" right={<span className="font-mono text-xs text-ink-3">{focusCount}</span>}>
-              <FocusList pathIds={[id]} variant="list" manage finished={focusFinished} />
+              <FocusList pathIds={[id]} variant="list" manage finished={focusFinished} taskOpenProps={openProps} />
             </Section>
           )}
 
