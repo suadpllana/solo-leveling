@@ -1,13 +1,7 @@
-import { Brain, Coins, Compass, Gift, Swords, createLucideIcon } from "lucide-react";
-
-// Lucide's own "cross" is a symmetric plus; draw a Latin cross in the same
-// stroke style for the Religion path.
-const LatinCross = createLucideIcon("latin-cross", [
-  ["path", { d: "M10 2.5h4V7h4.5v4H14v10.5h-4V11H5.5V7H10z", key: "latin-cross" }],
-]);
+import { Brain, Coins, Compass, Gift, Sparkles, Swords } from "lucide-react";
 
 const ICONS = {
-  religion: LatinCross,
+  religion: Sparkles,
   money: Coins,
   mind: Brain,
   body: Swords,

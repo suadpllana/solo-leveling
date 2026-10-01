@@ -20,8 +20,8 @@ export const START_DATE = "2026-06-22T00:00:00";
 export const CATEGORIES = [
   {
     id: "religion",
-    name: "Religion",
-    icon: "✝️",
+    name: "Spirituality",
+    icon: "✨",
     accent: "#fbbf24",
     tagline: "Forge the spirit",
     tasks: [
