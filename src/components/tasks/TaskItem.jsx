@@ -6,9 +6,11 @@ import {
   Check,
   ChevronDown,
   CircleDollarSign,
+  Copy,
   Flame,
   ListChecks,
   Pencil,
+  NotebookPen,
   Pin,
   PinOff,
   Plus,
@@ -17,7 +19,8 @@ import {
   X,
 } from "lucide-react";
 import { checklistCount, checklistGoal, isTaskComplete } from "../../data/tasks";
-import { usePinned, useProgress } from "../../hooks/useLocalStorage";
+import { useNotes, usePinned, useProgress } from "../../hooks/useLocalStorage";
+import { useCopy } from "../../hooks/useCopy";
 import { useQuestActions } from "../../hooks/useQuestActions";
 import { useToast } from "../feedback/toast-context";
 import CheckMark from "../ui/CheckMark";
@@ -25,11 +28,21 @@ import Menu from "../ui/Menu";
 import PathIcon from "../ui/PathIcon";
 import { ProgressRing } from "../ui/Progress";
 import ConfirmModal from "../ConfirmModal";
+import NoteModal, { NotePreview } from "./NoteModal";
 import TaskFormModal from "./TaskFormModal";
 
 // Pin key for a single checklist item (so one book can sit in Focus without
 // pinning the whole "Read books" quest).
+// Notes on checklist items use the same key.
 const itemPinKey = (taskId, itemId) => `${taskId}::${itemId}`;
+
+// "Add note" / "Edit note" and "Copy title" — shared by every row's menu.
+function noteMenuItems({ note, onNote, onCopy }) {
+  return [
+    { label: note ? "Edit note" : "Add note", icon: NotebookPen, onSelect: onNote },
+    { label: "Copy title", icon: Copy, onSelect: onCopy },
+  ];
+}
 
 // Money quests cycle: open → cleared with profit → cleared, no profit → open.
 function nextMoneyState(value) {
@@ -109,7 +122,9 @@ export default function TaskItem({
 }) {
   const { update } = useQuestActions();
   const navigate = useNavigate();
-  const [dialog, setDialog] = useState(null); // "edit" | "delete" | null
+  const [notes, setNote] = useNotes();
+  const copy = useCopy();
+  const [dialog, setDialog] = useState(null); // "edit" | "delete" | "note" | null
   const [open, setOpen] = useState(false);
   const checkRef = useRef(null);
 
@@ -120,6 +135,7 @@ export default function TaskItem({
   const isMoney = categoryId === "money";
   const noProfit = value === "no-profit";
   const expanded = isChecklist && (open || forceOpen);
+  const note = notes[task.id] ?? "";
 
   const menuItems = [
     {
@@ -146,6 +162,7 @@ export default function TaskItem({
       onSelect: () => navigate(`/${categoryId}?highlight=${encodeURIComponent(task.id)}`),
       hidden: !openable,
     },
+    ...noteMenuItems({ note, onNote: () => setDialog("note"), onCopy: () => copy(task.name, "Title copied") }),
     { label: "Edit quest", icon: Pencil, onSelect: () => setDialog("edit"), hidden: !onEdit },
     { label: "Delete quest", icon: Trash2, onSelect: () => setDialog("delete"), danger: true, hidden: !onDelete },
   ];
@@ -247,8 +264,26 @@ export default function TaskItem({
 
       {isChecklist && <SegmentBar count={count} goal={goal} label={`${task.name} progress`} />}
 
+      {note && (
+        <div className={`px-3 pb-3 ${isChecklist ? "" : "-mt-1"}`}>
+          <NotePreview text={note} onOpen={() => setDialog("note")} />
+        </div>
+      )}
+
       {expanded && <ChecklistBody task={task} value={value} accent={accent} />}
 
+      {dialog === "note" && (
+        <NoteModal
+          title={task.name}
+          note={note}
+          accent={accent}
+          onClose={() => setDialog(null)}
+          onSave={(text) => {
+            setDialog(null);
+            setNote(task.id, text);
+          }}
+        />
+      )}
       {dialog === "edit" && (
         <TaskFormModal
           mode="edit"
@@ -315,8 +350,11 @@ function ChecklistBody({ task, value, accent }) {
   const { update } = useQuestActions();
   const [, setTask] = useProgress();
   const [pins, togglePin] = usePinned();
+  const [notes, setNote] = useNotes();
+  const copy = useCopy();
   const toast = useToast();
   const [draft, setDraft] = useState("");
+  const [noteItem, setNoteItem] = useState(null); // item whose note is open
   const [editingId, setEditingId] = useState(null);
   const [editDraft, setEditDraft] = useState("");
 
@@ -370,6 +408,7 @@ function ChecklistBody({ task, value, accent }) {
         {items.map((it) => {
           const itemDone = !!checked[it.id];
           const key = itemPinKey(task.id, it.id);
+          const itemNote = notes[key] ?? "";
 
           if (editingId === it.id) {
             return (
@@ -408,48 +447,60 @@ function ChecklistBody({ task, value, accent }) {
           }
 
           return (
-            <li key={it.id} className="flex items-center gap-1 rounded-xl hover:bg-white/[0.03] transition-colors">
-              <button
-                type="button"
-                role="checkbox"
-                aria-checked={itemDone}
-                onClick={(e) => toggleItem(it.id, e.currentTarget.firstElementChild)}
-                className="flex-1 min-w-0 flex items-start gap-3 px-2 py-2.5 text-left"
-              >
-                <span className="shrink-0 pt-px">
-                  <CheckMark state={itemDone ? "on" : "off"} size={20} />
-                </span>
-                <span
-                  className={`flex-1 text-sm leading-snug break-words ${
-                    itemDone ? "text-ink-3 line-through decoration-ink-3/50" : "text-ink-2"
-                  }`}
+            <li key={it.id} className="rounded-xl hover:bg-white/[0.03] transition-colors">
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={itemDone}
+                  onClick={(e) => toggleItem(it.id, e.currentTarget.firstElementChild)}
+                  className="flex-1 min-w-0 flex items-start gap-3 px-2 py-2.5 text-left"
                 >
-                  {it.name}
-                </span>
-              </button>
-              {pins[key] && !itemDone && (
-                <Pin className="w-3.5 h-3.5 text-(--accent) shrink-0 rotate-45" aria-label="Pinned" />
-              )}
-              <Menu
-                label={`Actions for ${it.name}`}
-                items={[
-                  {
-                    label: pins[key] ? "Unpin from focus" : "Pin to focus",
-                    icon: pins[key] ? PinOff : Pin,
-                    onSelect: () => togglePin(key),
-                    hidden: itemDone && !pins[key],
-                  },
-                  {
-                    label: "Rename",
-                    icon: Pencil,
-                    onSelect: () => {
-                      setEditingId(it.id);
-                      setEditDraft(it.name);
+                  <span className="shrink-0 pt-px">
+                    <CheckMark state={itemDone ? "on" : "off"} size={20} />
+                  </span>
+                  <span
+                    className={`flex-1 text-sm leading-snug break-words ${
+                      itemDone ? "text-ink-3 line-through decoration-ink-3/50" : "text-ink-2"
+                    }`}
+                  >
+                    {it.name}
+                  </span>
+                </button>
+                {pins[key] && !itemDone && (
+                  <Pin className="w-3.5 h-3.5 text-(--accent) shrink-0 rotate-45" aria-label="Pinned" />
+                )}
+                <Menu
+                  label={`Actions for ${it.name}`}
+                  items={[
+                    {
+                      label: pins[key] ? "Unpin from focus" : "Pin to focus",
+                      icon: pins[key] ? PinOff : Pin,
+                      onSelect: () => togglePin(key),
+                      hidden: itemDone && !pins[key],
                     },
-                  },
-                  { label: "Remove", icon: Trash2, danger: true, onSelect: () => removeItem(it) },
-                ]}
-              />
+                    ...noteMenuItems({
+                      note: itemNote,
+                      onNote: () => setNoteItem(it),
+                      onCopy: () => copy(it.name, "Title copied"),
+                    }),
+                    {
+                      label: "Rename",
+                      icon: Pencil,
+                      onSelect: () => {
+                        setEditingId(it.id);
+                        setEditDraft(it.name);
+                      },
+                    },
+                    { label: "Remove", icon: Trash2, danger: true, onSelect: () => removeItem(it) },
+                  ]}
+                />
+              </div>
+              {itemNote && (
+                <div className="pl-10 pr-2 pb-2">
+                  <NotePreview text={itemNote} onOpen={() => setNoteItem(it)} />
+                </div>
+              )}
             </li>
           );
         })}
@@ -473,6 +524,20 @@ function ChecklistBody({ task, value, accent }) {
           <Plus className="w-5 h-5" strokeWidth={2.5} />
         </button>
       </form>
+
+      {noteItem && (
+        <NoteModal
+          title={noteItem.name}
+          context={`from ${task.name}`}
+          note={notes[itemPinKey(task.id, noteItem.id)] ?? ""}
+          accent={accent}
+          onClose={() => setNoteItem(null)}
+          onSave={(text) => {
+            setNote(itemPinKey(task.id, noteItem.id), text);
+            setNoteItem(null);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -481,9 +546,14 @@ function ChecklistBody({ task, value, accent }) {
 export function FocusedItem({ parentTask, item, value, accent, categoryId, path, openable = false, onUnpin }) {
   const { update } = useQuestActions();
   const navigate = useNavigate();
+  const [notes, setNote] = useNotes();
+  const copy = useCopy();
+  const [noteOpen, setNoteOpen] = useState(false);
   const checkRef = useRef(null);
   const checked = value?.checked ?? {};
   const done = !!checked[item.id];
+  const noteKey = itemPinKey(parentTask.id, item.id);
+  const note = notes[noteKey] ?? "";
 
   const toggle = () =>
     update(
@@ -495,45 +565,66 @@ export function FocusedItem({ parentTask, item, value, accent, categoryId, path,
   return (
     <div
       style={{ "--accent": accent }}
-      className="rounded-2xl border border-edge bg-panel/55 hover:border-edge-hi transition-colors flex items-center gap-1 pl-3 pr-1.5"
+      className="rounded-2xl border border-edge bg-panel/55 hover:border-edge-hi transition-colors"
     >
-      <button
-        type="button"
-        role="checkbox"
-        aria-checked={done}
-        onClick={toggle}
-        className="flex-1 min-w-0 flex items-center gap-3 py-3 text-left min-h-[56px]"
-      >
-        <span ref={checkRef} className="shrink-0">
-          <CheckMark state={done ? "on" : "off"} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[15px] font-medium leading-snug text-ink break-words">{item.name}</span>
-          <span className="mt-1 flex flex-wrap items-center gap-1.5">
-            {path && (
-              <Chip className="text-(--accent) bg-(--accent)/10">
-                <PathIcon id={path.id} className="w-3 h-3" />
-                {path.name}
-              </Chip>
-            )}
-            <span className="text-xs text-ink-3 truncate">from {parentTask.name}</span>
+      <div className="flex items-center gap-1 pl-3 pr-1.5">
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={done}
+          onClick={toggle}
+          className="flex-1 min-w-0 flex items-center gap-3 py-3 text-left min-h-[56px]"
+        >
+          <span ref={checkRef} className="shrink-0">
+            <CheckMark state={done ? "on" : "off"} />
           </span>
-        </span>
-      </button>
-      <Pin className="w-3.5 h-3.5 text-(--accent) shrink-0 rotate-45" aria-label="Pinned" />
-      <Menu
-        label={`Actions for ${item.name}`}
-        items={[
-          { label: "Unpin from focus", icon: PinOff, onSelect: onUnpin },
-          {
-            label: "Open in path",
-            icon: ArrowRight,
-            onSelect: () =>
-              navigate(`/${categoryId}?highlight=${encodeURIComponent(itemPinKey(parentTask.id, item.id))}`),
-            hidden: !openable,
-          },
-        ]}
-      />
+          <span className="min-w-0 flex-1">
+            <span className="block text-[15px] font-medium leading-snug text-ink break-words">{item.name}</span>
+            <span className="mt-1 flex flex-wrap items-center gap-1.5">
+              {path && (
+                <Chip className="text-(--accent) bg-(--accent)/10">
+                  <PathIcon id={path.id} className="w-3 h-3" />
+                  {path.name}
+                </Chip>
+              )}
+              <span className="text-xs text-ink-3 truncate">from {parentTask.name}</span>
+            </span>
+          </span>
+        </button>
+        <Pin className="w-3.5 h-3.5 text-(--accent) shrink-0 rotate-45" aria-label="Pinned" />
+        <Menu
+          label={`Actions for ${item.name}`}
+          items={[
+            { label: "Unpin from focus", icon: PinOff, onSelect: onUnpin },
+            ...noteMenuItems({ note, onNote: () => setNoteOpen(true), onCopy: () => copy(item.name, "Title copied") }),
+            {
+              label: "Open in path",
+              icon: ArrowRight,
+              onSelect: () =>
+                navigate(`/${categoryId}?highlight=${encodeURIComponent(itemPinKey(parentTask.id, item.id))}`),
+              hidden: !openable,
+            },
+          ]}
+        />
+      </div>
+      {note && (
+        <div className="px-3 pb-3 -mt-1">
+          <NotePreview text={note} onOpen={() => setNoteOpen(true)} />
+        </div>
+      )}
+      {noteOpen && (
+        <NoteModal
+          title={item.name}
+          context={`from ${parentTask.name}`}
+          note={note}
+          accent={accent}
+          onClose={() => setNoteOpen(false)}
+          onSave={(text) => {
+            setNote(noteKey, text);
+            setNoteOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }
