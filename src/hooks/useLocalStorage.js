@@ -62,6 +62,9 @@ export function ProgressProvider({ children }) {
   // which checklist tasks have had their default items seeded (one-shot):
   //   { [taskId]: true }
   const [seeded, setSeeded] = useLocalStorage("solo-seeded", {});
+  // free-text notes on quests and checklist items, keyed like pins:
+  //   { [taskId | "taskId::itemId"]: string }  ("" = cleared)
+  const [notes, setNotes] = useLocalStorage("solo-notes", {});
   // cross-device sync code (null = sync off). The code is the secret that
   // identifies this user's document on the server.
   const [syncKey, setSyncKey] = useLocalStorage("solo-sync-key", null);
@@ -228,8 +231,21 @@ export function ProgressProvider({ children }) {
         }
         return changed ? next : prev;
       });
+      setNotes((prev) => {
+        // same keys as pins: the task's own note and its items' notes
+        const next = {};
+        let changed = false;
+        for (const key of Object.keys(prev)) {
+          if (key === taskId || key.startsWith(`${taskId}::`)) {
+            changed = true;
+            continue;
+          }
+          next[key] = prev[key];
+        }
+        return changed ? next : prev;
+      });
     },
-    [setCustomTasks, setHiddenTasks, setProgress, setPinned]
+    [setCustomTasks, setHiddenTasks, setProgress, setPinned, setNotes]
   );
 
   // Edit a task's name and/or type. `changes` = { name?, type? }.
@@ -286,8 +302,9 @@ export function ProgressProvider({ children }) {
       seeded,
       completions,
       lastDailyReset,
+      notes,
     }),
-    [progress, pinned, customTasks, hiddenTasks, taskEdits, seeded, completions, lastDailyReset]
+    [progress, pinned, customTasks, hiddenTasks, taskEdits, seeded, completions, lastDailyReset, notes]
   );
 
   const normalizeSyncedDoc = useCallback((data = {}) => {
@@ -300,6 +317,7 @@ export function ProgressProvider({ children }) {
       seeded: data.seeded ?? {},
       completions: data.completions ?? {},
       lastDailyReset: data.lastDailyReset ?? null,
+      notes: data.notes ?? {},
     };
 
     const today = dayKey();
@@ -342,8 +360,9 @@ export function ProgressProvider({ children }) {
       setSeeded(next.seeded);
       setCompletions(next.completions);
       setLastDailyReset(next.lastDailyReset);
+      setNotes(next.notes);
     },
-    [normalizeSyncedDoc, setProgress, setPinned, setCustomTasks, setHiddenTasks, setTaskEdits, setSeeded, setCompletions, setLastDailyReset]
+    [normalizeSyncedDoc, setProgress, setPinned, setCustomTasks, setHiddenTasks, setTaskEdits, setSeeded, setCompletions, setLastDailyReset, setNotes]
   );
 
   const { status: syncStatus, lastSyncedAt, syncNow } = useRemoteSync({
@@ -365,6 +384,15 @@ export function ProgressProvider({ children }) {
     [setPinned]
   );
 
+  // Clearing stores "" rather than deleting the key, so a sync merge (local
+  // wins per key) can't bring an older copy of the note back.
+  const setNote = useCallback(
+    (key, text) => {
+      setNotes((prev) => ({ ...prev, [key]: text }));
+    },
+    [setNotes]
+  );
+
   return createElement(
     ProgressContext.Provider,
     {
@@ -382,6 +410,8 @@ export function ProgressProvider({ children }) {
         editTask,
         completions,
         lastDailyReset,
+        notes,
+        setNote,
         sync: { key: syncKey, setKey: setSyncKey, status: syncStatus, lastSyncedAt, syncNow },
       },
     },
@@ -416,6 +446,12 @@ export function useCompletions() {
 // today, daily progress still belongs to a previous day.
 export function useLastDailyReset() {
   return useAppState().lastDailyReset;
+}
+
+// Notes API: [notes, setNote]. Keys are a task id or "taskId::itemId".
+export function useNotes() {
+  const { notes, setNote } = useAppState();
+  return [notes, setNote];
 }
 
 // Cross-device sync: { key, setKey, status, lastSyncedAt, syncNow }.

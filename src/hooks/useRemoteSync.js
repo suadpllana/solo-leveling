@@ -61,6 +61,7 @@ function mergeDocs(remote, local, { preferRemote = false } = {}) {
     // YYYY-MM-DD strings compare correctly; take the most recent reset so the
     // pulling device doesn't re-reset a day the other device already handled.
     lastDailyReset: laterDay(remote.lastDailyReset, local.lastDailyReset),
+    notes: mergeMap(lo.notes, hi.notes),
   };
 }
 
